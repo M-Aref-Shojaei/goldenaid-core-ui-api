@@ -1,0 +1,35 @@
+# Cline Rules for `core-ui-api` Package
+
+## 1. Project Context & Role
+- **Project Name:** `core-ui-api`
+- **Role:** Shared NPM package containing base UI components, base API classes (Axios), hooks, and utilities.
+- **Consumers:** This package is installed and consumed by the `store`, `dashboard`, and `admin` repositories.
+- **Architecture:** Multi-repo approach. Do NOT write code intended for backend services or specific frontend business logic here. Keep everything generic and reusable.
+
+## 2. Tech Stack & Build Tools
+- **Language:** TypeScript
+- **Bundler:** `tsup` (Configured to output both `CJS` and `ESM` formats).
+- **Network Client:** `axios` (for base API classes and interceptors).
+- **TypeScript Config:** Strict mode enabled. `moduleResolution` is set to `"bundler"`. Do NOT use `baseUrl`. `ignoreDeprecations: "6.0"` is active.
+
+## 3. Structural Guidelines
+- **Directory Structure:** 
+  - `src/components/`: Reusable UI components.
+  - `src/api/`: Base Axios clients, interceptors, and generic API utilities.
+  - `src/hooks/`: Shared custom hooks.
+  - `src/utils/`: Helper functions.
+- **Exports:** Ensure all reusable modules are properly exported in `src/index.ts`.
+
+## 4. Architectural Constraints
+- **NO RabbitMQ:** Do not suggest, implement, or reference RabbitMQ or message brokers. All communication is Synchronous REST.
+- **State/Caching:** Redis is the sole source for caching and session management (handled at the backend, but API clients here should respect REST standards for it).
+- **Agnostic UI:** Ensure UI components are pure and not tightly coupled to specific business logic of the consuming apps.
+
+## 5. Coding Standards
+- Write clean, strongly-typed TypeScript code. Avoid `any`.
+- Provide comprehensive JSDoc comments for components and API classes to help developers in consuming repositories.
+- When generating or refactoring code, ensure it does not break the `tsup` build process or `.d.ts` type generation.
+
+## 6. Migration & Refactoring Strategy
+- Follow a "Feature-by-Feature" approach.
+- Fix bugs, rewrite logic, and document simultaneously when porting files into this package.
