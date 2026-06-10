@@ -4,13 +4,33 @@ You are working in the `core-ui-api` shared package.
 
 **CRITICAL INSTRUCTION:** Follow this workflow for every task:
 
-**1. Before any work — read:**
-- `@../../docs/Project-Knowledge-Base/00-Index/Home.md` — global architecture and project context
-- `@../../docs/Project-Knowledge-Base/03-Frontend/core-ui-api/Core-UI-API.md` — migration plan, source files, and tasks
+---
 
-**2. During definition/clarification — update the vault:**
-- Add the task to `@../../docs/Project-Knowledge-Base/03-Frontend/core-ui-api/Core-UI-API.md` under the relevant section
+## 1. Before any work — read
 
-**3. When done — update the vault:**
-- Mark the task complete and document what was migrated in `@../../docs/Project-Knowledge-Base/03-Frontend/core-ui-api/Core-UI-API.md`
-- Update any route vault docs that now consume this package instead of the monolith
+- `@../../docs/Project-Knowledge-Base/00-Index/Home.md`
+- `@../../docs/Project-Knowledge-Base/03-Frontend/core-ui-api/Core-UI-API.md`
+- `@../../docs/Project-Knowledge-Base/03-Frontend/core-ui-api/Structure.md`
+- `@../../docs/Project-Knowledge-Base/03-Frontend/core-ui-api/Schemas.md`
+- `@../../docs/Project-Knowledge-Base/03-Frontend/core-ui-api/Tests.md`
+
+---
+
+## 2. Before starting work — log the task
+
+**b) Add the task to the global Bug Registry:**
+
+- Append a new row to `@../../docs/Project-Knowledge-Base/08-Issues/Bug-Registry.md`
+- Use the next available TASK-xxx ID
+- Set status to 🟡 In Progress
+- Update the `updated:` date in the frontmatter
+
+---
+
+## 3. When done — update all docs
+
+- Mark the task ✅ Solved in `@../../docs/Project-Knowledge-Base/08-Issues/Bug-Registry.md`
+- Mark the task complete in `@../../docs/Project-Knowledge-Base/03-Frontend/core-ui-api/Core-UI-API.md`
+- If folder/file layout changed → update `@../../docs/Project-Knowledge-Base/03-Frontend/core-ui-api/Structure.md`
+- If types, exports, or API client changed → update `@../../docs/Project-Knowledge-Base/03-Frontend/core-ui-api/Schemas.md`
+- If tests were added or changed → update `@../../docs/Project-Knowledge-Base/03-Frontend/core-ui-api/Tests.md`
