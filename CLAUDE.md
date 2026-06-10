@@ -27,6 +27,24 @@ You are working in the `core-ui-api` shared package.
 
 ---
 
+## 4. When asked to "push"
+
+Do NOT run `git push` immediately. Complete every gate first:
+
+1. **Task complete** — feature/fix fully implemented, no TODOs left in code
+2. **Coding standards** — JSDoc on all exported components/hooks/utils, no `console.log` left
+3. **All tests pass** — `npm test` from `frontend/core-ui-api/` → zero failures
+4. **Lint clean** — `npm run lint` → zero errors
+5. **Docs updated** — Structure / Schemas / Tests .md reflect the changes
+6. **Task closed** — marked ✅ Solved in Bug Registry and Core-UI-API.md
+7. **Commit message** — `<type>(core-ui-api): <summary>`
+
+Only after all gates are green: `git add`, `git commit`, `git push`.
+
+Full checklist: `@../../docs/Project-Knowledge-Base/02-Governance/Push-Checklist.md`
+
+---
+
 ## 3. When done — update all docs
 
 - Mark the task ✅ Solved in `@../../docs/Project-Knowledge-Base/08-Issues/Bug-Registry.md`
