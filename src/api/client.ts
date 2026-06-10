@@ -1,5 +1,7 @@
 import { API_CONFIG, STORAGE_KEYS } from './config';
 import { ApiError } from './errors';
+export { ApiError, getErrorMessage } from './errors';
+export { API_CONFIG, STORAGE_KEYS } from './config';
 
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;

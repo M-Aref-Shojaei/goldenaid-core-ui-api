@@ -1,4 +1,4 @@
-const DEFAULT_BASE_URL = 'https://golden-aid-bff.liara.run/api/v1';
+const DEFAULT_BASE_URL = 'http://localhost:8000/api/v1';
 
 export const API_CONFIG = {
   get BASE_URL(): string {

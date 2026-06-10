@@ -1,0 +1,70 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { useAuth } from "../providers/AuthProvider";
+import { useCart } from "../providers/CartProvider";
+import { listAddresses } from "../api/addresses";
+import { createOrder } from "../api/orders";
+import { createPayment } from "../api/payments";
+import type { Address } from "../types/addresses";
+
+export type CheckoutStatus = "idle" | "ordering" | "paying";
+
+export function useCheckout() {
+  const { isAuthenticated } = useAuth();
+  const { items, totalPrice, clearCart } = useCart();
+
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
+  const [loadingAddresses, setLoadingAddresses] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<CheckoutStatus>("idle");
+  const [error, setError] = useState("");
+
+  const loadAddresses = useCallback(async () => {
+    setLoadingAddresses(true);
+    try {
+      const data = await listAddresses();
+      setAddresses(data || []);
+      if (data && data.length > 0) setSelectedAddressId(data[0].id);
+    } catch {
+      setAddresses([]);
+    } finally {
+      setLoadingAddresses(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) loadAddresses();
+  }, [isAuthenticated, loadAddresses]);
+
+  const handleCheckout = useCallback(async () => {
+    setError("");
+    if (!selectedAddressId) {
+      setError("لطفاً یک آدرس انتخاب کنید");
+      return;
+    }
+    setLoading(true);
+    setStatus("ordering");
+    try {
+      const orderItems = items.map((i) => ({ product_id: i.product_id, qty: i.qty }));
+      const orderResp = await createOrder(orderItems, totalPrice);
+      setStatus("paying");
+      await new Promise((r) => setTimeout(r, 2000));
+      const paymentResp = await createPayment(orderResp.order_id, totalPrice);
+      clearCart();
+      window.location.href = paymentResp.payment_url;
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "خطا در ثبت سفارش");
+      setStatus("idle");
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedAddressId, items, totalPrice, clearCart]);
+
+  return {
+    isAuthenticated, items, totalPrice,
+    addresses, selectedAddressId, setSelectedAddressId,
+    loadingAddresses, loading, status, error, handleCheckout,
+  };
+}
