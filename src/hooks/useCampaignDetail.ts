@@ -19,6 +19,7 @@ function normalizeCampaign(raw: unknown): Campaign {
   };
 }
 
+/** Fetches a campaign by ID and provides a send action. */
 export function useCampaignDetail(id: string) {
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [loading, setLoading] = useState(true);

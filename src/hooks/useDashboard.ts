@@ -6,8 +6,10 @@ import { listMyOrders } from "../api/orders";
 import { useAuth } from "../providers/AuthProvider";
 import type { Order } from "../types/orders";
 
+/** Tabs available in the customer dashboard. */
 export type ActiveTab = "dashboard" | "profile" | "orders" | "transactions" | "addresses" | "favorites" | "reviews";
 
+/** Aggregates auth state, orders, and tab management for the customer dashboard. */
 export function useDashboard() {
   const router = useRouter();
   const { isAuthenticated, phone, userName, userId, isAdmin, logout } = useAuth();

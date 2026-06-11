@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 
+/** Props for the {@link Modal} component. */
 export interface ModalProps {
   open: boolean;
   onClose: () => void;
@@ -18,6 +19,7 @@ const sizes = {
   xl: 'max-w-2xl',
 };
 
+/** Accessible dialog overlay with optional title and Escape-key dismiss. */
 export function Modal({ open, onClose, title, children, size = 'md', className = '' }: ModalProps) {
   useEffect(() => {
     if (!open) return;

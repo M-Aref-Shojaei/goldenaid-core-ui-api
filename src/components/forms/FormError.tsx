@@ -1,7 +1,9 @@
+/** Props for the {@link FormError} component. */
 interface FormErrorProps {
   message: string | null;
 }
 
+/** Dismissible form-level error banner; renders nothing when message is null. */
 export function FormError({ message }: FormErrorProps) {
   if (!message) return null;
   return (

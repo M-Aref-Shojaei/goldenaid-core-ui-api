@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { getOrder } from "../api/orders";
 import type { Order } from "../types/orders";
 
+/** Possible outcomes on the payment callback page. */
 export type PaymentStatusType = "success" | "failed" | "unknown";
 
 function deriveStatus(status: string | null): PaymentStatusType {
@@ -13,6 +14,7 @@ function deriveStatus(status: string | null): PaymentStatusType {
   return "unknown";
 }
 
+/** Reads payment callback query params, derives status, and fetches the associated order. */
 export function usePaymentResult() {
   const searchParams = useSearchParams();
   const router = useRouter();

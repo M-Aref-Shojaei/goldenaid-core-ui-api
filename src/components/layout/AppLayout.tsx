@@ -1,5 +1,6 @@
 import { type ReactNode } from "react";
 
+/** Props for the {@link AppLayout} component. */
 interface AppLayoutProps {
   children: ReactNode;
   header?: ReactNode;
@@ -7,6 +8,7 @@ interface AppLayoutProps {
   fullWidth?: boolean;
 }
 
+/** Full-page shell with optional header, footer, and constrained content width. */
 export function AppLayout({ children, header, footer, fullWidth = false }: AppLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col">

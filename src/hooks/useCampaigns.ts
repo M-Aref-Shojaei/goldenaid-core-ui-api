@@ -18,6 +18,7 @@ function normalize(c: Record<string, unknown>): CampaignSummary {
   };
 }
 
+/** Fetches and normalizes the admin campaigns listing. */
 export function useCampaigns() {
   const [campaigns, setCampaigns] = useState<CampaignSummary[]>([]);
   const [loading, setLoading] = useState(true);

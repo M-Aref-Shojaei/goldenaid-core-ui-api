@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Props for the {@link Badge} component. */
 export interface BadgeProps {
   variant?: 'default' | 'success' | 'warning' | 'danger' | 'info' | 'purple';
   size?: 'sm' | 'md';
@@ -21,6 +22,7 @@ const sizes = {
   md: 'text-xs px-3 py-1',
 };
 
+/** Small status/label pill with color variants. */
 export function Badge({ variant = 'default', size = 'md', children, className = '' }: BadgeProps) {
   return (
     <span className={`inline-flex items-center font-medium rounded-full ${variants[variant]} ${sizes[size]} ${className}`}>

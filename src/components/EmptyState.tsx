@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Props for the {@link EmptyState} component. */
 export interface EmptyStateProps {
   icon?: React.ReactNode;
   title: string;
@@ -12,6 +13,7 @@ export interface EmptyStateProps {
   className?: string;
 }
 
+/** Centered placeholder for empty list/table states, with optional icon and CTA. */
 export function EmptyState({ icon, title, description, action, className = '' }: EmptyStateProps) {
   return (
     <div className={`flex flex-col items-center justify-center text-center py-12 px-6 ${className}`}>

@@ -1,3 +1,4 @@
+/** Typed HTTP error thrown by `apiFetch` — carries HTTP status and optional backend error code. */
 export class ApiError extends Error {
   status: number;
   code?: string;
@@ -17,6 +18,7 @@ const ERROR_MESSAGES_FA: Record<string, string> = {
   SERVER_ERROR: 'خطای سرور. لطفاً بعداً تلاش کنید',
 };
 
+/** Translates an `ApiError` to a user-facing Persian string. */
 export function getErrorMessage(error: ApiError): string {
   if (error.code && ERROR_MESSAGES_FA[error.code]) return ERROR_MESSAGES_FA[error.code];
   if (error.status === 401) return ERROR_MESSAGES_FA.UNAUTHORIZED;

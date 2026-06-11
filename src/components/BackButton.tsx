@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Props for the {@link BackButton} component. */
 export interface BackButtonProps {
   label?: string;
   onClick?: () => void;
@@ -7,6 +8,7 @@ export interface BackButtonProps {
   className?: string;
 }
 
+/** Back navigation button rendered as `<a>` when `href` is provided, otherwise `<button>`. */
 export function BackButton({ label = 'Back', onClick, href, className = '' }: BackButtonProps) {
   const cls = `inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors ${className}`;
 

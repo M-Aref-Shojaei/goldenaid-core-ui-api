@@ -5,6 +5,7 @@ import { createPayment } from "../api/payments";
 import { useAuth } from "../providers/AuthProvider";
 import type { Order } from "../types/orders";
 
+/** Loads a single order by URL param `id` and provides a pay action for AWAITING_PAYMENT orders. */
 export function useOrderDetail() {
   const params = useParams();
   const router = useRouter();

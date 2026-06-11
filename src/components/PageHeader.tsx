@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Props for the {@link PageHeader} component. */
 export interface PageHeaderProps {
   title: string;
   description?: string;
@@ -7,6 +8,7 @@ export interface PageHeaderProps {
   className?: string;
 }
 
+/** Page-level heading row with optional description and action slot. */
 export function PageHeader({ title, description, action, className = '' }: PageHeaderProps) {
   return (
     <div className={`flex items-start justify-between gap-4 mb-6 ${className}`}>

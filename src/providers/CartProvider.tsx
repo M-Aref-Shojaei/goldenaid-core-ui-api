@@ -24,6 +24,7 @@ const CartContext = createContext<CartContextValue | null>(null);
 
 const STORAGE_KEY = "golden-aid-cart";
 
+/** Persists the shopping cart in `localStorage` and exposes cart actions to the tree. */
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
@@ -76,6 +77,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/** Returns the cart context. Must be used inside {@link CartProvider}. */
 export function useCart() {
   const ctx = useContext(CartContext);
   if (!ctx) throw new Error('useCart must be used within CartProvider');

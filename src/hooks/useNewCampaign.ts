@@ -5,12 +5,15 @@ import { useRouter } from "next/navigation";
 import { createCampaign } from "../api/admin";
 import { getErrorMessage, ApiError } from "../api/client";
 
+/** Campaign recipient targeting mode: all customers or a specific phone list. */
 export type RecipientMode = "all" | "phones";
 
+/** Splits a newline/comma-separated phone list into individual phone strings. */
 export function parsePhones(text: string): string[] {
   return text.split(/[\n,،\s]+/).map((p) => p.trim()).filter((p) => p.length >= 10);
 }
 
+/** Manages the new campaign form state and submission. */
 export function useNewCampaign() {
   const router = useRouter();
   const [name, setName] = useState("");

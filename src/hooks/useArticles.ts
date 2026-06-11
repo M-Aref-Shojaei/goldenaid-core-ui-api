@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getPublishedArticles } from "../api/articles";
 import type { Article } from "../types/catalog";
 
+/** Fetches published articles and provides client-side search filtering. */
 export function useArticles() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);

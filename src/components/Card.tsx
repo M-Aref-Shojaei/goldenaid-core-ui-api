@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Props for the {@link Card} component. */
 export interface CardProps {
   children: React.ReactNode;
   padding?: 'none' | 'sm' | 'md' | 'lg';
@@ -10,6 +11,7 @@ export interface CardProps {
 
 const paddings = { none: '', sm: 'p-4', md: 'p-6', lg: 'p-8' };
 
+/** White rounded container card with optional hover effect. */
 export function Card({ children, padding = 'md', hover = false, className = '', onClick }: CardProps) {
   return (
     <div

@@ -1,3 +1,4 @@
+/** Admin-visible customer record. */
 export interface Customer {
   id: string;
   phone: string;
@@ -7,6 +8,7 @@ export interface Customer {
   created_at: string;
 }
 
+/** Paginated customer list response. */
 export interface CustomerListResponse {
   total: number;
   page: number;
@@ -14,9 +16,13 @@ export interface CustomerListResponse {
   items: Customer[];
 }
 
+/** SMS campaign lifecycle states. */
 export type CampaignStatus = 'DRAFT' | 'SENDING' | 'SENT' | 'FAILED';
+
+/** Per-recipient SMS delivery state. */
 export type RecipientStatus = 'PENDING' | 'SENT' | 'FAILED';
 
+/** Single SMS campaign recipient. */
 export interface Recipient {
   id: string;
   phone: string;
@@ -25,6 +31,7 @@ export interface Recipient {
   sent_at: string | null;
 }
 
+/** Campaign summary row (list endpoint). */
 export interface CampaignSummary {
   id: string;
   name: string;
@@ -36,29 +43,34 @@ export interface CampaignSummary {
   sent_at: string | null;
 }
 
+/** Full campaign record including recipients. */
 export interface Campaign extends CampaignSummary {
   message_text: string;
   recipients: Recipient[];
 }
 
+/** Result returned after triggering campaign send. */
 export interface CampaignSendResult {
   sent: number;
   failed: number;
   status: string;
 }
 
+/** Input for creating a new SMS campaign. */
 export interface CreateCampaignInput {
   name: string;
   message_text: string;
   recipient_filter: 'all' | string[];
 }
 
+/** High-level admin dashboard statistics. */
 export interface AdminStats {
   total_users: number;
   total_campaigns: number;
   total_sms_sent: number;
 }
 
+/** Order summary as seen in the admin orders listing. */
 export interface AdminOrder {
   id: string;
   customer_id: string;
@@ -70,6 +82,7 @@ export interface AdminOrder {
   updated_at: string;
 }
 
+/** Status filter option for the admin orders page. */
 export type FilterStatus =
   | 'all'
   | 'AWAITING_PAYMENT'
@@ -79,6 +92,7 @@ export type FilterStatus =
   | 'DELIVERED'
   | 'CANCELLED';
 
+/** Combined filter state for the admin orders page. */
 export interface OrderFilters {
   searchQuery: string;
   filterStatus: FilterStatus;
@@ -88,6 +102,7 @@ export interface OrderFilters {
   endDate: string;
 }
 
+/** Minimal product record for admin product listings. */
 export interface AdminProductListItem {
   id: string;
   title: string;
@@ -99,8 +114,10 @@ export interface AdminProductListItem {
   is_active: boolean;
 }
 
-export type UserRole = 'admin' | 'manager' | 'user';
+/** User roles supported by the auth system. */
+export type UserRole = 'admin' | 'manager' | 'writer' | 'user';
 
+/** Admin-visible user record. */
 export interface AdminUser {
   user_id: string;
   phone: string;
@@ -109,6 +126,7 @@ export interface AdminUser {
   created_at: string;
 }
 
+/** Single row in a product bulk-import result. */
 export interface ImportResultRow {
   row_number: number;
   status: 'success' | 'skipped' | 'error';
@@ -118,6 +136,7 @@ export interface ImportResultRow {
   message: string;
 }
 
+/** Aggregate result of a product bulk import. */
 export interface ImportResult {
   total_rows: number;
   successful: number;
@@ -126,6 +145,7 @@ export interface ImportResult {
   results: ImportResultRow[];
 }
 
+/** Full product detail record used in the admin product-detail view. */
 export type AdminProductDetailProduct = {
   id: string;
   title: string;

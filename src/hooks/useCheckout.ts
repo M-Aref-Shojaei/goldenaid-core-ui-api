@@ -8,8 +8,10 @@ import { createOrder } from "../api/orders";
 import { createPayment } from "../api/payments";
 import type { Address } from "../types/addresses";
 
+/** Checkout flow state — idle → ordering (create order) → paying (redirect to gateway). */
 export type CheckoutStatus = "idle" | "ordering" | "paying";
 
+/** Manages the multi-step checkout: address selection → order creation → payment redirect. */
 export function useCheckout() {
   const { isAuthenticated } = useAuth();
   const { items, totalPrice, clearCart } = useCart();

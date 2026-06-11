@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Props for the {@link Skeleton} component. */
 export interface SkeletonProps {
   className?: string;
   rounded?: 'sm' | 'md' | 'lg' | 'full';
@@ -7,17 +8,20 @@ export interface SkeletonProps {
 
 const roundeds = { sm: 'rounded', md: 'rounded-lg', lg: 'rounded-xl', full: 'rounded-full' };
 
+/** Animated grey placeholder block for loading states. */
 export function Skeleton({ className = '', rounded = 'md' }: SkeletonProps) {
   return (
     <div className={`animate-pulse bg-gray-200 ${roundeds[rounded]} ${className}`} />
   );
 }
 
+/** Props for the {@link SkeletonText} component. */
 export interface SkeletonTextProps {
   lines?: number;
   className?: string;
 }
 
+/** Multi-line text skeleton with a shorter last line. */
 export function SkeletonText({ lines = 3, className = '' }: SkeletonTextProps) {
   return (
     <div className={`space-y-2 ${className}`}>
@@ -31,10 +35,12 @@ export function SkeletonText({ lines = 3, className = '' }: SkeletonTextProps) {
   );
 }
 
+/** Props for the {@link SkeletonCard} component. */
 export interface SkeletonCardProps {
   className?: string;
 }
 
+/** Skeleton placeholder matching the shape of a product card. */
 export function SkeletonCard({ className = '' }: SkeletonCardProps) {
   return (
     <div className={`bg-white rounded-2xl border border-gray-100 p-4 space-y-3 ${className}`}>
@@ -45,11 +51,13 @@ export function SkeletonCard({ className = '' }: SkeletonCardProps) {
   );
 }
 
+/** Props for the {@link SkeletonTable} component. */
 export interface SkeletonTableProps {
   rows?: number;
   cols?: number;
 }
 
+/** Grid-based skeleton matching a table layout. */
 export function SkeletonTable({ rows = 5, cols = 4 }: SkeletonTableProps) {
   return (
     <div className="space-y-2">

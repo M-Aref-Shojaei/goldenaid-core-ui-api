@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { API_CONFIG } from "../api/config";
 import type { ProductSummary } from "../types/catalog";
 
+/** Loads active products for the POS product grid with client-side search. */
 export function usePOSProducts() {
   const [products, setProducts] = useState<ProductSummary[]>([]);
   const [searchQuery, setSearchQuery] = useState("");

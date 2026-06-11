@@ -1,10 +1,12 @@
 import React from 'react';
 
+/** A single option entry for {@link Select}. */
 export interface SelectOption {
   value: string;
   label: string;
 }
 
+/** Props for the {@link Select} component. */
 export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
   error?: string;
@@ -13,6 +15,7 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
   placeholder?: string;
 }
 
+/** Labeled native select with optional placeholder, error, and helper text. */
 export function Select({ label, error, helper, options, placeholder, id, className = '', ...props }: SelectProps) {
   const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
 

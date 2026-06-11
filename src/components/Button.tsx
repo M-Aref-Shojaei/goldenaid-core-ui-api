@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Props for the {@link Button} component. */
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
@@ -23,6 +24,7 @@ const sizes: Record<NonNullable<ButtonProps['size']>, string> = {
   lg: 'text-base px-6 py-3 gap-2',
 };
 
+/** Multi-variant button with loading spinner support. */
 export function Button({
   variant = 'primary',
   size = 'md',

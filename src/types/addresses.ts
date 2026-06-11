@@ -1,3 +1,4 @@
+/** Saved delivery address returned by the API. */
 export interface Address {
   id: number;
   recipient: string;
@@ -17,6 +18,7 @@ export interface Address {
   unit_number: string;
 }
 
+/** Payload for creating or updating a delivery address. */
 export interface CreateAddressPayload {
   title: string;
   recipient_name: string;

@@ -6,6 +6,7 @@ import { useAuth } from "../providers/AuthProvider";
 import { createArticle } from "../api/articles";
 import { getErrorMessage, ApiError } from "../api/client";
 
+/** Form field values for creating a new article. */
 export interface NewArticleForm {
   title: string;
   excerpt: string;
@@ -15,14 +16,15 @@ export interface NewArticleForm {
 
 const EMPTY_ARTICLE_FORM: NewArticleForm = { title: "", excerpt: "", content: "", status: "draft" };
 
+/** Manages the new article creation form and submission. */
 export function useNewArticle() {
   const router = useRouter();
-  const { isAuthenticated, isManagerOrAdmin, userName, phone } = useAuth();
+  const { isAuthenticated, isWriterOrAdmin, userName, phone } = useAuth();
   const [form, setForm] = useState<NewArticleForm>(EMPTY_ARTICLE_FORM);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const allowed = isAuthenticated && isManagerOrAdmin;
+  const allowed = isAuthenticated && isWriterOrAdmin;
 
   useEffect(() => { if (!allowed) router.push("/auth/login"); }, [allowed, router]);
 

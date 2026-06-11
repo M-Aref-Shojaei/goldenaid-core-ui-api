@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getAdminStats } from "../api/admin";
 import type { AdminStats } from "../types/admin";
 
+/** Fetches high-level admin dashboard stats (users, campaigns, SMS sent). */
 export function useAdminStats() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [error, setError] = useState("");

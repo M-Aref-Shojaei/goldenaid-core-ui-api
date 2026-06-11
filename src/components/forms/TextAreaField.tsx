@@ -1,3 +1,4 @@
+/** Props for the {@link TextAreaField} component. */
 interface TextAreaFieldProps {
   label: string;
   name: string;
@@ -9,6 +10,7 @@ interface TextAreaFieldProps {
   rows?: number;
 }
 
+/** Dark-themed labeled textarea for admin/dashboard forms. */
 export function TextAreaField({
   label, name, value, onChange, error, required = false, placeholder, rows = 3,
 }: TextAreaFieldProps) {

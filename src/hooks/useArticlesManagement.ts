@@ -7,6 +7,7 @@ import { getAllArticles, deleteArticle as apiDeleteArticle, updateArticle } from
 import { getErrorMessage, ApiError } from "../api/client";
 import type { Article } from "../types/catalog";
 
+/** Status filter value for the admin articles listing. */
 export type ArticleStatusFilter = "all" | Article["status"];
 
 function matchesFilters(article: Article, search: string, status: ArticleStatusFilter): boolean {
@@ -15,9 +16,10 @@ function matchesFilters(article: Article, search: string, status: ArticleStatusF
   return matchesSearch && matchesStatus;
 }
 
+/** Manages the admin articles listing: fetch, filter, delete, and toggle publish status. */
 export function useArticlesManagement() {
   const router = useRouter();
-  const { isAuthenticated, isManagerOrAdmin } = useAuth();
+  const { isAuthenticated, isWriterOrAdmin } = useAuth();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -34,9 +36,9 @@ export function useArticlesManagement() {
 
   useEffect(() => {
     if (!isAuthenticated) { router.push("/auth/login"); return; }
-    if (!isManagerOrAdmin) { router.push("/dashboard"); return; }
+    if (!isWriterOrAdmin) { router.push("/dashboard"); return; }
     reload();
-  }, [isAuthenticated, isManagerOrAdmin]);
+  }, [isAuthenticated, isWriterOrAdmin]);
 
   async function deleteArticle(id: string) {
     if (!confirm("آیا از حذف این مقاله اطمینان دارید؟")) return;

@@ -8,6 +8,7 @@ function getToken(): string | null {
   return localStorage.getItem(STORAGE_KEYS.TOKEN);
 }
 
+/** Authenticated JSON fetch wrapper — attaches Bearer token, handles errors, and times out after 30 s. */
 export async function apiFetch<T = unknown>(
   path: string,
   options?: RequestInit,
@@ -50,6 +51,7 @@ export async function apiFetch<T = unknown>(
   }
 }
 
+/** Authenticated multipart/form-data fetch — used for file uploads. */
 export async function apiFetchFormData<T = unknown>(
   path: string,
   formData: FormData,

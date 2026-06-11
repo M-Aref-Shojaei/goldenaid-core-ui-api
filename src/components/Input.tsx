@@ -1,11 +1,13 @@
 import React from 'react';
 
+/** Props for the {@link Input} component. */
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   helper?: string;
 }
 
+/** Labeled text input with optional error and helper text. */
 export function Input({ label, error, helper, id, className = '', ...props }: InputProps) {
   const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
 

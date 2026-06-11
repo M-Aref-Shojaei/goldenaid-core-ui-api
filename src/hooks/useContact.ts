@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../providers/AuthProvider";
 
+/** Contact form field values. */
 export interface ContactForm {
   name: string;
   phone: string;
@@ -12,6 +13,7 @@ export interface ContactForm {
 
 const EMPTY_FORM: ContactForm = { name: "", phone: "", message: "" };
 
+/** Manages the contact form state, pre-fills phone from auth, and handles submission. */
 export function useContact() {
   const router = useRouter();
   const { isAuthenticated, phone } = useAuth();

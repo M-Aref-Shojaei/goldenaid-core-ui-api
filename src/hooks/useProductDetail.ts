@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { API_CONFIG, STORAGE_KEYS } from "../api/config";
 import type { AdminProductDetailProduct } from "../types/admin";
 
+/** Fetches the full admin product detail record by ID. */
 export function useProductDetail(productId: string) {
   const [product, setProduct] = useState<AdminProductDetailProduct | null>(null);
   const [loading, setLoading] = useState(true);

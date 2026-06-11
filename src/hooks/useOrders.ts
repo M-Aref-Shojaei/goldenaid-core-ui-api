@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getAdminOrders } from "../api/admin";
 import type { AdminOrder } from "../types/admin";
 
+/** Fetches all orders for the admin orders page. */
 export function useOrders() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState(false);

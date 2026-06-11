@@ -9,8 +9,10 @@ import type { UserRole } from "../types/admin";
 const OTP_COUNTDOWN_SECONDS = 120;
 const OTP_LENGTH = 5;
 
+/** Two-step OTP login flow state. */
 export type LoginStep = "phone" | "otp";
 
+/** Return type for {@link useLogin}. */
 export interface UseLoginResult {
   phone: string;
   setPhone: (value: string) => void;
@@ -27,6 +29,7 @@ export interface UseLoginResult {
   changePhone: () => void;
 }
 
+/** Manages the phone + OTP two-step login flow, countdown, and post-login redirect. */
 export function useLogin(): UseLoginResult {
   const router = useRouter();
   const { login } = useAuth();

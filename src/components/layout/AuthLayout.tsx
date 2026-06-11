@@ -1,11 +1,13 @@
 import { type ReactNode } from "react";
 
+/** Props for the {@link AuthLayout} component. */
 interface AuthLayoutProps {
   children: ReactNode;
   title?: string;
   subtitle?: string;
 }
 
+/** Centered auth card layout with optional title and subtitle. */
 export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
   return (
     <div className="min-h-[70vh] flex items-center justify-center">

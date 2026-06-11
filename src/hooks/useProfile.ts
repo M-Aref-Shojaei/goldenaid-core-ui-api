@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../providers/AuthProvider";
 import { updateProfile } from "../api/auth";
 
+/** Success or error feedback shown after a profile update. */
 export interface ProfileMessage {
   type: "success" | "error";
   text: string;
@@ -12,6 +13,7 @@ export interface ProfileMessage {
 
 const REDIRECT_DELAY_MS = 1500;
 
+/** Manages the profile name edit form: submit, update auth state, and redirect. */
 export function useProfile() {
   const router = useRouter();
   const { phone, userName, updateUserName } = useAuth();

@@ -1,6 +1,7 @@
 import { TextField } from "./TextField";
 import { CheckboxField } from "./CheckboxField";
 
+/** Shape of the address form managed by {@link AddressFields}. */
 export interface AddressFormData {
   label: string;
   recipient_name: string;
@@ -12,12 +13,14 @@ export interface AddressFormData {
   is_default: boolean;
 }
 
+/** Props for the {@link AddressFields} component. */
 interface AddressFieldsProps {
   form: AddressFormData;
   errors: Partial<Record<keyof AddressFormData, string>>;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
+/** Renders all address form fields bound to {@link AddressFormData}. */
 export function AddressFields({ form, errors, onChange }: AddressFieldsProps) {
   return (
     <div className="space-y-4">

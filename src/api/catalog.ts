@@ -1,14 +1,17 @@
 import { apiFetch } from './client';
 import type { ProductDetail, ProductSummary, AdminProductListResponse } from '../types/catalog';
 
+/** Returns a paginated list of products for the public storefront. */
 export async function listProducts(limit = 50, offset = 0, activeOnly = true): Promise<{ items: ProductSummary[]; total: number }> {
   return apiFetch(`/products?limit=${limit}&offset=${offset}&active_only=${activeOnly}`);
 }
 
+/** Returns a single product with full detail (images etc.) by ID. */
 export async function getProduct(id: string): Promise<ProductDetail> {
   return apiFetch(`/products/${id}`);
 }
 
+/** Returns a paginated admin product list, optionally filtered by search and active status. */
 export async function adminListProducts(params?: {
   skip?: number;
   limit?: number;
@@ -24,10 +27,12 @@ export async function adminListProducts(params?: {
   return apiFetch(`/admin/products${qs ? '?' + qs : ''}`);
 }
 
+/** Returns the admin detail view of a single product by ID. */
 export async function adminGetProduct(id: string): Promise<ProductDetail> {
   return apiFetch(`/admin/products/${id}`);
 }
 
+/** Creates a new product in the admin panel. */
 export async function adminCreateProduct(data: {
   title: string;
   subtitle?: string;
@@ -45,6 +50,7 @@ export async function adminCreateProduct(data: {
   });
 }
 
+/** Updates an existing product by ID. */
 export async function adminUpdateProduct(id: string, data: Record<string, unknown>): Promise<{ product_id: string; message: string }> {
   return apiFetch(`/admin/products/${id}`, {
     method: 'PATCH',
@@ -52,6 +58,7 @@ export async function adminUpdateProduct(id: string, data: Record<string, unknow
   });
 }
 
+/** Deletes a product by ID. */
 export async function adminDeleteProduct(id: string): Promise<{ message: string }> {
   return apiFetch(`/admin/products/${id}`, { method: 'DELETE' });
 }

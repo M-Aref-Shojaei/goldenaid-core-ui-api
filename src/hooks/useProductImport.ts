@@ -4,13 +4,17 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { importProducts } from "../api/admin";
 import type { ImportResult, ImportResultRow } from "../types/admin";
 
+/** Import source mode for the bulk product import tool. */
 export type ImportMode = "file" | "text" | "table";
 type ResultFilter = "all" | "success" | "skipped" | "error";
 type LegacyMode = "file" | "paste";
 
-export const CSV_HEADERS = ["name","description","brand","category","price","weight_grams","purity","stock_quantity","sku","image_url"] as const;
-export const REQUIRED_TABLE_HEADERS = ["name","description","price","sku","brand","category","image_url"];
-export const FULL_TABLE_HEADERS = [...CSV_HEADERS];
+/** Required and optional CSV column headers for product import. */
+export const CSV_HEADERS =["name","description","brand","category","price","weight_grams","purity","stock_quantity","sku","image_url"] as const;
+/** Minimum headers required for the table-mode import. */
+export const REQUIRED_TABLE_HEADERS =["name","description","price","sku","brand","category","image_url"];
+/** All headers for the full table-mode import (same as `CSV_HEADERS`). */
+export const FULL_TABLE_HEADERS =[...CSV_HEADERS];
 
 const PERSIAN_SAMPLE_DATA = [
   { name:"پاشنه‌پوش اکوسن", description:"پاشنه‌پوش طبی با فنر جاذب ضربه", brand:"اکوسن", category:"کفی‌پاشنه", price:"485000", weight_grams:"120", purity:"", stock_quantity:"50", sku:"ECO-HEEL-001", image_url:"" },
@@ -35,6 +39,7 @@ const downloadCsv = (fileName: string, content: string) => {
   URL.revokeObjectURL(url);
 };
 
+/** Manages bulk product import via CSV file, pasted text, or manual table entry. */
 export function useProductImport() {
   const [importMode, setImportMode] = useState<ImportMode>("file");
   const [file, setFile] = useState<File | null>(null);

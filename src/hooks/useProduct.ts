@@ -5,6 +5,7 @@ import { getProduct } from "../api/catalog";
 import { useCart } from "../providers/CartProvider";
 import type { ProductDetail } from "../types/catalog";
 
+/** Fetches a product by ID and provides an add-to-cart action. */
 export function useProduct(id: string | undefined) {
   const { addItem } = useCart();
   const [product, setProduct] = useState<ProductDetail | null>(null);

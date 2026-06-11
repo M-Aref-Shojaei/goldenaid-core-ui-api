@@ -2,8 +2,10 @@
 
 import React, { createContext, useCallback, useContext, useState } from 'react';
 
+/** Severity level for a toast notification. */
 export type ToastVariant = 'success' | 'error' | 'warning' | 'info';
 
+/** An individual toast notification entry managed by {@link ToastProvider}. */
 export interface ToastItem {
   id: string;
   message: string;
@@ -30,6 +32,7 @@ const icons: Record<ToastVariant, string> = {
   info:    'i',
 };
 
+/** Provides the toast context and renders auto-dismissing toast stack. */
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
@@ -62,6 +65,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+/** Returns the toast trigger function from the nearest {@link ToastProvider}. */
 export function useToast(): ToastContextValue {
   const ctx = useContext(ToastContext);
   if (!ctx) throw new Error('useToast must be used inside ToastProvider');

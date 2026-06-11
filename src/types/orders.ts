@@ -1,3 +1,4 @@
+/** All possible order lifecycle states. */
 export type OrderStatus =
   | 'SUBMITTED'
   | 'RESERVED'
@@ -7,11 +8,13 @@ export type OrderStatus =
   | 'PAYMENT_FAILED'
   | 'CANCELLED';
 
+/** Line-item input when creating an order. */
 export interface OrderItem {
   product_id: string;
   qty: number;
 }
 
+/** Fully-hydrated order line item returned by the API. */
 export interface OrderItemDetail {
   item_id: string;
   product_id: string;
@@ -21,6 +24,7 @@ export interface OrderItemDetail {
   subtotal: number;
 }
 
+/** Full order record returned by the API. */
 export interface Order {
   id: string;
   order_id: string;
@@ -32,17 +36,20 @@ export interface Order {
   updated_at?: string;
 }
 
+/** Payload for creating a new order. */
 export interface CreateOrderInput {
   items: OrderItem[];
   total_amount: number;
 }
 
+/** Response from the create-order endpoint. */
 export interface CreateOrderResponse {
   order_id: string;
   status: string;
   message?: string;
 }
 
+/** Cart item stored in `localStorage` and the `CartProvider`. */
 export interface CartItem {
   product_id: string;
   title: string;
@@ -51,6 +58,7 @@ export interface CartItem {
   thumbnail_url: string | null;
 }
 
+/** Inventory stock-reservation record. */
 export interface StockReservation {
   reservation_id: string;
   order_id: string;

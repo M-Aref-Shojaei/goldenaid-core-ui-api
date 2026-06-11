@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Props for the {@link Pagination} component. */
 export interface PaginationProps {
   page: number;
   totalPages: number;
@@ -7,6 +8,7 @@ export interface PaginationProps {
   className?: string;
 }
 
+/** Numbered page navigation bar; renders nothing when totalPages ≤ 1. */
 export function Pagination({ page, totalPages, onChange, className = '' }: PaginationProps) {
   if (totalPages <= 1) return null;
 

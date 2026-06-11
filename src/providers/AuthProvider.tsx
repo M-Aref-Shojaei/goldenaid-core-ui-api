@@ -29,6 +29,7 @@ interface AuthContextValue extends AuthState {
   isAuthenticated: boolean;
   isFullAdmin: boolean;
   isManagerOrAdmin: boolean;
+  isWriterOrAdmin: boolean;
 }
 
 const EMPTY_STATE: AuthState = {
@@ -73,6 +74,7 @@ function loadAuthFromStorage(): AuthState {
   return EMPTY_STATE;
 }
 
+/** Loads JWT session from localStorage, auto-expires it, and exposes auth state + actions to the tree. */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>(loadAuthFromStorage);
 
@@ -127,6 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!state.token,
         isFullAdmin: state.role === USER_ROLES.ADMIN,
         isManagerOrAdmin: state.role === USER_ROLES.ADMIN || state.role === USER_ROLES.MANAGER,
+        isWriterOrAdmin: state.role === USER_ROLES.ADMIN || state.role === USER_ROLES.MANAGER || state.role === USER_ROLES.WRITER,
       }}
     >
       {children}
@@ -134,6 +137,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/** Returns the auth context. Must be used inside {@link AuthProvider}. */
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');

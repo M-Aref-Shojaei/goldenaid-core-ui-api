@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../providers/AuthProvider";
 import type { AdminUser, UserRole } from "../types/admin";
 
+/** Loads and manages admin users list — currently uses mock data pending real endpoint. */
 export function useUsersManagement() {
   const router = useRouter();
   const { isAuthenticated, isFullAdmin } = useAuth();

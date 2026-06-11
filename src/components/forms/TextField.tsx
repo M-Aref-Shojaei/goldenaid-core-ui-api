@@ -1,3 +1,4 @@
+/** Props for the {@link TextField} component. */
 interface TextFieldProps {
   label: string;
   name: string;
@@ -12,6 +13,7 @@ interface TextFieldProps {
   helper?: string;
 }
 
+/** Dark-themed labeled text input for admin/dashboard forms. */
 export function TextField({
   label, name, value, onChange, error,
   required = false, placeholder, type = "text", maxLength, mono, helper,

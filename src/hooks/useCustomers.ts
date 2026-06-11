@@ -15,6 +15,7 @@ function mapCustomer(c: Record<string, unknown>): Customer {
   };
 }
 
+/** Loads and paginates the admin customer list with optional phone search. */
 export function useCustomers() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [total, setTotal] = useState(0);

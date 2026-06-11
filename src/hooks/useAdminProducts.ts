@@ -18,6 +18,7 @@ function normalizeProduct(p: ProductSummary): AdminProductListItem {
   };
 }
 
+/** Loads and client-side searches the admin product listing. Fetches only when `active` is true. */
 export function useAdminProducts(active: boolean) {
   const [products, setProducts] = useState<AdminProductListItem[]>([]);
   const [loading, setLoading] = useState(false);

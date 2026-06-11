@@ -4,10 +4,12 @@ import Link from "next/link";
 import type { ProductSummary } from "../types/catalog";
 import { formatPrice } from "../utils/helpers";
 
+/** Props for the {@link ProductCard} component. */
 interface ProductCardProps {
   product: ProductSummary;
 }
 
+/** Store product card with thumbnail, title, price, and buy CTA. */
 export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link

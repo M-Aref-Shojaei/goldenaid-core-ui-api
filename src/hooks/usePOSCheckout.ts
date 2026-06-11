@@ -4,8 +4,10 @@ import { useCallback, useState } from "react";
 import { API_CONFIG } from "../api/config";
 import type { CartItem } from "../types/orders";
 
+/** Payment method options for POS checkout. */
 export type PaymentMethod = "cash" | "card" | "transfer";
 
+/** Walk-in customer info collected during POS checkout. */
 export interface POSCustomer { name: string; phone: string; email: string; }
 
 interface POSOrderItemPayload { product_id: string; quantity: number; unit_price: number; }
@@ -16,6 +18,7 @@ interface POSOrderPayload {
   amount_paid: number; notes: string;
 }
 
+/** Printable receipt data generated after a successful POS checkout. */
 export interface POSReceipt {
   order_id?: string; customer: POSCustomer; items: CartItem[];
   total: number; paymentMethod: PaymentMethod; amountPaid: number; change: number;
@@ -23,6 +26,7 @@ export interface POSReceipt {
 
 const EMPTY_CUSTOMER: POSCustomer = { name: "", phone: "", email: "" };
 
+/** Manages customer info, payment method, and checkout submission for the POS screen. */
 export function usePOSCheckout(onSuccess?: () => void) {
   const [customer, setCustomer] = useState<POSCustomer>(EMPTY_CUSTOMER);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");

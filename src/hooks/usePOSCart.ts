@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import type { ProductSummary } from "../types/catalog";
 import type { CartItem } from "../types/orders";
 
+/** In-memory shopping cart for the point-of-sale screen. */
 export function usePOSCart() {
   const [cart, setCart] = useState<CartItem[]>([]);
 

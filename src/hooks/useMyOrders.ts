@@ -5,12 +5,14 @@ import { listMyOrders } from "../api/orders";
 import { useAuth } from "../providers/AuthProvider";
 import type { Order } from "../types/orders";
 
+/** Return type for {@link useMyOrders}. */
 export interface UseMyOrdersResult {
   isAuthenticated: boolean;
   orders: Order[];
   loading: boolean;
 }
 
+/** Loads the authenticated user's order history. */
 export function useMyOrders(): UseMyOrdersResult {
   const { isAuthenticated } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);

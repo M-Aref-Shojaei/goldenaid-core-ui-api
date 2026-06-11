@@ -1,3 +1,4 @@
+/** Props for the {@link CheckboxField} component. */
 interface CheckboxFieldProps {
   label: string;
   name: string;
@@ -5,6 +6,7 @@ interface CheckboxFieldProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
+/** Dark-themed labeled checkbox for admin/dashboard forms. */
 export function CheckboxField({ label, name, checked, onChange }: CheckboxFieldProps) {
   return (
     <div className="flex items-center gap-3">

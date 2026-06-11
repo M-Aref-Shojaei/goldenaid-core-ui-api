@@ -3,6 +3,7 @@ import type { UserRole } from '../types/admin';
 export const USER_ROLES = {
   ADMIN: 'admin',
   MANAGER: 'manager',
+  WRITER: 'writer',
   USER: 'user',
 } as const;
 
@@ -70,12 +71,14 @@ export const ROUTES = {
 export const ROLE_COLORS: Record<UserRole, string> = {
   admin: 'bg-red-100 text-red-700 border-red-200',
   manager: 'bg-blue-100 text-blue-700 border-blue-200',
+  writer: 'bg-purple-100 text-purple-700 border-purple-200',
   user: 'bg-gray-100 text-gray-700 border-gray-200',
 };
 
 export const ROLE_NAMES_FA: Record<UserRole, string> = {
   admin: 'مدیر کل',
   manager: 'مدیر',
+  writer: 'نویسنده',
   user: 'کاربر عادی',
 };
 

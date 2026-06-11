@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Props for the {@link Alert} component. */
 export interface AlertProps {
   variant?: 'error' | 'success' | 'warning' | 'info';
   title?: string;
@@ -15,6 +16,7 @@ const styles = {
   info:    { wrap: 'bg-blue-50 border-blue-200 text-blue-700', icon: 'i' },
 };
 
+/** Inline alert banner for error, success, warning, or info messages. */
 export function Alert({ variant = 'info', title, children, onClose, className = '' }: AlertProps) {
   const s = styles[variant];
 

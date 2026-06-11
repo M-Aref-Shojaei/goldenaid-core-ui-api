@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { sendManualSms } from "../api/admin";
 
+/** Manages customer selection and bulk-SMS sending from the admin customers page. */
 export function useBulkSms() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [message, setMessage] = useState("");

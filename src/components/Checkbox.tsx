@@ -1,10 +1,12 @@
 import React from 'react';
 
+/** Props for the {@link Checkbox} component. */
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
   label?: string;
   error?: string;
 }
 
+/** Labeled checkbox with optional error message. */
 export function Checkbox({ label, error, id, className = '', ...props }: CheckboxProps) {
   const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
 

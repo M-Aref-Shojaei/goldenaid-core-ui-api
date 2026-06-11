@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 
+/** A single tab entry for {@link Tabs}. */
 export interface TabItem {
   key: string;
   label: React.ReactNode;
@@ -9,6 +10,7 @@ export interface TabItem {
   disabled?: boolean;
 }
 
+/** Props for the {@link Tabs} component. */
 export interface TabsProps {
   items: TabItem[];
   defaultKey?: string;
@@ -16,6 +18,7 @@ export interface TabsProps {
   className?: string;
 }
 
+/** Underline-style tab bar with controlled or uncontrolled active tab. */
 export function Tabs({ items, defaultKey, onChange, className = '' }: TabsProps) {
   const [active, setActive] = useState(defaultKey ?? items[0]?.key);
 

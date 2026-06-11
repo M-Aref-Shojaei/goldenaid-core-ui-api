@@ -2,6 +2,7 @@ import React from 'react';
 import { Spinner } from './Spinner';
 import { EmptyState } from './EmptyState';
 
+/** Column definition for {@link Table}. */
 export interface TableColumn<T> {
   key: string;
   header: React.ReactNode;
@@ -9,6 +10,7 @@ export interface TableColumn<T> {
   className?: string;
 }
 
+/** Props for the {@link Table} component. */
 export interface TableProps<T> {
   columns: TableColumn<T>[];
   data: T[];
@@ -23,6 +25,7 @@ export interface TableProps<T> {
   className?: string;
 }
 
+/** Generic data table with loading, error, empty, and row-selection states. */
 export function Table<T>({
   columns,
   data,

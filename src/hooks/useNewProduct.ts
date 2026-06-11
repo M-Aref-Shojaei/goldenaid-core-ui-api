@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { adminCreateProduct } from "../api/catalog";
 import { ApiError } from "../api/client";
 
+/** Form field values for creating a new product. */
 export interface NewProductForm {
   title: string;
   subtitle: string;
@@ -35,6 +36,7 @@ function parseApiError(err: unknown): string {
   return (err as Error)?.message || "خطا در ایجاد محصول";
 }
 
+/** Manages the new product form state, image upload, and submission. */
 export function useNewProduct() {
   const router = useRouter();
   const [form, setForm] = useState<NewProductForm>(INITIAL);

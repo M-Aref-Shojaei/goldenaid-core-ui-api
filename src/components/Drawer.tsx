@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 
+/** Props for the {@link Drawer} component. */
 export interface DrawerProps {
   open: boolean;
   onClose: () => void;
@@ -14,6 +15,7 @@ export interface DrawerProps {
 
 const sizes = { sm: 'w-64', md: 'w-80', lg: 'w-96' };
 
+/** Slide-in panel from left or right with Escape-key dismiss. */
 export function Drawer({ open, onClose, title, children, side = 'right', size = 'md', className = '' }: DrawerProps) {
   useEffect(() => {
     if (!open) return;

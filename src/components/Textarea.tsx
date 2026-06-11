@@ -1,11 +1,13 @@
 import React from 'react';
 
+/** Props for the {@link Textarea} component. */
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   error?: string;
   helper?: string;
 }
 
+/** Labeled multi-line textarea with optional error and helper text. */
 export function Textarea({ label, error, helper, id, className = '', ...props }: TextareaProps) {
   const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
 

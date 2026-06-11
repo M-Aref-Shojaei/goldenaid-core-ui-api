@@ -1,3 +1,4 @@
+/** Single product image with sort order. */
 export interface ProductImage {
   id?: string;
   url: string;
@@ -5,6 +6,7 @@ export interface ProductImage {
   sort_order: number;
 }
 
+/** Product summary as returned in list endpoints. */
 export interface ProductSummary {
   product_id: string;
   title: string;
@@ -20,15 +22,18 @@ export interface ProductSummary {
   thumbnail_url: string | null;
 }
 
+/** Full product record including image gallery. */
 export interface ProductDetail extends ProductSummary {
   images: ProductImage[];
 }
 
+/** Paginated product list response. */
 export interface ProductListResponse {
   items: ProductSummary[];
   total: number;
 }
 
+/** Input shape for admin product creation. */
 export interface AdminCreateProductInput {
   title: string;
   subtitle?: string;
@@ -41,6 +46,7 @@ export interface AdminCreateProductInput {
   image_url?: string;
 }
 
+/** Admin paginated product list response. */
 export interface AdminProductListResponse {
   total: number;
   skip: number;
@@ -48,6 +54,7 @@ export interface AdminProductListResponse {
   products: ProductSummary[];
 }
 
+/** Product brand. */
 export interface Brand {
   id: string;
   name: string;
@@ -56,6 +63,7 @@ export interface Brand {
   is_active: boolean;
 }
 
+/** Product category (supports nesting via parent_id). */
 export interface Category {
   id: string;
   name: string;
@@ -65,6 +73,7 @@ export interface Category {
   is_active: boolean;
 }
 
+/** Article as returned by the articles API. */
 export interface Article {
   id: string;
   title: string;
@@ -77,6 +86,7 @@ export interface Article {
   updated_at: string;
 }
 
+/** Input for creating an article (legacy — use `CreateArticleRequest` from the articles API module). */
 export interface CreateArticleInput {
   title: string;
   excerpt: string;
@@ -84,6 +94,7 @@ export interface CreateArticleInput {
   status: 'draft' | 'published';
 }
 
+/** Partial input for updating an article (legacy — use `UpdateArticleRequest` from the articles API module). */
 export interface UpdateArticleInput {
   title?: string;
   excerpt?: string;

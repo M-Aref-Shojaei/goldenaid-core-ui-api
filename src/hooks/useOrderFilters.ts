@@ -27,6 +27,7 @@ function filterOrders(orders: AdminOrder[], f: OrderFilters): AdminOrder[] {
   });
 }
 
+/** Provides client-side filtering (search, status, price range, date range) over an admin orders array. */
 export function useOrderFilters(orders: AdminOrder[]) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
