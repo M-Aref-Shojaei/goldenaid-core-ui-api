@@ -1,9 +1,11 @@
 "use client";
 
+
 import { useMemo, useState } from "react";
 import type { AdminOrder, FilterStatus, OrderFilters } from "../types/admin";
 
-function filterOrders(orders: AdminOrder[], f: OrderFilters): AdminOrder[] {
+/** Filters an admin orders array by search query, status, price range, and date range. */
+export function filterOrders(orders: AdminOrder[], f: OrderFilters): AdminOrder[] {
   return orders.filter((order) => {
     if (f.searchQuery) {
       const q = f.searchQuery.toLowerCase();

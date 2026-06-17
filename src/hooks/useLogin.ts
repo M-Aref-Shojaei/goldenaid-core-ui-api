@@ -1,9 +1,11 @@
 "use client";
 
+
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { requestOtp, verifyOtp, getMe } from "../api/auth";
 import { useAuth } from "../providers/AuthProvider";
+import { STORAGE_KEYS } from "../api/config";
 import type { UserRole } from "../types/admin";
 
 const OTP_COUNTDOWN_SECONDS = 120;
@@ -80,7 +82,7 @@ export function useLogin(): UseLoginResult {
       try {
         const verifyResponse = await verifyOtp(phone, code);
         const { access_token, role: verifyRole } = verifyResponse;
-        localStorage.setItem("token", access_token);
+        localStorage.setItem(STORAGE_KEYS.TOKEN, access_token);
 
         const me = await getMe();
         const userRole = ((me.role || verifyRole || "user") as UserRole);

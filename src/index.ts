@@ -43,7 +43,7 @@ export { useDashboard } from './hooks/useDashboard';
 export type { ActiveTab } from './hooks/useDashboard';
 export { useProfile } from './hooks/useProfile';
 export { useOrderDetail } from './hooks/useOrderDetail';
-export { useOrderFilters } from './hooks/useOrderFilters';
+export { useOrderFilters, filterOrders } from './hooks/useOrderFilters';
 export { useAdminStats } from './hooks/useAdminStats';
 export { useOrders } from './hooks/useOrders';
 export { useCustomers } from './hooks/useCustomers';

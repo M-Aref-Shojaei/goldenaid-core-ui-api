@@ -1,7 +1,8 @@
 "use client";
 
+
 import { useCallback, useState } from "react";
-import { API_CONFIG } from "../api/config";
+import { apiFetch } from "../api/client";
 import type { CartItem } from "../types/orders";
 
 /** Payment method options for POS checkout. */
@@ -50,13 +51,10 @@ export function usePOSCheckout(onSuccess?: () => void) {
       payment_method: paymentMethod, amount_paid: paid, notes: "فروش حضوری - POS",
     };
     try {
-      const res = await fetch(`${API_CONFIG.BASE_URL}/orders`, {
+      const data = await apiFetch<{ order_id?: string }>("/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error(`Checkout failed: ${res.status}`);
-      const data = await res.json();
       setLastOrder({ order_id: data.order_id, customer, items: cart, total, paymentMethod, amountPaid: paid, change: paymentMethod === "cash" ? Math.max(0, paid - total) : 0 });
       setShowReceipt(true);
       onSuccess?.();

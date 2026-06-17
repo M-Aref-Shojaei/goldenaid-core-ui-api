@@ -1,5 +1,4 @@
-import { apiFetch } from './client';
-import { API_CONFIG, STORAGE_KEYS } from './config';
+import { apiFetch, apiFetchFormData } from './client';
 import type { AdminStats, CustomerListResponse, ImportResult } from '../types/admin';
 
 /** Returns high-level dashboard statistics (users, campaigns, SMS sent). */
@@ -65,29 +64,7 @@ export async function sendOrderSms(orderId: string, message: string): Promise<{ 
 
 /** Uploads a CSV and bulk-imports products, optionally skipping duplicates by SKU. */
 export async function importProducts(csvContent: string, skipDuplicates: boolean): Promise<ImportResult> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.TOKEN) : null;
-  const baseUrl = API_CONFIG.BASE_URL.replace(/\/api\/v1\/?$/, '');
-  const url = `${baseUrl}/api/v1/admin/products/import?skip_duplicates=${skipDuplicates}`;
-
   const formData = new FormData();
-  const blob = new Blob([csvContent], { type: 'text/csv' });
-  formData.append('file', blob, 'products.csv');
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-    body: formData,
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    let message = text;
-    try {
-      const parsed = JSON.parse(text);
-      message = parsed.detail || text;
-    } catch { /* text is already the message */ }
-    throw new Error(`Import failed: ${res.status} ${message}`);
-  }
-
-  return res.json();
+  formData.append('file', new Blob([csvContent], { type: 'text/csv' }), 'products.csv');
+  return apiFetchFormData<ImportResult>(`/admin/products/import?skip_duplicates=${skipDuplicates}`, formData);
 }

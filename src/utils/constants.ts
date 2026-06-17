@@ -15,12 +15,13 @@ export const ARTICLE_STATUS = {
 export type ArticleStatus = typeof ARTICLE_STATUS[keyof typeof ARTICLE_STATUS];
 
 export const ORDER_STATUS = {
-  PENDING: 'pending',
-  CONFIRMED: 'confirmed',
-  PROCESSING: 'processing',
-  SHIPPED: 'shipped',
-  DELIVERED: 'delivered',
-  CANCELLED: 'cancelled',
+  SUBMITTED: 'SUBMITTED',
+  RESERVED: 'RESERVED',
+  AWAITING_PAYMENT: 'AWAITING_PAYMENT',
+  CONFIRMED: 'CONFIRMED',
+  REJECTED: 'REJECTED',
+  PAYMENT_FAILED: 'PAYMENT_FAILED',
+  CANCELLED: 'CANCELLED',
 } as const;
 
 export const SESSION_CONFIG = {
@@ -83,12 +84,15 @@ export const ROLE_NAMES_FA: Record<UserRole, string> = {
 };
 
 export const STATUS_COLORS: Record<string, string> = {
+  // Article statuses
   published: 'bg-green-100 text-green-700',
   draft: 'bg-yellow-100 text-yellow-700',
-  pending: 'bg-yellow-100 text-yellow-700',
-  confirmed: 'bg-blue-100 text-blue-700',
-  processing: 'bg-purple-100 text-purple-700',
-  shipped: 'bg-indigo-100 text-indigo-700',
-  delivered: 'bg-green-100 text-green-700',
-  cancelled: 'bg-red-100 text-red-700',
+  // Order statuses (domain uppercase values)
+  SUBMITTED: 'bg-yellow-100 text-yellow-700',
+  RESERVED: 'bg-blue-100 text-blue-700',
+  AWAITING_PAYMENT: 'bg-orange-100 text-orange-700',
+  CONFIRMED: 'bg-green-100 text-green-700',
+  REJECTED: 'bg-red-100 text-red-700',
+  PAYMENT_FAILED: 'bg-red-100 text-red-700',
+  CANCELLED: 'bg-gray-100 text-gray-700',
 };

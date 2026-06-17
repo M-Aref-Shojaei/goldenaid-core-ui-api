@@ -1,7 +1,8 @@
 "use client";
 
+
 import { useState, useEffect, useCallback } from "react";
-import { API_CONFIG, STORAGE_KEYS } from "../api/config";
+import { apiFetch } from "../api/client";
 import type { AdminProductDetailProduct } from "../types/admin";
 
 /** Fetches the full admin product detail record by ID. */
@@ -15,15 +16,8 @@ export function useProductDetail(productId: string) {
     setLoading(true);
     setError("");
     try {
-      const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
-      const res = await fetch(`${API_CONFIG.BASE_URL}/admin/products/${productId}`, {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-          "Content-Type": "application/json",
-        },
-      });
-      if (!res.ok) throw new Error("محصول یافت نشد");
-      setProduct(await res.json());
+      const data = await apiFetch<AdminProductDetailProduct>(`/admin/products/${productId}`);
+      setProduct(data);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "خطا در بارگذاری محصول");
     } finally {

@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../providers/AuthProvider";
 import { useCart } from "../providers/CartProvider";
@@ -52,7 +53,6 @@ export function useCheckout() {
       const orderItems = items.map((i) => ({ product_id: i.product_id, qty: i.qty }));
       const orderResp = await createOrder(orderItems, totalPrice);
       setStatus("paying");
-      await new Promise((r) => setTimeout(r, 2000));
       const paymentResp = await createPayment(orderResp.order_id, totalPrice);
       clearCart();
       window.location.href = paymentResp.payment_url;
