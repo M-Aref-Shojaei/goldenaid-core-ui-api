@@ -1,7 +1,7 @@
 "use client";
 
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { requestOtp, verifyOtp, getMe } from "../api/auth";
 import { useAuth } from "../providers/AuthProvider";
@@ -10,6 +10,7 @@ import type { UserRole } from "../types/admin";
 
 const OTP_COUNTDOWN_SECONDS = 120;
 const OTP_LENGTH = 5;
+const PHONE_LENGTH = 11;
 
 /** Two-step OTP login flow state. */
 export type LoginStep = "phone" | "otp";
@@ -43,8 +44,9 @@ export function useLogin(): UseLoginResult {
   const [loading, setLoading] = useState(false);
   const [autoVerifying, setAutoVerifying] = useState(false);
   const [countdown, setCountdown] = useState(OTP_COUNTDOWN_SECONDS);
+  const autoRequestedPhoneRef = useRef<string | null>(null);
 
-  const handleRequestOtp = async () => {
+  const handleRequestOtp = useCallback(async () => {
     setError("");
     setLoading(true);
     try {
@@ -57,7 +59,7 @@ export function useLogin(): UseLoginResult {
     } finally {
       setLoading(false);
     }
-  };
+  }, [phone]);
 
   const resendOtp = async () => {
     setError("");
@@ -104,6 +106,7 @@ export function useLogin(): UseLoginResult {
     setStep("phone");
     setCode("");
     setCountdown(OTP_COUNTDOWN_SECONDS);
+    autoRequestedPhoneRef.current = null;
   };
 
   useEffect(() => {
@@ -118,6 +121,18 @@ export function useLogin(): UseLoginResult {
       handleVerifyOtp(true);
     }
   }, [code, loading, autoVerifying, handleVerifyOtp]);
+
+  useEffect(() => {
+    if (
+      step === "phone" &&
+      phone.length >= PHONE_LENGTH &&
+      !loading &&
+      autoRequestedPhoneRef.current !== phone
+    ) {
+      autoRequestedPhoneRef.current = phone;
+      handleRequestOtp();
+    }
+  }, [phone, step, loading, handleRequestOtp]);
 
   return {
     phone, setPhone, code, setCode, step, error, loading, autoVerifying, countdown,
