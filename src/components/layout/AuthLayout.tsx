@@ -15,10 +15,10 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
         {title && (
           <div className="text-center mb-8">
             <h1 className="text-3xl font-extrabold text-gold">گلدن اید</h1>
-            {subtitle && <p className="text-gray-500 text-sm mt-1">{subtitle}</p>}
+            {subtitle && <p className="text-neutral-400 text-sm mt-1">{subtitle}</p>}
           </div>
         )}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+        <div className="bg-neutral-0 rounded-2xl border border-neutral-75 shadow-sm p-8">
           {children}
         </div>
       </div>

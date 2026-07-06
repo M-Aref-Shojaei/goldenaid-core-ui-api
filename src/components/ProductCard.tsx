@@ -1,5 +1,6 @@
 "use client";
 
+
 import Link from "next/link";
 import type { ProductSummary } from "../types/catalog";
 import { formatPrice } from "../utils/helpers";
@@ -16,10 +17,10 @@ interface ProductCardProps {
  */
 export function ProductCard({ product }: ProductCardProps) {
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group flex flex-col">
+    <div className="bg-neutral-0 border border-neutral-75 rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group flex flex-col">
       {/* Image area */}
       <Link href={`/products/${product.product_id}`} className="block">
-        <div className="aspect-square bg-gray-50 flex items-center justify-center overflow-hidden relative p-4">
+        <div className="aspect-square bg-cream-dark flex items-center justify-center overflow-hidden relative p-4">
           {product.thumbnail_url ? (
             <img
               src={product.thumbnail_url}
@@ -27,7 +28,7 @@ export function ProductCard({ product }: ProductCardProps) {
               className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
-            <span className="text-gray-200 text-5xl">📦</span>
+            <span className="text-neutral-200 text-5xl">📦</span>
           )}
         </div>
       </Link>
@@ -42,7 +43,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {/* Weight/variant if available */}
         {product.short_description && (
-          <p className="text-[10px] text-gray-400 mb-2 line-clamp-1">
+          <p className="text-[10px] text-neutral-400 mb-2 line-clamp-1">
             {product.short_description}
           </p>
         )}
@@ -51,7 +52,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <div className="mt-auto">
           <p className="text-dark font-black text-sm mb-2">
             {formatPrice(product.base_price)}
-            <span className="text-gray-400 font-normal text-[10px] mr-1">ریال</span>
+            <span className="text-neutral-400 font-normal text-[10px] mr-1">ریال</span>
           </p>
 
           {/* Add to cart button */}

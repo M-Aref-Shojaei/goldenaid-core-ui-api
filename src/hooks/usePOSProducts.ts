@@ -1,7 +1,8 @@
 "use client";
 
+
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { API_CONFIG } from "../api/config";
+import { apiFetch } from "../api/client";
 import type { ProductSummary } from "../types/catalog";
 
 /** Loads active products for the POS product grid with client-side search. */
@@ -13,9 +14,7 @@ export function usePOSProducts() {
   const reload = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_CONFIG.BASE_URL}/products?is_active=true`);
-      if (!res.ok) throw new Error(`Failed: ${res.status}`);
-      const data = await res.json();
+      const data = await apiFetch<ProductSummary[] | { items: ProductSummary[] }>("/products?is_active=true");
       setProducts(Array.isArray(data) ? data : (data.items ?? []));
     } catch { setProducts([]); }
     finally { setLoading(false); }

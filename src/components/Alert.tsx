@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 
 /** Props for the {@link Alert} component. */
@@ -10,10 +12,10 @@ export interface AlertProps {
 }
 
 const styles = {
-  error:   { wrap: 'bg-red-50 border-red-200 text-red-700',   icon: '✕' },
-  success: { wrap: 'bg-green-50 border-green-200 text-green-700', icon: '✓' },
-  warning: { wrap: 'bg-yellow-50 border-yellow-200 text-yellow-700', icon: '!' },
-  info:    { wrap: 'bg-blue-50 border-blue-200 text-blue-700', icon: 'i' },
+  error:   { wrap: 'bg-semantic-red-extralight border-semantic-red-light text-semantic-red-dark',   icon: '✕' },
+  success: { wrap: 'bg-semantic-green-extralight border-semantic-green-light text-semantic-green-dark', icon: '✓' },
+  warning: { wrap: 'bg-semantic-yellow-extralight border-semantic-yellow-light text-semantic-yellow-dark', icon: '!' },
+  info:    { wrap: 'bg-primary-50 border-primary-200 text-primary-700', icon: 'i' },
 };
 
 /** Inline alert banner for error, success, warning, or info messages. */

@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useEffect, useMemo, useState } from "react";
 import { adminListProducts } from "../api/catalog";
 import type { AdminProductListItem } from "../types/admin";

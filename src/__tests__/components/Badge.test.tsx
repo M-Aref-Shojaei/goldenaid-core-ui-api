@@ -12,11 +12,11 @@ describe('Badge', () => {
     'applies correct class for variant=%s',
     (variant) => {
       const classMap = {
-        default: 'bg-gray-100',
-        success: 'bg-green-100',
-        warning: 'bg-yellow-100',
-        danger:  'bg-red-100',
-        info:    'bg-blue-100',
+        default: 'bg-neutral-75',
+        success: 'bg-semantic-green-extralight',
+        warning: 'bg-semantic-yellow-extralight',
+        danger:  'bg-semantic-red-extralight',
+        info:    'bg-primary-50',
         purple:  'bg-purple-100',
       };
       render(<Badge variant={variant}>{variant}</Badge>);
@@ -26,7 +26,7 @@ describe('Badge', () => {
 
   it('defaults to variant=default when not specified', () => {
     render(<Badge>Label</Badge>);
-    expect(screen.getByText('Label').className).toContain('bg-gray-100');
+    expect(screen.getByText('Label').className).toContain('bg-neutral-75');
   });
 
   it('applies sm size class', () => {

@@ -1,3 +1,5 @@
+"use client";
+
 'use client';
 
 import React, { useState } from 'react';
@@ -31,7 +33,7 @@ export function Tabs({ items, defaultKey, onChange, className = '' }: TabsProps)
 
   return (
     <div className={className}>
-      <div className="flex gap-1 border-b border-gray-200 mb-4">
+      <div className="flex gap-1 border-b border-neutral-100 mb-4">
         {items.map((tab) => (
           <button
             key={tab.key}
@@ -40,7 +42,7 @@ export function Tabs({ items, defaultKey, onChange, className = '' }: TabsProps)
             className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors
               ${active === tab.key
                 ? 'border-gold text-gold'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                : 'border-transparent text-neutral-400 hover:text-neutral-600 hover:border-neutral-200'
               }
               ${tab.disabled ? 'opacity-40 pointer-events-none' : ''}`}
           >

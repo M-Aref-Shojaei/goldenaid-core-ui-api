@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useEffect, useState } from "react";
 import { getProduct } from "../api/catalog";
 import { useCart } from "../providers/CartProvider";

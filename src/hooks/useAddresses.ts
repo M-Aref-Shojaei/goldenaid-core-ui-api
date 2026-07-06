@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useEffect, useState, useCallback } from "react";
 import { listAddresses, deleteAddress } from "../api/addresses";
 import type { Address } from "../types/addresses";

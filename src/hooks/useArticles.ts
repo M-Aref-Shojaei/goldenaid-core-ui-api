@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useEffect, useMemo, useState } from "react";
 import { getPublishedArticles } from "../api/articles";
 import type { Article } from "../types/catalog";

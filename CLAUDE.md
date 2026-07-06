@@ -29,7 +29,7 @@ You are working in the `core-ui-api` shared package.
 
 ## 4. When asked to "push"
 
-Do NOT run `git push` immediately. Complete every gate first:
+Do NOT run `git push` immediately. First, review every file changed since the last push and update all related vault docs (Structure.md, Schemas.md, Tests.md, and the project doc) so they match the code. Then complete every gate:
 
 1. **Task complete** — feature/fix fully implemented, no TODOs left in code
 2. **Coding standards** — JSDoc on all exported components/hooks/utils, no `console.log` left
@@ -47,6 +47,7 @@ Full checklist: `@../../docs/Project-Knowledge-Base/02-Governance/Push-Checklist
 
 ## 3. When done — update all docs
 
+- Before creating the report, review the actual code diff for this task (not the original plan) and base the report and all doc updates below on what was actually implemented
 - Create a report file at `@../../docs/Project-Knowledge-Base/08-Issues/reports/<ID>-<short-name>.md` summarizing what was done (problem, solution, files changed), and link it from the Report column in Bug-Registry.md
 - Mark the task ✅ Solved in `@../../docs/Project-Knowledge-Base/08-Issues/Bug-Registry.md`
 - Mark the task complete in `@../../docs/Project-Knowledge-Base/03-Frontend/core-ui-api/Core-UI-API.md`

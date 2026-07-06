@@ -16,15 +16,15 @@ export function TextAreaField({
 }: TextAreaFieldProps) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-300 mb-2">
-        {label} {required && <span className="text-red-400">*</span>}
+      <label className="block text-sm font-medium text-neutral-300 mb-2">
+        {label} {required && <span className="text-semantic-red-light">*</span>}
       </label>
       <textarea
         name={name} value={value} onChange={onChange}
         placeholder={placeholder} rows={rows}
-        className={`w-full px-4 py-3 bg-gray-800 border ${error ? "border-red-500" : "border-gray-700"} rounded-lg text-white focus:outline-none focus:border-gold resize-none`}
+        className={`w-full px-4 py-3 bg-dark-secondary border ${error ? "border-error" : "border-dark-card"} rounded-lg text-white focus:outline-none focus:border-gold resize-none`}
       />
-      {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
+      {error && <p className="text-semantic-red-light text-sm mt-1">{error}</p>}
     </div>
   );
 }

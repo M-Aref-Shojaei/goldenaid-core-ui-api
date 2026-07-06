@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 
 /** Props for the {@link Badge} component. */
@@ -9,11 +11,11 @@ export interface BadgeProps {
 }
 
 const variants = {
-  default: 'bg-gray-100 text-gray-700',
-  success: 'bg-green-100 text-green-700',
-  warning: 'bg-yellow-100 text-yellow-700',
-  danger:  'bg-red-100 text-red-700',
-  info:    'bg-blue-100 text-blue-700',
+  default: 'bg-neutral-75 text-neutral-600',
+  success: 'bg-semantic-green-extralight text-semantic-green-dark',
+  warning: 'bg-semantic-yellow-extralight text-semantic-yellow-dark',
+  danger:  'bg-semantic-red-extralight text-semantic-red-dark',
+  info:    'bg-primary-50 text-primary-700',
   purple:  'bg-purple-100 text-purple-700',
 };
 

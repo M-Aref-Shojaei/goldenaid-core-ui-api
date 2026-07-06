@@ -12,9 +12,9 @@ export function CheckboxField({ label, name, checked, onChange }: CheckboxFieldP
     <div className="flex items-center gap-3">
       <input
         type="checkbox" name={name} id={name} checked={checked} onChange={onChange}
-        className="w-5 h-5 text-gold bg-gray-800 border-gray-700 rounded focus:ring-gold"
+        className="w-5 h-5 text-gold bg-dark-secondary border-dark-card rounded focus:ring-gold"
       />
-      <label htmlFor={name} className="text-gray-300">{label}</label>
+      <label htmlFor={name} className="text-neutral-300">{label}</label>
     </div>
   );
 }

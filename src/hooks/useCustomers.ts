@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback, useEffect, useState } from "react";
 import { getAdminCustomers } from "../api/admin";
 import type { Customer } from "../types/admin";

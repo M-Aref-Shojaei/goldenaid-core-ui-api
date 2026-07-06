@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 
 /** Props for the {@link Button} component. */
@@ -12,10 +14,10 @@ const base = 'inline-flex items-center justify-center font-medium rounded-xl tra
 
 const variants: Record<NonNullable<ButtonProps['variant']>, string> = {
   primary:   'bg-gold text-black hover:bg-gold/90 focus:ring-gold',
-  secondary: 'bg-gray-800 text-white hover:bg-gray-700 focus:ring-gray-600',
-  outline:   'border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-300',
-  ghost:     'text-gray-600 hover:bg-gray-100 focus:ring-gray-200',
-  danger:    'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
+  secondary: 'bg-dark-card text-white hover:bg-neutral-700 focus:ring-neutral-600',
+  outline:   'border border-neutral-200 text-neutral-600 hover:bg-cream-dark focus:ring-neutral-200',
+  ghost:     'text-neutral-500 hover:bg-neutral-75 focus:ring-neutral-100',
+  danger:    'bg-error text-white hover:bg-semantic-red-dark focus:ring-semantic-red',
 };
 
 const sizes: Record<NonNullable<ButtonProps['size']>, string> = {

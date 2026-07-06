@@ -16,7 +16,7 @@ interface POSOrderItemPayload { product_id: string; quantity: number; unit_price
 interface POSOrderPayload {
   customer_name: string; customer_phone: string; customer_email: string;
   items: POSOrderItemPayload[]; payment_method: PaymentMethod;
-  amount_paid: number; notes: string;
+  amount_paid: number; notes: string; total_amount: number;
 }
 
 /** Printable receipt data generated after a successful POS checkout. */
@@ -49,9 +49,10 @@ export function usePOSCheckout(onSuccess?: () => void) {
       customer_name: customer.name, customer_phone: customer.phone, customer_email: customer.email,
       items: cart.map((i) => ({ product_id: i.product_id, quantity: i.qty, unit_price: i.base_price })),
       payment_method: paymentMethod, amount_paid: paid, notes: "فروش حضوری - POS",
+      total_amount: total,
     };
     try {
-      const data = await apiFetch<{ order_id?: string }>("/orders", {
+      const data = await apiFetch<{ order_id?: string }>("/admin/pos/orders", {
         method: "POST",
         body: JSON.stringify(payload),
       });

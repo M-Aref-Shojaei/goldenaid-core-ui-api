@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { Spinner } from './Spinner';
 import { EmptyState } from './EmptyState';
@@ -42,17 +44,17 @@ export function Table<T>({
   const allSelected = !!selected && data.length > 0 && data.every((r) => selected.has(rowKey(r)));
 
   return (
-    <div className={`w-full overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm ${className}`}>
+    <div className={`w-full overflow-x-auto rounded-xl border border-neutral-75 bg-neutral-0 shadow-sm ${className}`}>
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-gray-100 text-gray-500 text-left">
+          <tr className="border-b border-neutral-75 text-neutral-400 text-left">
             {selectable && (
               <th className="px-4 py-3 w-10">
                 <input
                   type="checkbox"
                   checked={allSelected}
                   onChange={onSelectAll}
-                  className="w-4 h-4 rounded border-gray-300 text-gold focus:ring-gold"
+                  className="w-4 h-4 rounded border-neutral-200 text-gold focus:ring-gold"
                 />
               </th>
             )}
@@ -74,7 +76,7 @@ export function Table<T>({
             </tr>
           ) : error ? (
             <tr>
-              <td colSpan={columns.length + (selectable ? 1 : 0)} className="px-4 py-10 text-center text-red-500 text-sm">
+              <td colSpan={columns.length + (selectable ? 1 : 0)} className="px-4 py-10 text-center text-error text-sm">
                 {error}
               </td>
             </tr>
@@ -90,7 +92,7 @@ export function Table<T>({
               return (
                 <tr
                   key={key}
-                  className="border-t border-gray-50 hover:bg-gray-50 transition-colors"
+                  className="border-t border-neutral-50 hover:bg-cream-dark transition-colors"
                 >
                   {selectable && (
                     <td className="px-4 py-3">
@@ -98,7 +100,7 @@ export function Table<T>({
                         type="checkbox"
                         checked={selected?.has(key) ?? false}
                         onChange={() => onSelectRow?.(key)}
-                        className="w-4 h-4 rounded border-gray-300 text-gold focus:ring-gold"
+                        className="w-4 h-4 rounded border-neutral-200 text-gold focus:ring-gold"
                       />
                     </td>
                   )}

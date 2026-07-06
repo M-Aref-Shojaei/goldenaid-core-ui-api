@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 
 /** Props for the {@link Card} component. */
@@ -16,7 +18,7 @@ export function Card({ children, padding = 'md', hover = false, className = '', 
   return (
     <div
       onClick={onClick}
-      className={`bg-white rounded-2xl border border-gray-100 shadow-sm
+      className={`bg-neutral-0 rounded-2xl border border-neutral-75 shadow-sm
         ${paddings[padding]}
         ${hover ? 'hover:shadow-md transition-shadow cursor-pointer' : ''}
         ${className}`}

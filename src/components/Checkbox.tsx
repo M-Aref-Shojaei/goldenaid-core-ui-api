@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 
 /** Props for the {@link Checkbox} component. */
@@ -17,11 +19,11 @@ export function Checkbox({ label, error, id, className = '', ...props }: Checkbo
           {...props}
           type="checkbox"
           id={inputId}
-          className={`w-4 h-4 rounded border-gray-300 text-gold focus:ring-gold ${className}`}
+          className={`w-4 h-4 rounded border-neutral-200 text-gold focus:ring-gold ${className}`}
         />
-        {label && <span className="text-sm text-gray-700">{label}</span>}
+        {label && <span className="text-sm text-neutral-600">{label}</span>}
       </label>
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-error">{error}</p>}
     </div>
   );
 }

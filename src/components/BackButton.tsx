@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 
 /** Props for the {@link BackButton} component. */
@@ -10,7 +12,7 @@ export interface BackButtonProps {
 
 /** Back navigation button rendered as `<a>` when `href` is provided, otherwise `<button>`. */
 export function BackButton({ label = 'Back', onClick, href, className = '' }: BackButtonProps) {
-  const cls = `inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors ${className}`;
+  const cls = `inline-flex items-center gap-1.5 text-sm text-neutral-400 hover:text-dark transition-colors ${className}`;
 
   if (href) {
     return (

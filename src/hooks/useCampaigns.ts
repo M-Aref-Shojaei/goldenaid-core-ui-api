@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useEffect, useState } from "react";
 import { getCampaigns } from "../api/admin";
 import { ApiError, getErrorMessage } from "../api/client";

@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo, useState } from "react";
 
 /** Support FAQ category filter options. */

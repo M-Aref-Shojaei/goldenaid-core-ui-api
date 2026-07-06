@@ -1,0 +1,109 @@
+/* ─── Figma Design Tokens ──────────────────────────────────────────────────── */
+/* Imported by each app after @import "tailwindcss" in their own globals.css   */
+@theme {
+  /* Primary (gold) */
+  --color-primary-25:  #D9C5CE;
+  --color-primary-50:  #D9CEB8;
+  --color-primary-100: #D9C6A3;
+  --color-primary-200: #D9BF8D;
+  --color-primary-300: #D9B368;
+  --color-primary-400: #CCA13F;
+  --color-primary-500: #CC9B2B;
+  --color-primary-600: #B28212;
+  --color-primary-700: #805D0D;
+  --color-primary-800: #332505;
+  --color-primary-900: #1A1303;
+
+  /* Secondary (salmon/red) */
+  --color-secondary-50:  #D4C9C9;
+  --color-secondary-100: #D4BFBF;
+  --color-secondary-200: #D4AAAA;
+  --color-secondary-300: #D49494;
+  --color-secondary-400: #D47F7F;
+  --color-secondary-500: #D46B6B;
+  --color-secondary-600: #B25050;
+  --color-secondary-700: #994242;
+  --color-secondary-800: #803737;
+
+  /* Neutral */
+  --color-neutral-0:   #FFFFFF;
+  --color-neutral-25:  #FBFBFB;
+  --color-neutral-50:  #F7F7F7;
+  --color-neutral-75:  #EBEBEB;
+  --color-neutral-100: #D8D8D8;
+  --color-neutral-200: #BFBFBF;
+  --color-neutral-300: #999999;
+  --color-neutral-400: #808080;
+  --color-neutral-500: #666666;
+  --color-neutral-600: #4D4D4D;
+  --color-neutral-700: #333333;
+  --color-neutral-750: #212121;
+  --color-neutral-800: #1A1A1A;
+  --color-neutral-900: #0D0D0D;
+
+  /* Semantic */
+  --color-semantic-red-extralight:    #FFD8DE;
+  --color-semantic-red-light:         #F25569;
+  --color-semantic-red:               #D92B42;
+  --color-semantic-red-dark:          #A6192B;
+  --color-semantic-green-extralight:  #CEF2E1;
+  --color-semantic-green-light:       #62D99F;
+  --color-semantic-green:             #1BB198;
+  --color-semantic-green-dark:        #127A48;
+  --color-semantic-yellow-extralight: #F5EDD0;
+  --color-semantic-yellow-light:      #F5D562;
+  --color-semantic-yellow:            #F6C000;
+  --color-semantic-yellow-dark:       #C29700;
+
+  /* ── Semantic aliases used in components ── */
+
+  /* Brand gold */
+  --color-gold:       #CC9B2B;   /* primary/500 — text/brand, icons */
+  --color-gold-light: #D9B368;   /* primary/300 — button/primary */
+  --color-gold-dark:  #B28212;   /* primary/600 — button/primary hover */
+
+  /* Dark surfaces */
+  --color-dark:           #0D0D0D;   /* neutral/900 — text/primary, dark sections */
+  --color-dark-secondary: #1A1A1A;   /* neutral/800 */
+  --color-dark-card:      #333333;   /* neutral/700 */
+
+  /* Light backgrounds */
+  --color-cream:      #FBFBFB;   /* neutral/25  — background/primary */
+  --color-cream-dark: #F7F7F7;   /* neutral/50  — background/menu, alternating sections */
+
+  /* Semantic shorthand */
+  --color-error:   #D92B42;   /* semantic/red */
+  --color-success: #1BB198;   /* semantic/green */
+  --color-warning: #F6C000;   /* semantic/yellow */
+  --color-accent:  #D46B6B;   /* secondary/500 — text/accent */
+
+  /* Typography */
+  --font-family-sans: "Vazirmatn", "Tahoma", sans-serif;
+
+  /* Border radius */
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+}
+
+/* ─── Base styles ──────────────────────────────────────────────────────────── */
+html {
+  direction: rtl;
+}
+
+body {
+  font-family: "Vazirmatn", "Tahoma", sans-serif;
+  background-color: #FBFBFB;
+  color: #0D0D0D;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #F7F7F7; }
+::-webkit-scrollbar-thumb { background: #CC9B2B; border-radius: 3px; }
+
+/* ─── RTL number inputs ─────────────────────────────────────────────────────── */
+input[type="number"] {
+  direction: ltr;
+  text-align: center;
+}

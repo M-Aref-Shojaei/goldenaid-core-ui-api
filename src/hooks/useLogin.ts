@@ -89,7 +89,7 @@ export function useLogin(): UseLoginResult {
         const isAdmin = userRole === "admin";
 
         login(access_token, me.user_id, me.phone, isAdmin, me.name || undefined, userRole);
-        router.push("/dashboard");
+        router.push("/");
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : "کد وارد شده صحیح نیست");
       } finally {

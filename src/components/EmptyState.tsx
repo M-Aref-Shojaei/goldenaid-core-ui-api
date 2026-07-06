@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 
 /** Props for the {@link EmptyState} component. */
@@ -18,8 +20,8 @@ export function EmptyState({ icon, title, description, action, className = '' }:
   return (
     <div className={`flex flex-col items-center justify-center text-center py-12 px-6 ${className}`}>
       {icon && <div className="text-5xl mb-4">{icon}</div>}
-      <p className="text-gray-700 font-semibold text-lg">{title}</p>
-      {description && <p className="text-gray-500 text-sm mt-1 max-w-xs">{description}</p>}
+      <p className="text-neutral-600 font-semibold text-lg">{title}</p>
+      {description && <p className="text-neutral-400 text-sm mt-1 max-w-xs">{description}</p>}
       {action && (
         <div className="mt-4">
           {action.href ? (
