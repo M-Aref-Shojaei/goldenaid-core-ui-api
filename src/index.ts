@@ -9,6 +9,7 @@ export * from './api/payments';
 export * from './api/admin';
 export * from './api/addresses';
 export * from './api/articles';
+export * from './api/contact';
 
 // ── Domain Types ──────────────────────────────────────────────────────────────
 export * from './types/catalog';
@@ -16,6 +17,7 @@ export * from './types/orders';
 export * from './types/auth';
 export * from './types/admin';
 export * from './types/addresses';
+export * from './types/contact';
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
 export * from './utils/constants';
@@ -68,6 +70,7 @@ export type { PaymentMethod, POSCustomer, POSReceipt } from './hooks/usePOSCheck
 export { usePOSProducts } from './hooks/usePOSProducts';
 export { useProductImport } from './hooks/useProductImport';
 export type { ImportMode } from './hooks/useProductImport';
+export { useContactSubmissions } from './hooks/useContactSubmissions';
 
 // ── Primitives ────────────────────────────────────────────────────────────────
 export { Button } from './components/Button';
