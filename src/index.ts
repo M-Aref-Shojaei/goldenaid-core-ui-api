@@ -13,6 +13,7 @@ export * from './api/admin';
 export * from './api/addresses';
 export * from './api/articles';
 export * from './api/contact';
+export * from './api/content';
 
 // ── Domain Types ──────────────────────────────────────────────────────────────
 export * from './types/catalog';
@@ -21,6 +22,7 @@ export * from './types/auth';
 export * from './types/admin';
 export * from './types/addresses';
 export * from './types/contact';
+export * from './types/content';
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
 export * from './utils/constants';
@@ -74,6 +76,11 @@ export { usePOSProducts } from './hooks/usePOSProducts';
 export { useProductImport } from './hooks/useProductImport';
 export type { ImportMode } from './hooks/useProductImport';
 export { useContactSubmissions } from './hooks/useContactSubmissions';
+export { useHeroBanner } from './hooks/useHeroBanner';
+export { usePromoBanners } from './hooks/usePromoBanners';
+export { useHeroBannerAdmin } from './hooks/useHeroBannerAdmin';
+export type { HeroBannerForm } from './hooks/useHeroBannerAdmin';
+export { usePromoBannersAdmin } from './hooks/usePromoBannersAdmin';
 
 // ── Primitives ────────────────────────────────────────────────────────────────
 export { Button } from './components/Button';
