@@ -7,5 +7,5 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ['react', 'react-dom', 'axios'], // جلوگیری از باندل شدن وابستگی‌های خارجی
+  external: ['react', 'react-dom', 'axios', 'lucide-react'], // جلوگیری از باندل شدن وابستگی‌های خارجی
 });
