@@ -1,3 +1,6 @@
+// ── Icons (TASK-145) ──────────────────────────────────────────────────────────
+export * from './icons';
+
 // ── HTTP client ───────────────────────────────────────────────────────────────
 export { apiFetch, apiFetchFormData, ApiError, getErrorMessage, API_CONFIG, STORAGE_KEYS } from './api/client';
 
