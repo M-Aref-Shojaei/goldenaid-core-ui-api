@@ -95,6 +95,8 @@ export interface Article {
   status: 'draft' | 'published';
   created_at: string;
   updated_at: string;
+  /** Optional cover/thumbnail image URL — not all articles have one. */
+  cover_image_url?: string;
 }
 
 /** Input for creating an article (legacy — use `CreateArticleRequest` from the articles API module). */
