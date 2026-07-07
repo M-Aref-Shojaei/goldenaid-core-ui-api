@@ -8,6 +8,25 @@ function getToken(): string | null {
   return localStorage.getItem(STORAGE_KEYS.TOKEN);
 }
 
+/**
+ * Normalizes a FastAPI error body's `detail` field into a displayable string.
+ *
+ * FastAPI's 422 validation errors return `detail` as an *array* of
+ * `{loc, msg, type}` objects, not a string — passing that straight through
+ * as an `Error.message` renders as `"[object Object],[object Object]"` when
+ * displayed (Array.prototype.toString on a list of plain objects).
+ */
+function formatErrorDetail(detail: unknown, fallback: string): string {
+  if (typeof detail === 'string') return detail;
+  if (Array.isArray(detail)) {
+    const messages = detail
+      .map((item) => (item && typeof item === 'object' && 'msg' in item ? String(item.msg) : null))
+      .filter((msg): msg is string => msg !== null);
+    if (messages.length > 0) return messages.join('، ');
+  }
+  return fallback;
+}
+
 /** Authenticated JSON fetch wrapper — attaches Bearer token, handles errors, and times out after 30 s. */
 export async function apiFetch<T = unknown>(
   path: string,
@@ -33,7 +52,7 @@ export async function apiFetch<T = unknown>(
       let code: string | undefined;
       try {
         const parsed = JSON.parse(text);
-        message = parsed.detail || parsed.message || text;
+        message = formatErrorDetail(parsed.detail, parsed.message || text);
         code = parsed.code;
       } catch {
         // text is already the message
@@ -71,7 +90,7 @@ export async function apiFetchFormData<T = unknown>(
     let message = text;
     try {
       const parsed = JSON.parse(text);
-      message = parsed.detail || parsed.message || text;
+      message = formatErrorDetail(parsed.detail, parsed.message || text);
     } catch {
       // text is already the message
     }
