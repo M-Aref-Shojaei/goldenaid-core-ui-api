@@ -56,6 +56,34 @@ export interface CampaignSendResult {
   status: string;
 }
 
+/** One grouped failure reason and how many recipients hit it. */
+export interface CampaignFailureReason {
+  reason: string;
+  count: number;
+}
+
+/**
+ * Aggregate delivery analytics for one campaign.
+ *
+ * Reflects only what the SMS channel actually supports: whether the SMS.ir
+ * gateway accepted or rejected each recipient's message at send time. There
+ * is no delivery-receipt/webhook integration, so `sent_count` means "the
+ * gateway API call succeeded," not "confirmed delivered to the handset."
+ * SMS has no equivalent of email opens/clicks — `tracking_note` states this
+ * explicitly so it isn't read as richer analytics than what is tracked.
+ */
+export interface CampaignAnalytics {
+  campaign_id: string;
+  campaign_status: CampaignStatus;
+  total_recipients: number;
+  sent_count: number;
+  failed_count: number;
+  pending_count: number;
+  delivery_rate: number;
+  failure_reasons: CampaignFailureReason[];
+  tracking_note: string;
+}
+
 /** Input for creating a new SMS campaign. */
 export interface CreateCampaignInput {
   name: string;

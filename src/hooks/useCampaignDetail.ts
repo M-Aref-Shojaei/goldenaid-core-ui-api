@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { getCampaign, sendCampaign } from "../api/admin";
+import { getCampaign, getCampaignAnalytics, sendCampaign } from "../api/admin";
 import { getErrorMessage, ApiError } from "../api/client";
-import type { Campaign } from "../types/admin";
+import type { Campaign, CampaignAnalytics } from "../types/admin";
 
 function normalizeCampaign(raw: unknown): Campaign {
   const r = raw as Record<string, unknown>;
@@ -21,9 +21,15 @@ function normalizeCampaign(raw: unknown): Campaign {
   };
 }
 
-/** Fetches a campaign by ID and provides a send action. */
+/**
+ * Fetches a campaign by ID plus its delivery analytics, and provides a send action.
+ *
+ * Analytics are fetched only once the campaign has left DRAFT (i.e. after a
+ * send attempt), since there is nothing to report before that.
+ */
 export function useCampaignDetail(id: string) {
   const [campaign, setCampaign] = useState<Campaign | null>(null);
+  const [analytics, setAnalytics] = useState<CampaignAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [sendResult, setSendResult] = useState("");
@@ -31,7 +37,17 @@ export function useCampaignDetail(id: string) {
   const reload = useCallback(() => {
     setLoading(true);
     getCampaign(id)
-      .then((raw) => setCampaign(normalizeCampaign(raw)))
+      .then((raw) => {
+        const normalized = normalizeCampaign(raw);
+        setCampaign(normalized);
+        if (normalized.status !== "DRAFT") {
+          getCampaignAnalytics(id)
+            .then(setAnalytics)
+            .catch(() => setAnalytics(null));
+        } else {
+          setAnalytics(null);
+        }
+      })
       .catch(() => setCampaign(null))
       .finally(() => setLoading(false));
   }, [id]);
@@ -53,5 +69,5 @@ export function useCampaignDetail(id: string) {
     }
   }, [campaign, id, reload]);
 
-  return { campaign, loading, sending, sendResult, handleSend, reload };
+  return { campaign, analytics, loading, sending, sendResult, handleSend, reload };
 }

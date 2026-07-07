@@ -1,5 +1,5 @@
 import { apiFetch, apiFetchFormData } from './client';
-import type { AdminStats, CustomerListResponse, ImportResult } from '../types/admin';
+import type { AdminStats, CampaignAnalytics, CustomerListResponse, ImportResult } from '../types/admin';
 
 /** Returns high-level dashboard statistics (users, campaigns, SMS sent). */
 export async function getAdminStats(): Promise<AdminStats> {
@@ -47,6 +47,11 @@ export async function getCampaign(id: string): Promise<unknown> {
 /** Triggers sending for a DRAFT campaign. */
 export async function sendCampaign(id: string): Promise<{ sent: number; failed: number; status: string }> {
   return apiFetch(`/admin/campaigns/${id}/send`, { method: 'POST' });
+}
+
+/** Returns aggregate delivery analytics (sent/failed/pending, failure breakdown) for a campaign. */
+export async function getCampaignAnalytics(id: string): Promise<CampaignAnalytics> {
+  return apiFetch(`/admin/campaigns/${id}/analytics`);
 }
 
 /** Returns all orders for the admin panel. */
