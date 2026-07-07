@@ -1,9 +1,21 @@
 import { apiFetch } from './client';
-import type { ProductDetail, ProductSummary, AdminProductListResponse } from '../types/catalog';
+import type {
+  ProductDetail,
+  ProductSummary,
+  AdminProductListResponse,
+  Category,
+  CategoryListResponse,
+} from '../types/catalog';
 
 /** Returns a paginated list of products for the public storefront. */
 export async function listProducts(limit = 50, offset = 0, activeOnly = true): Promise<{ items: ProductSummary[]; total: number }> {
   return apiFetch(`/products?limit=${limit}&offset=${offset}&active_only=${activeOnly}`);
+}
+
+/** Returns every product category, used to power storefront filters and admin forms. */
+export async function listCategories(): Promise<Category[]> {
+  const res = await apiFetch<CategoryListResponse>('/categories');
+  return res.items;
 }
 
 /** Returns a single product with full detail (images etc.) by ID. */

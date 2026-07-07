@@ -63,14 +63,25 @@ export interface Brand {
   is_active: boolean;
 }
 
-/** Product category (supports nesting via parent_id). */
+/**
+ * Product category, as returned by `GET /v1/categories`.
+ *
+ * Only `id`/`name` are populated by the Catalog service today; the
+ * remaining fields are reserved for a future nested-category model and
+ * are optional so existing callers don't break when they show up.
+ */
 export interface Category {
   id: string;
   name: string;
-  parent_id: string | null;
-  description: string | null;
-  icon_url: string | null;
-  is_active: boolean;
+  parent_id?: string | null;
+  description?: string | null;
+  icon_url?: string | null;
+  is_active?: boolean;
+}
+
+/** Response shape for `GET /v1/categories` (via the BFF's `/api/v1/categories`). */
+export interface CategoryListResponse {
+  items: Category[];
 }
 
 /** Article as returned by the articles API. */
