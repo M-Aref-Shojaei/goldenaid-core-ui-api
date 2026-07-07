@@ -52,4 +52,28 @@ describe('Button', () => {
     render(<Button size={size}>{size}</Button>);
     expect(screen.getByRole('button')).toBeInTheDocument();
   });
+
+  it('renders a trailing chevron by default', () => {
+    render(<Button>Go</Button>);
+    expect(screen.getByRole('button').querySelector('svg')).toBeInTheDocument();
+  });
+
+  it('omits the chevron when showArrow is false', () => {
+    render(<Button showArrow={false}>Go</Button>);
+    expect(screen.getByRole('button').querySelector('svg')).not.toBeInTheDocument();
+  });
+
+  it('points the chevron left for rtl and right for ltr', () => {
+    const { container: rtlContainer } = render(<Button dir="rtl">Go</Button>);
+    const { container: ltrContainer } = render(<Button dir="ltr">Go</Button>);
+    expect(rtlContainer.querySelector('svg.lucide-chevron-left')).toBeInTheDocument();
+    expect(ltrContainer.querySelector('svg.lucide-chevron-right')).toBeInTheDocument();
+  });
+
+  it('is rounded-full with a gold border by default', () => {
+    render(<Button>Go</Button>);
+    const btn = screen.getByRole('button');
+    expect(btn.className).toContain('rounded-full');
+    expect(btn.className).toContain('border-gold');
+  });
 });
