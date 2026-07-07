@@ -31,6 +31,8 @@ export { AuthProvider, useAuth } from './providers/AuthProvider';
 export { CartProvider, useCart } from './providers/CartProvider';
 
 // ── Hooks ─────────────────────────────────────────────────────────────────────
+export { useDirection } from './hooks/useDirection';
+export type { Direction } from './hooks/useDirection';
 export { useLogin } from './hooks/useLogin';
 export type { LoginStep } from './hooks/useLogin';
 export { useProduct } from './hooks/useProduct';
