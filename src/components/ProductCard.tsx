@@ -8,6 +8,14 @@ import { formatPrice } from "../utils/helpers";
 /** Props for the {@link ProductCard} component. */
 interface ProductCardProps {
   product: ProductSummary;
+  /**
+   * Optional "زمان باقی مانده" countdown badge shown over the top-left
+   * corner of the image (matches the Figma flash-deal card reference).
+   * Purely presentational — pass a pre-formatted string (e.g. `"۵۲:۲۳:۰۰"`);
+   * there's no backing "active flash sale" API yet, so callers decide when
+   * to show it. Omitted by default so existing callers are unaffected.
+   */
+  countdownLabel?: string;
 }
 
 /**
@@ -15,12 +23,20 @@ interface ProductCardProps {
  *
  * @param props - {@link ProductCardProps}
  */
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, countdownLabel }: ProductCardProps) {
   return (
     <div className="bg-neutral-0 border border-neutral-75 rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group flex flex-col">
       {/* Image area */}
       <Link href={`/products/${product.product_id}`} className="block">
         <div className="aspect-square bg-cream-dark flex items-center justify-center overflow-hidden relative p-4">
+          {countdownLabel && (
+            <span className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-dark/80 text-white text-[10px] font-bold px-2 py-1 rounded-lg tabular-nums" dir="ltr">
+              <svg className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {countdownLabel}
+            </span>
+          )}
           {product.thumbnail_url ? (
             <img
               src={product.thumbnail_url}
