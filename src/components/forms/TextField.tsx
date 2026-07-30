@@ -23,11 +23,11 @@ export function TextField({
   const isLight = theme === "light";
   return (
     <div>
-      <label className={`block text-sm font-medium mb-2 ${isLight ? "text-dark" : "text-neutral-300"}`}>
+      <label htmlFor={name} className={`block text-sm font-medium mb-2 ${isLight ? "text-dark" : "text-neutral-300"}`}>
         {label} {required && <span className="text-semantic-red-light">*</span>}
       </label>
       <input
-        type={type} name={name} value={value} onChange={onChange}
+        id={name} type={type} name={name} value={value} onChange={onChange}
         placeholder={placeholder} maxLength={maxLength}
         className={
           isLight
