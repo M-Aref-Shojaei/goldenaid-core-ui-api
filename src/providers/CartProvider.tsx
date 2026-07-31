@@ -13,7 +13,7 @@ import type { CartItem } from "../types/orders";
 
 interface CartContextValue {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, "qty">) => void;
+  addItem: (item: Omit<CartItem, "qty">, qty: number) => void;
   removeItem: (productId: string) => void;
   updateQty: (productId: string, qty: number) => void;
   clearCart: () => void;
@@ -50,14 +50,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } catch { /* corrupted — start empty */ }
   }, []);
 
-  const addItem = useCallback((item: Omit<CartItem, "qty">) => {
+  const addItem = useCallback((item: Omit<CartItem, "qty">, qty: number) => {
     setItems((prev) => {
       const existing = prev.find((i) => i.product_id === item.product_id);
       const next = existing
         ? prev.map((i) =>
-            i.product_id === item.product_id ? { ...i, qty: i.qty + 1 } : i,
+            i.product_id === item.product_id ? { ...i, qty: i.qty + qty } : i,
           )
-        : [...prev, { ...item, qty: 1 }];
+        : [...prev, { ...item, qty }];
       return persist(next);
     });
   }, []);

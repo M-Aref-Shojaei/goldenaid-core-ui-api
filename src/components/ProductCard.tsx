@@ -19,7 +19,7 @@ interface ProductCardProps {
 }
 
 /**
- * Store product card matching Figma: white card, product image, title, Rial price, gold cart button.
+ * Store product card matching Figma: white card, product image, title, Toman price, gold cart button.
  *
  * @param props - {@link ProductCardProps}
  */
@@ -68,7 +68,6 @@ export function ProductCard({ product, countdownLabel }: ProductCardProps) {
         <div className="mt-auto">
           <p className="text-dark font-black text-sm mb-2">
             {formatPrice(product.base_price)}
-            <span className="text-neutral-400 font-normal text-[10px] mr-1">ریال</span>
           </p>
 
           {/* Add to cart button */}

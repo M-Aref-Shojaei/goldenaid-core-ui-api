@@ -11,14 +11,22 @@ export function formatNumberPersian(num: number): string {
   return num.toLocaleString('fa-IR');
 }
 
-/** Formats an amount as a Rial currency string with Persian digits. */
+/**
+ * Formats an already-rial amount as a Rial currency string with Persian digits.
+ *
+ * Every price in the app (product, cart, checkout, admin inputs) is
+ * toman-denominated — use {@link formatPrice} for those. This formatter is
+ * reserved for the two spots that actually deal in rial: the payment-gateway
+ * call and invoice creation. Don't call this on a toman value.
+ */
 export function formatCurrency(amount: number): string {
   return `${formatNumberPersian(amount)} ریال`;
 }
 
-/** Formats an amount as a Toman currency string with Latin digits. */
+/** Formats a toman amount (the unit every price in this app is stored/entered in) as a Toman currency string with Latin digits. */
 export function formatPrice(amount: number): string {
-  return new Intl.NumberFormat('en-US').format(amount) + ' تومان';
+  const numberFormatter = new Intl.NumberFormat('en-US');
+  return numberFormatter.format(amount) + ' تومان';
 }
 
 /** Truncates text to maxLength characters, appending suffix if truncated. */

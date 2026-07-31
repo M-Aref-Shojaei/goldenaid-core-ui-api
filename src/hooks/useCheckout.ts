@@ -53,7 +53,11 @@ export function useCheckout() {
       const orderItems = items.map((i) => ({ product_id: i.product_id, qty: i.qty }));
       const orderResp = await createOrder(orderItems, totalPrice);
       setStatus("paying");
-      const paymentResp = await createPayment(orderResp.order_id, totalPrice);
+      // The order total (and every price in the app) is toman-denominated.
+      // The payment gateway is the one boundary that requires rial, so this
+      // is the single toman→rial conversion point in the whole checkout flow.
+      const rialAmount = Math.round(totalPrice * 10);
+      const paymentResp = await createPayment(orderResp.order_id, rialAmount);
       clearCart();
       window.location.href = paymentResp.payment_url;
     } catch (e: unknown) {

@@ -24,14 +24,14 @@ export function useProduct(id: string | undefined) {
     return () => { active = false; };
   }, [id]);
 
-  const addToCart = () => {
+  const addToCart = (qty: number) => {
     if (!product) return;
     addItem({
       product_id: product.product_id,
       title: product.title,
       base_price: product.base_price,
       thumbnail_url: product.thumbnail_url || null,
-    });
+    }, qty);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
