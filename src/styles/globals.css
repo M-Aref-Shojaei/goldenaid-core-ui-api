@@ -1,3 +1,5 @@
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ─── Self-hosted fonts (TASK-108) ─────────────────────────────────────────── */
 /* Vazirmatn variable font, bundled locally — no Google Fonts / external CDN.  */
 /* Files + SIL OFL license: ./fonts/ (source: rastikerdar/vazirmatn via       */
@@ -121,11 +123,13 @@ html {
   direction: rtl;
 }
 
-body {
-  font-family: "Vazirmatn", "Tahoma", sans-serif;
-  background-color: #FBFBFB;
-  color: #0D0D0D;
-  -webkit-font-smoothing: antialiased;
+@layer base {
+  body {
+    font-family: "Vazirmatn", "Tahoma", sans-serif;
+    background-color: #FBFBFB;
+    color: #0D0D0D;
+    -webkit-font-smoothing: antialiased;
+  }
 }
 
 /* ─── Scrollbar ─────────────────────────────────────────────────────────────── */

@@ -26,6 +26,16 @@ describe('useToast', () => {
 });
 
 describe('ToastProvider', () => {
+  it('anchors notifications below the header and exposes them as live status updates', async () => {
+    render(<Wrapper message="Test toast" />);
+    await userEvent.click(screen.getByText('fire'));
+
+    const region = screen.getByRole('region', { name: 'اعلان‌ها' });
+    expect(region).toHaveClass('top-20');
+    expect(region).not.toHaveAttribute('aria-live');
+    expect(screen.getByRole('status')).toHaveTextContent('Test toast');
+  });
+
   it('shows toast message after toast() is called', async () => {
     render(<Wrapper message="Test toast" />);
     await userEvent.click(screen.getByText('fire'));

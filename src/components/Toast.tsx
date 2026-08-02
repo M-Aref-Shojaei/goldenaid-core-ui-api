@@ -1,7 +1,5 @@
 "use client";
 
-'use client';
-
 import React, { createContext, useCallback, useContext, useState } from 'react';
 
 /** Severity level for a toast notification. */
@@ -49,11 +47,16 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ toast }}>
       {children}
-      <div className="fixed bottom-4 left-4 z-50 flex flex-col gap-2 max-w-sm w-full">
+      <div
+        className="fixed top-20 inset-x-4 z-[60] flex flex-col items-center gap-2 pointer-events-none"
+        role="region"
+        aria-label="اعلان‌ها"
+      >
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`flex items-start gap-3 border rounded-xl px-4 py-3 shadow-lg ${styles[t.variant]}`}
+            role="status"
+            className={`pointer-events-auto flex w-full max-w-sm items-start gap-3 border rounded-xl px-4 py-3 shadow-lg ${styles[t.variant]}`}
           >
             <span className="font-bold text-sm shrink-0 mt-0.5">{icons[t.variant]}</span>
             <p className="flex-1 text-sm">{t.message}</p>
