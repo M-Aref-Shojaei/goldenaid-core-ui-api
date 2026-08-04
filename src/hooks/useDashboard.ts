@@ -19,7 +19,10 @@ export function useDashboard() {
   const [ordersLoading, setOrdersLoading] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) router.push("/auth/login");
+    if (!isAuthenticated) {
+      const storeUrl = process.env.NEXT_PUBLIC_STORE_URL || "http://localhost:3000";
+      router.push(`${storeUrl}/auth/login`);
+    }
   }, [isAuthenticated, router]);
 
   useEffect(() => {

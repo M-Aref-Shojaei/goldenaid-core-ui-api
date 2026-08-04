@@ -62,7 +62,7 @@ export function useNewProduct() {
     setError("");
     try {
       await adminCreateProduct({ ...form, base_price: parseInt(form.base_price) });
-      router.push("/admin/products");
+      router.push("/products");
     } catch (err) {
       setError(parseApiError(err));
     } finally {
