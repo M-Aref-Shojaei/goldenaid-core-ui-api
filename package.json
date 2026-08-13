@@ -1,15 +1,21 @@
 {
-  "name": "core-ui-api",
+  "name": "@m-aref-shojaei/core-ui-api",
   "version": "1.0.0",
-  "main": "./src/index.ts",
-  "module": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src/styles/globals.css"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "exports": {
     ".": {
-      "turbopack": "./src/index.ts",
-      "import": "./src/index.ts",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
     },
     "./styles/globals.css": {
       "style": "./src/styles/globals.css",
