@@ -27,13 +27,13 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const base =
-  'inline-flex items-center justify-center font-bold rounded-full border-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none';
+  'inline-flex items-center justify-center font-bold rounded-button border-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none';
 
 const variants: Record<NonNullable<ButtonProps['variant']>, string> = {
   primary:   'bg-gold border-gold text-white hover:bg-gold-dark hover:border-gold-dark focus:ring-gold',
   secondary: 'bg-dark-card border-gold text-white hover:bg-neutral-700 focus:ring-neutral-600',
   outline:   'bg-transparent border-gold text-gold hover:bg-gold/10 focus:ring-gold',
-  ghost:     'bg-transparent border-transparent text-neutral-500 hover:bg-neutral-75 focus:ring-neutral-100',
+  ghost:     'bg-transparent border-transparent text-neutral-500 dark:text-neutral-300 hover:bg-neutral-75 dark:hover:bg-dark-card focus:ring-neutral-100',
   danger:    'bg-error border-error text-white hover:bg-semantic-red-dark focus:ring-semantic-red',
 };
 

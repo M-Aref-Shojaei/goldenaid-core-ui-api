@@ -19,9 +19,9 @@ export function Checkbox({ label, error, id, className = '', ...props }: Checkbo
           {...props}
           type="checkbox"
           id={inputId}
-          className={`w-4 h-4 rounded border-neutral-200 text-gold focus:ring-gold ${className}`}
+          className={`w-4 h-4 rounded border-neutral-200 dark:border-neutral-600 text-gold focus:ring-gold ${className}`}
         />
-        {label && <span className="text-sm text-neutral-600">{label}</span>}
+        {label && <span className="text-sm text-neutral-600 dark:text-neutral-300">{label}</span>}
       </label>
       {error && <p className="text-xs text-error">{error}</p>}
     </div>

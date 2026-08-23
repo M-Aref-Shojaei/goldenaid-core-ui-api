@@ -13,7 +13,7 @@ const roundeds = { sm: 'rounded', md: 'rounded-lg', lg: 'rounded-xl', full: 'rou
 /** Animated grey placeholder block for loading states. */
 export function Skeleton({ className = '', rounded = 'md' }: SkeletonProps) {
   return (
-    <div className={`animate-pulse bg-neutral-100 ${roundeds[rounded]} ${className}`} />
+    <div className={`animate-pulse bg-neutral-100 dark:bg-neutral-700 ${roundeds[rounded]} ${className}`} />
   );
 }
 
@@ -45,7 +45,7 @@ export interface SkeletonCardProps {
 /** Skeleton placeholder matching the shape of a product card. */
 export function SkeletonCard({ className = '' }: SkeletonCardProps) {
   return (
-    <div className={`bg-neutral-0 rounded-2xl border border-neutral-75 p-4 space-y-3 ${className}`}>
+    <div className={`bg-neutral-0 dark:bg-dark-card rounded-2xl border border-neutral-75 dark:border-neutral-700 p-4 space-y-3 ${className}`}>
       <Skeleton className="h-40 w-full" rounded="lg" />
       <Skeleton className="h-4 w-3/4" />
       <Skeleton className="h-4 w-1/2" />

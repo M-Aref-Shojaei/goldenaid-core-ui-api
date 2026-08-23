@@ -33,7 +33,7 @@ export function Tabs({ items, defaultKey, onChange, className = '' }: TabsProps)
 
   return (
     <div className={className}>
-      <div className="flex gap-1 border-b border-neutral-100 mb-4">
+      <div className="flex gap-1 border-b border-neutral-100 dark:border-neutral-700 mb-4">
         {items.map((tab) => (
           <button
             key={tab.key}
@@ -42,7 +42,7 @@ export function Tabs({ items, defaultKey, onChange, className = '' }: TabsProps)
             className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors
               ${active === tab.key
                 ? 'border-gold text-gold'
-                : 'border-transparent text-neutral-400 hover:text-neutral-600 hover:border-neutral-200'
+                : 'border-transparent text-neutral-400 hover:text-neutral-600 dark:hover:text-white hover:border-neutral-200 dark:hover:border-neutral-600'
               }
               ${tab.disabled ? 'opacity-40 pointer-events-none' : ''}`}
           >

@@ -21,7 +21,7 @@ export function Pagination({ page, totalPages, onChange, className = '' }: Pagin
       <button
         onClick={() => onChange(page - 1)}
         disabled={page === 1}
-        className="w-8 h-8 flex items-center justify-center rounded-lg text-neutral-400 hover:bg-neutral-75 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+        className="w-8 h-8 flex items-center justify-center rounded-lg text-neutral-400 hover:bg-neutral-75 dark:hover:bg-dark-card disabled:opacity-30 disabled:pointer-events-none transition-colors"
       >
         ‹
       </button>
@@ -33,7 +33,7 @@ export function Pagination({ page, totalPages, onChange, className = '' }: Pagin
           className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors
             ${p === page
               ? 'bg-gold text-black font-bold'
-              : 'text-neutral-500 hover:bg-neutral-75'
+              : 'text-neutral-500 hover:bg-neutral-75 dark:hover:bg-dark-card'
             }`}
         >
           {p}
@@ -43,7 +43,7 @@ export function Pagination({ page, totalPages, onChange, className = '' }: Pagin
       <button
         onClick={() => onChange(page + 1)}
         disabled={page === totalPages}
-        className="w-8 h-8 flex items-center justify-center rounded-lg text-neutral-400 hover:bg-neutral-75 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+        className="w-8 h-8 flex items-center justify-center rounded-lg text-neutral-400 hover:bg-neutral-75 dark:hover:bg-dark-card disabled:opacity-30 disabled:pointer-events-none transition-colors"
       >
         ›
       </button>

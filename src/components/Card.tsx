@@ -18,7 +18,7 @@ export function Card({ children, padding = 'md', hover = false, className = '', 
   return (
     <div
       onClick={onClick}
-      className={`bg-neutral-0 rounded-2xl border border-neutral-75 shadow-sm
+      className={`bg-neutral-0 dark:bg-dark-card rounded-product border border-neutral-75 dark:border-neutral-700 shadow-sm
         ${paddings[padding]}
         ${hover ? 'hover:shadow-md transition-shadow cursor-pointer' : ''}
         ${className}`}

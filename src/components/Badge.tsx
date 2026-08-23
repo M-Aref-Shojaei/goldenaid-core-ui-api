@@ -11,7 +11,7 @@ export interface BadgeProps {
 }
 
 const variants = {
-  default: 'bg-neutral-75 text-neutral-600',
+  default: 'bg-neutral-75 dark:bg-dark-card text-neutral-600 dark:text-neutral-300',
   success: 'bg-semantic-green-extralight text-semantic-green-dark',
   warning: 'bg-semantic-yellow-extralight text-semantic-yellow-dark',
   danger:  'bg-semantic-red-extralight text-semantic-red-dark',
@@ -27,7 +27,7 @@ const sizes = {
 /** Small status/label pill with color variants. */
 export function Badge({ variant = 'default', size = 'md', children, className = '' }: BadgeProps) {
   return (
-    <span className={`inline-flex items-center font-medium rounded-full ${variants[variant]} ${sizes[size]} ${className}`}>
+    <span className={`inline-flex items-center font-medium rounded-badge ${variants[variant]} ${sizes[size]} ${className}`}>
       {children}
     </span>
   );

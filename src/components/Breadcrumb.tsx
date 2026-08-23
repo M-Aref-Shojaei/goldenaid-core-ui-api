@@ -20,11 +20,11 @@ export function Breadcrumb({ items, className = '' }: BreadcrumbProps) {
     <nav aria-label="breadcrumb" className={`flex items-center gap-1 text-sm text-neutral-400 ${className}`}>
       {items.map((item, i) => (
         <React.Fragment key={i}>
-          {i > 0 && <span className="text-neutral-200">/</span>}
+          {i > 0 && <span className="text-neutral-200 dark:text-neutral-600">/</span>}
           {item.href && i < items.length - 1 ? (
-            <a href={item.href} className="hover:text-neutral-600 transition-colors">{item.label}</a>
+            <a href={item.href} className="hover:text-neutral-600 dark:hover:text-white transition-colors">{item.label}</a>
           ) : (
-            <span className={i === items.length - 1 ? 'text-dark font-medium' : ''}>{item.label}</span>
+            <span className={i === items.length - 1 ? 'text-dark dark:text-white font-medium' : ''}>{item.label}</span>
           )}
         </React.Fragment>
       ))}

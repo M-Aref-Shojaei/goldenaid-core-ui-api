@@ -16,7 +16,7 @@ export function Textarea({ label, error, helper, id, className = '', ...props }:
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={inputId} className="block text-sm font-medium text-neutral-600 mb-1">
+        <label htmlFor={inputId} className="block text-sm font-medium text-neutral-600 dark:text-neutral-300 mb-1">
           {label}
           {props.required && <span className="text-error ml-1">*</span>}
         </label>
@@ -24,10 +24,10 @@ export function Textarea({ label, error, helper, id, className = '', ...props }:
       <textarea
         {...props}
         id={inputId}
-        className={`w-full rounded-xl border px-4 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 resize-none
+        className={`w-full rounded-field border px-4 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 resize-none
           ${error
             ? 'border-semantic-red-light bg-semantic-red-extralight focus:ring-semantic-red-light'
-            : 'border-neutral-200 bg-neutral-0 focus:ring-neutral-200 hover:border-neutral-300'
+            : 'border-neutral-200 dark:border-neutral-600 bg-neutral-0 dark:bg-dark-card text-dark dark:text-white focus:ring-neutral-200 hover:border-neutral-300 dark:hover:border-neutral-500'
           } ${className}`}
       />
       {helper && !error && <p className="mt-1 text-xs text-neutral-400">{helper}</p>}

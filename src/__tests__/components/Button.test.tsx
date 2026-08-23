@@ -70,10 +70,10 @@ describe('Button', () => {
     expect(ltrContainer.querySelector('svg.lucide-chevron-right')).toBeInTheDocument();
   });
 
-  it('is rounded-full with a gold border by default', () => {
+  it('uses the design system button radius with a gold border by default', () => {
     render(<Button>Go</Button>);
     const btn = screen.getByRole('button');
-    expect(btn.className).toContain('rounded-full');
+    expect(btn.className).toContain('rounded-button');
     expect(btn.className).toContain('border-gold');
   });
 });

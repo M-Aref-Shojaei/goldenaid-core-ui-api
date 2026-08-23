@@ -40,16 +40,16 @@ export function Modal({ open, onClose, title, children, size = 'md', className =
         aria-hidden
       />
       <div
-        className={`relative w-full ${sizes[size]} bg-neutral-0 rounded-2xl shadow-xl flex flex-col max-h-[90vh] ${className}`}
+        className={`relative w-full ${sizes[size]} bg-neutral-0 dark:bg-dark-card rounded-2xl shadow-xl flex flex-col max-h-[90vh] ${className}`}
         role="dialog"
         aria-modal
       >
         {title && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-75">
-            <h2 className="text-lg font-semibold text-dark">{title}</h2>
+          <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-75 dark:border-neutral-700">
+            <h2 className="text-lg font-semibold text-dark dark:text-white">{title}</h2>
             <button
               onClick={onClose}
-              className="text-neutral-400 hover:text-neutral-600 transition-colors text-xl leading-none"
+              className="text-neutral-400 hover:text-neutral-600 dark:hover:text-white transition-colors text-xl leading-none"
             >
               ×
             </button>
@@ -58,7 +58,7 @@ export function Modal({ open, onClose, title, children, size = 'md', className =
         {!title && (
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 text-neutral-400 hover:text-neutral-600 transition-colors text-xl leading-none z-10"
+            className="absolute top-3 right-3 text-neutral-400 hover:text-neutral-600 dark:hover:text-white transition-colors text-xl leading-none z-10"
           >
             ×
           </button>

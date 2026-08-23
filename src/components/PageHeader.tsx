@@ -15,8 +15,8 @@ export function PageHeader({ title, description, action, className = '' }: PageH
   return (
     <div className={`flex items-start justify-between gap-4 mb-6 ${className}`}>
       <div>
-        <h1 className="text-2xl font-bold text-dark">{title}</h1>
-        {description && <p className="text-neutral-400 text-sm mt-1">{description}</p>}
+        <h1 className="text-2xl font-bold text-dark dark:text-white">{title}</h1>
+        {description && <p className="text-neutral-400 dark:text-neutral-300 text-sm mt-1">{description}</p>}
       </div>
       {action && <div className="shrink-0">{action}</div>}
     </div>

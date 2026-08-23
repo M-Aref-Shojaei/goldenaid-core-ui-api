@@ -116,6 +116,11 @@
   /* Border radius */
   --radius-2xl: 16px;
   --radius-3xl: 24px;
+  /* Design-system-aligned radii (buttons/chips 10px, inputs/small cards 15px, product cards 20px) */
+  --radius-button:  10px;
+  --radius-badge:   10px;
+  --radius-field:   15px;
+  --radius-product: 20px;
 }
 
 /* ─── Base styles ──────────────────────────────────────────────────────────── */

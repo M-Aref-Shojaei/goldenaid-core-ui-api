@@ -24,7 +24,7 @@ export function Select({ label, error, helper, options, placeholder, id, classNa
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={inputId} className="block text-sm font-medium text-neutral-600 mb-1">
+        <label htmlFor={inputId} className="block text-sm font-medium text-neutral-600 dark:text-neutral-300 mb-1">
           {label}
           {props.required && <span className="text-error ml-1">*</span>}
         </label>
@@ -32,10 +32,10 @@ export function Select({ label, error, helper, options, placeholder, id, classNa
       <select
         {...props}
         id={inputId}
-        className={`w-full rounded-xl border px-4 py-2.5 text-sm bg-neutral-0 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1
+        className={`w-full rounded-field border px-4 py-2.5 text-sm bg-neutral-0 dark:bg-dark-card text-dark dark:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1
           ${error
             ? 'border-semantic-red-light bg-semantic-red-extralight focus:ring-semantic-red-light'
-            : 'border-neutral-200 focus:ring-neutral-200 hover:border-neutral-300'
+            : 'border-neutral-200 dark:border-neutral-600 focus:ring-neutral-200 hover:border-neutral-300 dark:hover:border-neutral-500'
           } ${className}`}
       >
         {placeholder && <option value="">{placeholder}</option>}
