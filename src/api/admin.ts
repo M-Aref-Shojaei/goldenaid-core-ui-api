@@ -1,5 +1,12 @@
 import { apiFetch, apiFetchFormData } from './client';
-import type { AdminStats, CampaignAnalytics, CustomerListResponse, ImportResult } from '../types/admin';
+import type {
+  AdminStats,
+  CampaignAnalytics,
+  CustomerListResponse,
+  ImportResult,
+  UserListResponse,
+  UserRole,
+} from '../types/admin';
 
 /** Returns high-level dashboard statistics (users, campaigns, SMS sent). */
 export async function getAdminStats(): Promise<AdminStats> {
@@ -12,6 +19,26 @@ export async function getAdminCustomers(page = 1, q = ''): Promise<CustomerListR
   qp.set('page', String(page));
   if (q) qp.set('q', q);
   return apiFetch(`/admin/customers?${qp.toString()}`);
+}
+
+/** Returns a paginated user list, optionally filtered by phone or name search query. */
+export async function getAdminUsers(skip = 0, limit = 50, q = ''): Promise<UserListResponse> {
+  const qp = new URLSearchParams();
+  qp.set('skip', String(skip));
+  qp.set('limit', String(limit));
+  if (q) qp.set('q', q);
+  return apiFetch(`/admin/users?${qp.toString()}`);
+}
+
+/** Sets a user's role (admin only). Returns the backend's updated-user response. */
+export async function setUserRole(
+  userId: string,
+  role: UserRole,
+): Promise<{ role: UserRole; message: string }> {
+  return apiFetch(`/admin/users/${userId}/role`, {
+    method: 'PUT',
+    body: JSON.stringify({ role }),
+  });
 }
 
 /** Sends a manual SMS to a list of phone numbers. */

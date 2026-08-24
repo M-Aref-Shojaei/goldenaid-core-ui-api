@@ -154,6 +154,12 @@ export interface AdminUser {
   created_at: string;
 }
 
+/** Paginated user list response. */
+export interface UserListResponse {
+  total: number;
+  items: AdminUser[];
+}
+
 /** Single row in a product bulk-import result. */
 export interface ImportResultRow {
   row_number: number;
