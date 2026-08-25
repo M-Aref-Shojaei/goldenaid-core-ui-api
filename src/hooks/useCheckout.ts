@@ -7,6 +7,7 @@ import { useCart } from "../providers/CartProvider";
 import { listAddresses } from "../api/addresses";
 import { createOrder } from "../api/orders";
 import { createPayment } from "../api/payments";
+import { ApiError, getErrorMessage } from "../api/client";
 import type { Address } from "../types/addresses";
 
 /** Checkout flow state — idle → ordering (create order) → paying (redirect to gateway). */
@@ -61,7 +62,7 @@ export function useCheckout() {
       clearCart();
       window.location.href = paymentResp.payment_url;
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "خطا در ثبت سفارش");
+      setError(e instanceof ApiError ? getErrorMessage(e) : "خطا در ثبت سفارش");
       setStatus("idle");
     } finally {
       setLoading(false);

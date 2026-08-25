@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { requestOtp, verifyOtp, getMe } from "../api/auth";
 import { useAuth } from "../providers/AuthProvider";
 import { STORAGE_KEYS } from "../api/config";
+import { ApiError, getErrorMessage } from "../api/client";
 import type { UserRole } from "../types/admin";
 
 const OTP_COUNTDOWN_SECONDS = 120;
@@ -52,7 +53,7 @@ export function useLogin(): UseLoginResult {
       setCountdown(OTP_COUNTDOWN_SECONDS);
       setCode("");
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "ارسال کد با خطا مواجه شد");
+      setError(e instanceof ApiError ? getErrorMessage(e) : "ارسال کد با خطا مواجه شد");
     } finally {
       setLoading(false);
     }
@@ -66,7 +67,7 @@ export function useLogin(): UseLoginResult {
       setCountdown(OTP_COUNTDOWN_SECONDS);
       setCode("");
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "ارسال مجدد کد با خطا مواجه شد");
+      setError(e instanceof ApiError ? getErrorMessage(e) : "ارسال مجدد کد با خطا مواجه شد");
     } finally {
       setLoading(false);
     }
@@ -90,7 +91,7 @@ export function useLogin(): UseLoginResult {
         login(access_token, me.user_id, me.phone, isAdmin, me.name || undefined, userRole);
         router.push("/");
       } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : "کد وارد شده صحیح نیست");
+        setError(e instanceof ApiError ? getErrorMessage(e) : "کد وارد شده صحیح نیست");
       } finally {
         setLoading(false);
         setAutoVerifying(false);

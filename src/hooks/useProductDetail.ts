@@ -2,7 +2,7 @@
 
 
 import { useState, useEffect, useCallback } from "react";
-import { apiFetch } from "../api/client";
+import { apiFetch, ApiError, getErrorMessage } from "../api/client";
 import type { AdminProductDetailProduct } from "../types/admin";
 
 /** Fetches the full admin product detail record by ID. */
@@ -19,7 +19,7 @@ export function useProductDetail(productId: string) {
       const data = await apiFetch<AdminProductDetailProduct>(`/admin/products/${productId}`);
       setProduct(data);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "خطا در بارگذاری محصول");
+      setError(err instanceof ApiError ? getErrorMessage(err) : "خطا در بارگذاری محصول");
     } finally {
       setLoading(false);
     }

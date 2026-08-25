@@ -3,6 +3,7 @@
 
 import { useCallback, useMemo, useRef, useState } from "react";
 import { importProducts } from "../api/admin";
+import { ApiError, getErrorMessage } from "../api/client";
 import type { ImportResult, ImportResultRow } from "../types/admin";
 
 /** Import source mode for the bulk product import tool. */
@@ -109,7 +110,7 @@ export function useProductImport() {
       setImportResult(await importProducts(csvContent, skipDuplicates));
       setResultFilter("all");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "خطا در وارد کردن محصولات");
+      setError(err instanceof ApiError ? getErrorMessage(err) : "خطا در وارد کردن محصولات");
     } finally { setLoading(false); }
   }, [buildCsvFromTable, csvText, file, importMode, loading, skipDuplicates]);
 

@@ -2,6 +2,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useLogin } from '../../hooks/useLogin';
 import { requestOtp, verifyOtp, getMe } from '../../api/auth';
+import { ApiError } from '../../api/client';
 
 const push = vi.fn();
 const login = vi.fn();
@@ -64,5 +65,31 @@ describe('useLogin', () => {
     await act(async () => result.current.verifyOtp());
     await waitFor(() => expect(push).toHaveBeenCalledWith('/'));
     expect(verifyOtp).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows the backend-provided Persian message for a validation error', async () => {
+    vi.mocked(requestOtp).mockRejectedValue(
+      new ApiError(422, 'شماره موبایل را به‌صورت صحیح وارد کنید (مثال: ۰۹۱۲۱۲۳۴۵۶۷)'),
+    );
+    const { result } = renderHook(() => useLogin());
+
+    act(() => result.current.setPhone('12345'));
+    await act(async () => result.current.requestOtp());
+
+    expect(result.current.error).toBe(
+      'شماره موبایل را به‌صورت صحیح وارد کنید (مثال: ۰۹۱۲۱۲۳۴۵۶۷)',
+    );
+  });
+
+  it('translates a network failure to Persian instead of showing raw English', async () => {
+    vi.mocked(requestOtp).mockRejectedValue(
+      new ApiError(0, 'Network error', 'NETWORK_ERROR'),
+    );
+    const { result } = renderHook(() => useLogin());
+
+    act(() => result.current.setPhone('09123456789'));
+    await act(async () => result.current.requestOtp());
+
+    expect(result.current.error).toBe('خطا در برقراری ارتباط با سرور');
   });
 });

@@ -3,6 +3,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { listAddresses, deleteAddress } from "../api/addresses";
+import { ApiError, getErrorMessage } from "../api/client";
 import type { Address } from "../types/addresses";
 
 /** Return type for {@link useAddresses}. */
@@ -26,7 +27,7 @@ export function useAddresses(): UseAddressesResult {
     try {
       setAddresses((await listAddresses()) || []);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "خطا در بارگذاری آدرس‌ها");
+      setError(err instanceof ApiError ? getErrorMessage(err) : "خطا در بارگذاری آدرس‌ها");
     } finally {
       setLoading(false);
     }
