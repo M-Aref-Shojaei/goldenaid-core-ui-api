@@ -18,9 +18,10 @@ export async function listCategories(): Promise<Category[]> {
   return res.items;
 }
 
-/** Returns a single product with full detail (images etc.) by ID. */
-export async function getProduct(id: string): Promise<ProductDetail> {
-  return apiFetch(`/products/${id}`);
+/** Returns a single product with full detail (images etc.) by ID, optionally scoped to a variant. */
+export async function getProduct(id: string, variantId?: string): Promise<ProductDetail> {
+  const qs = variantId ? `?variant_id=${encodeURIComponent(variantId)}` : '';
+  return apiFetch(`/products/${id}${qs}`);
 }
 
 /** Returns a paginated admin product list, optionally filtered by search and active status. */

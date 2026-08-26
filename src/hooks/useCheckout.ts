@@ -51,7 +51,11 @@ export function useCheckout() {
     setLoading(true);
     setStatus("ordering");
     try {
-      const orderItems = items.map((i) => ({ product_id: i.product_id, qty: i.qty }));
+      const orderItems = items.map((i) => ({
+        product_id: i.product_id,
+        qty: i.qty,
+        ...(i.variant_id ? { variant_id: i.variant_id, variant_label: i.variant_label } : {}),
+      }));
       const orderResp = await createOrder(orderItems, totalPrice);
       setStatus("paying");
       // The order total (and every price in the app) is toman-denominated.

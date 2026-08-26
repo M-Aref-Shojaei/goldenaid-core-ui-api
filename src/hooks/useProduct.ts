@@ -6,8 +6,8 @@ import { getProduct } from "../api/catalog";
 import { useCart } from "../providers/CartProvider";
 import type { ProductDetail } from "../types/catalog";
 
-/** Fetches a product by ID and provides an add-to-cart action. */
-export function useProduct(id: string | undefined) {
+/** Fetches a product by ID (optionally scoped to a variant) and provides an add-to-cart action. */
+export function useProduct(id: string | undefined, variantId?: string) {
   const { addItem } = useCart();
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -17,12 +17,12 @@ export function useProduct(id: string | undefined) {
     if (!id) return;
     let active = true;
     setLoading(true);
-    getProduct(id)
+    getProduct(id, variantId)
       .then((data) => active && setProduct(data))
       .catch(() => { if (active) setProduct(null); })
       .finally(() => active && setLoading(false));
     return () => { active = false; };
-  }, [id]);
+  }, [id, variantId]);
 
   const addToCart = (qty: number) => {
     if (!product) return;

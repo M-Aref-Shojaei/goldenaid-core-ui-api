@@ -12,6 +12,8 @@ export type OrderStatus =
 export interface OrderItem {
   product_id: string;
   qty: number;
+  variant_id?: string;
+  variant_label?: string;
 }
 
 /** Fully-hydrated order line item returned by the API. */
