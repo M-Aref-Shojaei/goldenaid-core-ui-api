@@ -14,8 +14,8 @@ import type { CartItem } from "../types/orders";
 interface CartContextValue {
   items: CartItem[];
   addItem: (item: Omit<CartItem, "qty">, qty: number) => void;
-  removeItem: (productId: string) => void;
-  updateQty: (productId: string, qty: number) => void;
+  removeItem: (productId: string, variantId?: string) => void;
+  updateQty: (productId: string, qty: number, variantId?: string) => void;
   clearCart: () => void;
   totalPrice: number;
   totalItems: number;
@@ -52,27 +52,43 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addItem = useCallback((item: Omit<CartItem, "qty">, qty: number) => {
     setItems((prev) => {
-      const existing = prev.find((i) => i.product_id === item.product_id);
+      const existing = prev.find(
+        (i) => i.product_id === item.product_id && i.variant_id === item.variant_id,
+      );
       const next = existing
         ? prev.map((i) =>
-            i.product_id === item.product_id ? { ...i, qty: i.qty + qty } : i,
+            i.product_id === item.product_id && i.variant_id === item.variant_id
+              ? { ...i, qty: i.qty + qty }
+              : i,
           )
         : [...prev, { ...item, qty }];
       return persist(next);
     });
   }, []);
 
-  const removeItem = useCallback((productId: string) => {
-    setItems((prev) => persist(prev.filter((i) => i.product_id !== productId)));
+  const removeItem = useCallback((productId: string, variantId?: string) => {
+    setItems((prev) =>
+      persist(
+        prev.filter((i) => !(i.product_id === productId && i.variant_id === variantId)),
+      ),
+    );
   }, []);
 
-  const updateQty = useCallback((productId: string, qty: number) => {
+  const updateQty = useCallback((productId: string, qty: number, variantId?: string) => {
     if (qty <= 0) {
-      setItems((prev) => persist(prev.filter((i) => i.product_id !== productId)));
+      setItems((prev) =>
+        persist(
+          prev.filter((i) => !(i.product_id === productId && i.variant_id === variantId)),
+        ),
+      );
       return;
     }
     setItems((prev) =>
-      persist(prev.map((i) => (i.product_id === productId ? { ...i, qty } : i))),
+      persist(
+        prev.map((i) =>
+          i.product_id === productId && i.variant_id === variantId ? { ...i, qty } : i,
+        ),
+      ),
     );
   }, []);
 

@@ -22,6 +22,7 @@ const product: ProductSummary = {
   brand_id: null,
   category_id: null,
   thumbnail_url: null,
+  variants: [],
 };
 
 describe('ProductCard', () => {

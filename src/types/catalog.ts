@@ -6,6 +6,13 @@ export interface ProductImage {
   sort_order: number;
 }
 
+/** A purchasable variant of a product (size, side, or arbitrary label). */
+export interface ProductVariant {
+  id: string;
+  label: string;
+  sort_order: number;
+}
+
 /** Product summary as returned in list endpoints. */
 export interface ProductSummary {
   product_id: string;
@@ -20,6 +27,7 @@ export interface ProductSummary {
   brand_id: string | null;
   category_id: string | null;
   thumbnail_url: string | null;
+  variants: ProductVariant[];
 }
 
 /** Full product record including image gallery. */

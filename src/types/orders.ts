@@ -56,6 +56,8 @@ export interface CartItem {
   base_price: number;
   qty: number;
   thumbnail_url: string | null;
+  variant_id?: string;
+  variant_label?: string;
 }
 
 /** Inventory stock-reservation record. */
