@@ -13,6 +13,16 @@ export interface ProductVariant {
   sort_order: number;
 }
 
+/** A stock batch (received quantity with an optional expiry date) for a product/variant. */
+export interface StockBatch {
+  id: string;
+  product_id: string;
+  variant_id: string | null;
+  quantity: number;
+  expiry_date: string | null;
+  received_at: string;
+}
+
 /** Product summary as returned in list endpoints. */
 export interface ProductSummary {
   product_id: string;

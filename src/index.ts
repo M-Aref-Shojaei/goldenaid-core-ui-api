@@ -14,6 +14,7 @@ export * from './api/addresses';
 export * from './api/articles';
 export * from './api/contact';
 export * from './api/content';
+export * from './api/inventory';
 
 // ── Domain Types ──────────────────────────────────────────────────────────────
 export * from './types/catalog';
@@ -83,6 +84,9 @@ export { usePromoBanners } from './hooks/usePromoBanners';
 export { useHeroBannerAdmin } from './hooks/useHeroBannerAdmin';
 export type { HeroBannerForm } from './hooks/useHeroBannerAdmin';
 export { usePromoBannersAdmin } from './hooks/usePromoBannersAdmin';
+export { useProductVariants } from './hooks/useProductVariants';
+export { useProductBatches } from './hooks/useProductBatches';
+export { useExpiringSoonBatches } from './hooks/useExpiringSoonBatches';
 
 // ── Primitives ────────────────────────────────────────────────────────────────
 export { Button } from './components/Button';

@@ -5,6 +5,7 @@ import type {
   AdminProductListResponse,
   Category,
   CategoryListResponse,
+  ProductVariant,
 } from '../types/catalog';
 
 /** Returns a paginated list of products for the public storefront. */
@@ -74,4 +75,32 @@ export async function adminUpdateProduct(id: string, data: Record<string, unknow
 /** Deletes a product by ID. */
 export async function adminDeleteProduct(id: string): Promise<{ message: string }> {
   return apiFetch(`/admin/products/${id}`, { method: 'DELETE' });
+}
+
+/** Creates a new variant (size/side/etc.) for a product. */
+export async function adminCreateVariant(
+  productId: string,
+  data: { label: string; sort_order?: number },
+): Promise<ProductVariant> {
+  return apiFetch(`/admin/products/${productId}/variants`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+/** Updates an existing product variant. */
+export async function adminUpdateVariant(
+  productId: string,
+  variantId: string,
+  data: Partial<{ label: string; sort_order: number }>,
+): Promise<ProductVariant> {
+  return apiFetch(`/admin/products/${productId}/variants/${variantId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+/** Deletes a product variant by ID. */
+export async function adminDeleteVariant(productId: string, variantId: string): Promise<void> {
+  return apiFetch(`/admin/products/${productId}/variants/${variantId}`, { method: 'DELETE' });
 }
