@@ -43,7 +43,7 @@ export function useUsersManagement() {
       return;
     }
     if (!isFullAdmin) {
-      router.push("/dashboard");
+      router.push("/");
       return;
     }
 

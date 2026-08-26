@@ -36,14 +36,14 @@ export function useNewCampaign() {
     try {
       const recipient_filter: "all" | string[] = recipientMode === "all" ? "all" : phoneList;
       const res = (await createCampaign({ name: name.trim(), message_text: message.trim(), recipient_filter })) as { id: string };
-      router.push(`/admin/campaigns/${res.id}`);
+      router.push(`/campaigns/${res.id}`);
     } catch (err) {
       setError(getErrorMessage(err as ApiError));
       setSubmitting(false);
     }
   }
 
-  const cancel = () => router.push("/admin/campaigns");
+  const cancel = () => router.push("/campaigns");
 
   return { name, setName, message, setMessage, recipientMode, setRecipientMode, phonesText, setPhonesText, phoneList, submitting, error, handleSubmit, cancel };
 }
