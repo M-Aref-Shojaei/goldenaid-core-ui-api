@@ -26,11 +26,13 @@ export function useProduct(id: string | undefined, variantId?: string) {
 
   const addToCart = (qty: number) => {
     if (!product) return;
+    const variant = variantId ? product.variants.find((v) => v.id === variantId) : undefined;
     addItem({
       product_id: product.product_id,
       title: product.title,
       base_price: product.base_price,
       thumbnail_url: product.thumbnail_url || null,
+      ...(variant ? { variant_id: variant.id, variant_label: variant.label } : {}),
     }, qty);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
