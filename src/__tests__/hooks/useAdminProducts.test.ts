@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAdminProducts } from '../../hooks/useAdminProducts';
 import { adminListProducts } from '../../api/catalog';
@@ -35,5 +35,31 @@ describe('useAdminProducts', () => {
 
     expect(result.current.total).toBe(0);
     expect(result.current.filteredProducts).toHaveLength(0);
+  });
+
+  it('searches the server (debounced) instead of filtering only the first fetched page', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.mocked(adminListProducts)
+      .mockResolvedValueOnce({ total: 1203, skip: 0, limit: 500, products: [] })
+      .mockResolvedValueOnce({
+        total: 1,
+        skip: 0,
+        limit: 500,
+        products: [{ product_id: 'p600', title: 'Product Beyond First 500', variants: [] } as never],
+      });
+
+    const { result } = renderHook(() => useAdminProducts(true));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(adminListProducts).toHaveBeenCalledWith({ limit: 500, search: undefined });
+
+    act(() => result.current.setSearchQuery('Product Beyond First 500'));
+    await act(() => vi.advanceTimersByTimeAsync(300));
+
+    expect(adminListProducts).toHaveBeenLastCalledWith({
+      limit: 500,
+      search: 'Product Beyond First 500',
+    });
+    await waitFor(() => expect(result.current.filteredProducts).toHaveLength(1));
+    vi.useRealTimers();
   });
 });

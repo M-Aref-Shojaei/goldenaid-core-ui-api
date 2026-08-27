@@ -2,7 +2,7 @@
 
 
 import { useCallback, useState } from "react";
-import { apiFetch } from "../api/client";
+import { apiFetch, ApiError, getErrorMessage } from "../api/client";
 import type { CartItem } from "../types/orders";
 
 /** Payment method options for POS checkout. */
@@ -35,6 +35,7 @@ export function usePOSCheckout(onSuccess?: () => void) {
   const [submitting, setSubmitting] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [lastOrder, setLastOrder] = useState<POSReceipt | null>(null);
+  const [error, setError] = useState("");
 
   const calculateChange = useCallback(
     (total: number) => Math.max(0, (parseFloat(amountPaid) || 0) - total),
@@ -44,6 +45,7 @@ export function usePOSCheckout(onSuccess?: () => void) {
   const checkout = useCallback(async (cart: CartItem[], total: number): Promise<boolean> => {
     if (cart.length === 0) return false;
     setSubmitting(true);
+    setError("");
     const paid = paymentMethod === "cash" ? parseFloat(amountPaid) || total : total;
     const payload: POSOrderPayload = {
       customer_name: customer.name, customer_phone: customer.phone, customer_email: customer.email,
@@ -60,7 +62,10 @@ export function usePOSCheckout(onSuccess?: () => void) {
       setShowReceipt(true);
       onSuccess?.();
       return true;
-    } catch { return false; }
+    } catch (err) {
+      setError(err instanceof ApiError ? getErrorMessage(err) : "خطا در ثبت فروش. دوباره تلاش کنید");
+      return false;
+    }
     finally { setSubmitting(false); }
   }, [amountPaid, customer, paymentMethod, onSuccess]);
 
@@ -69,5 +74,5 @@ export function usePOSCheckout(onSuccess?: () => void) {
     setCustomer(EMPTY_CUSTOMER); setPaymentMethod("cash"); setAmountPaid("");
   }, []);
 
-  return { customer, setCustomer, paymentMethod, setPaymentMethod, amountPaid, setAmountPaid, submitting, showReceipt, lastOrder, calculateChange, checkout, closeReceipt };
+  return { customer, setCustomer, paymentMethod, setPaymentMethod, amountPaid, setAmountPaid, submitting, showReceipt, lastOrder, error, calculateChange, checkout, closeReceipt };
 }
