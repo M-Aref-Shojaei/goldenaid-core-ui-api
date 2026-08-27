@@ -22,6 +22,7 @@ function normalizeProduct(p: ProductSummary): AdminProductListItem {
 /** Loads and client-side searches the admin product listing. Fetches only when `active` is true. */
 export function useAdminProducts(active: boolean) {
   const [products, setProducts] = useState<AdminProductListItem[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -30,8 +31,12 @@ export function useAdminProducts(active: boolean) {
     let cancelled = false;
     setLoading(true);
     adminListProducts({ limit: 500 })
-      .then((res) => { if (!cancelled) setProducts((res.products ?? []).map(normalizeProduct)); })
-      .catch(() => { if (!cancelled) setProducts([]); })
+      .then((res) => {
+        if (cancelled) return;
+        setProducts((res.products ?? []).map(normalizeProduct));
+        setTotal(res.total ?? 0);
+      })
+      .catch(() => { if (!cancelled) { setProducts([]); setTotal(0); } })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [active]);
@@ -44,5 +49,5 @@ export function useAdminProducts(active: boolean) {
     );
   }, [products, searchQuery]);
 
-  return { filteredProducts, loading, searchQuery, setSearchQuery };
+  return { filteredProducts, total, loading, searchQuery, setSearchQuery };
 }
