@@ -24,6 +24,8 @@ export interface OrderItemDetail {
   unit_price: number;
   qty: number;
   subtotal: number;
+  variant_id?: string;
+  variant_label?: string;
 }
 
 /** Full order record returned by the API. */
