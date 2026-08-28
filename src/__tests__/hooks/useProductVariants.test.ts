@@ -17,7 +17,7 @@ const baseProduct: ProductDetail = {
   brand_id: null,
   category_id: null,
   thumbnail_url: null,
-  variants: [{ id: 'v1', label: 'Small', sort_order: 0, attributes: { size: 'Small' } }],
+  variants: [{ id: 'v1', label: 'Small', sort_order: 0, attributes: { size: 'Small' }, sku: null }],
   images: [],
 };
 
@@ -32,12 +32,12 @@ describe('useProductVariants', () => {
     const { result } = renderHook(() => useProductVariants('p1'));
 
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.variants).toEqual([{ id: 'v1', label: 'Small', sort_order: 0, attributes: { size: 'Small' } }]);
+    expect(result.current.variants).toEqual([{ id: 'v1', label: 'Small', sort_order: 0, attributes: { size: 'Small' }, sku: null }]);
   });
 
   it('createVariant adds the created variant to state', async () => {
     vi.spyOn(catalogApi, 'adminGetProduct').mockResolvedValue(baseProduct);
-    const created: ProductVariant = { id: 'v2', label: 'Large', sort_order: 1, attributes: { size: 'Large' } };
+    const created: ProductVariant = { id: 'v2', label: 'Large', sort_order: 1, attributes: { size: 'Large' }, sku: null };
     const createVariantSpy = vi.spyOn(catalogApi, 'adminCreateVariant').mockResolvedValue(created);
 
     const { result } = renderHook(() => useProductVariants('p1'));
@@ -54,7 +54,7 @@ describe('useProductVariants', () => {
 
   it('updateVariant updates the variant in state', async () => {
     vi.spyOn(catalogApi, 'adminGetProduct').mockResolvedValue(baseProduct);
-    const updated: ProductVariant = { id: 'v1', label: 'Small', sort_order: 2, attributes: { size: 'Small' } };
+    const updated: ProductVariant = { id: 'v1', label: 'Small', sort_order: 2, attributes: { size: 'Small' }, sku: null };
     const updateVariantSpy = vi.spyOn(catalogApi, 'adminUpdateVariant').mockResolvedValue(updated);
 
     const { result } = renderHook(() => useProductVariants('p1'));

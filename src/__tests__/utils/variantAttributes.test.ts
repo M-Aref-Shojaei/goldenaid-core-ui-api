@@ -3,7 +3,7 @@ import { groupVariantsByAttribute, matchVariant } from '../../utils/variantAttri
 import type { ProductVariant } from '../../types/catalog';
 
 function variant(id: string, attributes: Record<string, string>): ProductVariant {
-  return { id, label: Object.values(attributes).join(' / '), sort_order: 0, attributes };
+  return { id, label: Object.values(attributes).join(' / '), sort_order: 0, attributes, sku: null };
 }
 
 describe('groupVariantsByAttribute', () => {

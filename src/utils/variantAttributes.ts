@@ -7,7 +7,7 @@ import type { ProductVariant } from '../types/catalog';
 export function groupVariantsByAttribute(variants: ProductVariant[]): Record<string, string[]> {
   const result: Record<string, string[]> = {};
   for (const variant of variants) {
-    for (const [key, value] of Object.entries(variant.attributes)) {
+    for (const [key, value] of Object.entries(variant.attributes ?? {})) {
       if (!result[key]) result[key] = [];
       if (!result[key].includes(value)) result[key].push(value);
     }
@@ -23,6 +23,7 @@ export function matchVariant(
   selections: Record<string, string>,
 ): ProductVariant | undefined {
   return variants.find((v) => {
+    if (!v.attributes) return false;
     const keys = Object.keys(selections);
     if (Object.keys(v.attributes).length !== keys.length) return false;
     return keys.every((k) => v.attributes[k] === selections[k]);

@@ -15,7 +15,7 @@ export interface ProductVariant {
   label: string;
   sort_order: number;
   attributes: Record<string, string>;
-  sku?: string;
+  sku: string | null;
 }
 
 /** A stock batch (received quantity with an optional expiry date) for a product/variant. */
