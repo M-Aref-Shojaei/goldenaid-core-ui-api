@@ -6,11 +6,16 @@ export interface ProductImage {
   sort_order: number;
 }
 
-/** A purchasable variant of a product (size, side, or arbitrary label). */
+/** A purchasable variant of a product — a named combination of attributes
+ *  (e.g. {"size": "L"} or {"size": "L", "color": "قرمز"} for a future
+ *  two-axis product). `label` is a server-derived display string, always
+ *  derived from `attributes`, never independently settable. */
 export interface ProductVariant {
   id: string;
   label: string;
   sort_order: number;
+  attributes: Record<string, string>;
+  sku?: string;
 }
 
 /** A stock batch (received quantity with an optional expiry date) for a product/variant. */

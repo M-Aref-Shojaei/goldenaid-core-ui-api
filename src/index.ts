@@ -28,6 +28,7 @@ export * from './types/content';
 // ── Utils ─────────────────────────────────────────────────────────────────────
 export * from './utils/constants';
 export * from './utils/helpers';
+export * from './utils/variantAttributes';
 
 // ── Providers ─────────────────────────────────────────────────────────────────
 export { AuthProvider, useAuth } from './providers/AuthProvider';

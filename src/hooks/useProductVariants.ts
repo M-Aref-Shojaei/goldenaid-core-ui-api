@@ -25,8 +25,8 @@ export function useProductVariants(productId: string) {
   }, [load]);
 
   const createVariant = useCallback(
-    async (label: string, sortOrder = 0) => {
-      const created = await adminCreateVariant(productId, { label, sort_order: sortOrder });
+    async (attributes: Record<string, string>, sortOrder = 0) => {
+      const created = await adminCreateVariant(productId, { attributes, sort_order: sortOrder });
       setVariants((prev) => [...prev, created]);
       return created;
     },
@@ -34,7 +34,7 @@ export function useProductVariants(productId: string) {
   );
 
   const updateVariant = useCallback(
-    async (variantId: string, data: Partial<{ label: string; sort_order: number }>) => {
+    async (variantId: string, data: Partial<{ attributes: Record<string, string>; sort_order: number }>) => {
       const updated = await adminUpdateVariant(productId, variantId, data);
       setVariants((prev) => prev.map((v) => (v.id === variantId ? updated : v)));
       return updated;

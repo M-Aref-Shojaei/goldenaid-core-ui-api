@@ -80,7 +80,7 @@ export async function adminDeleteProduct(id: string): Promise<{ message: string 
 /** Creates a new variant (size/side/etc.) for a product. */
 export async function adminCreateVariant(
   productId: string,
-  data: { label: string; sort_order?: number },
+  data: { attributes: Record<string, string>; sort_order?: number },
 ): Promise<ProductVariant> {
   return apiFetch(`/admin/products/${productId}/variants`, {
     method: 'POST',
@@ -92,7 +92,7 @@ export async function adminCreateVariant(
 export async function adminUpdateVariant(
   productId: string,
   variantId: string,
-  data: Partial<{ label: string; sort_order: number }>,
+  data: Partial<{ attributes: Record<string, string>; sort_order: number }>,
 ): Promise<ProductVariant> {
   return apiFetch(`/admin/products/${productId}/variants/${variantId}`, {
     method: 'PATCH',

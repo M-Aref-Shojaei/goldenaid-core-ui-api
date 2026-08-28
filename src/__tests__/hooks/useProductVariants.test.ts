@@ -17,7 +17,7 @@ const baseProduct: ProductDetail = {
   brand_id: null,
   category_id: null,
   thumbnail_url: null,
-  variants: [{ id: 'v1', label: 'Small', sort_order: 0 }],
+  variants: [{ id: 'v1', label: 'Small', sort_order: 0, attributes: { size: 'Small' } }],
   images: [],
 };
 
@@ -32,19 +32,19 @@ describe('useProductVariants', () => {
     const { result } = renderHook(() => useProductVariants('p1'));
 
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.variants).toEqual([{ id: 'v1', label: 'Small', sort_order: 0 }]);
+    expect(result.current.variants).toEqual([{ id: 'v1', label: 'Small', sort_order: 0, attributes: { size: 'Small' } }]);
   });
 
   it('createVariant adds the created variant to state', async () => {
     vi.spyOn(catalogApi, 'adminGetProduct').mockResolvedValue(baseProduct);
-    const created: ProductVariant = { id: 'v2', label: 'Large', sort_order: 1 };
+    const created: ProductVariant = { id: 'v2', label: 'Large', sort_order: 1, attributes: { size: 'Large' } };
     vi.spyOn(catalogApi, 'adminCreateVariant').mockResolvedValue(created);
 
     const { result } = renderHook(() => useProductVariants('p1'));
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => {
-      await result.current.createVariant('Large', 1);
+      await result.current.createVariant({ size: 'Large' }, 1);
     });
 
     expect(result.current.variants).toHaveLength(2);

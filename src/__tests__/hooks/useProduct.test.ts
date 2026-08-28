@@ -28,8 +28,8 @@ const baseProduct: ProductDetail = {
   category_id: null,
   thumbnail_url: null,
   variants: [
-    { id: 'v1', label: 'Large', sort_order: 0 },
-    { id: 'v2', label: 'Small', sort_order: 1 },
+    { id: 'v1', label: 'Large', sort_order: 0, attributes: { size: 'Large' } },
+    { id: 'v2', label: 'Small', sort_order: 1, attributes: { size: 'Small' } },
   ],
   images: [],
 };
