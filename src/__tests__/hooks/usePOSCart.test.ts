@@ -1,7 +1,11 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { usePOSCart } from '../../hooks/usePOSCart';
-import type { ProductSummary } from '../../types/catalog';
+import type { ProductSummary, ProductVariant } from '../../types/catalog';
+
+function makeVariant(overrides: Partial<ProductVariant> = {}): ProductVariant {
+  return { id: 'v1', label: 'L', sort_order: 0, attributes: { size: 'L' }, sku: null, ...overrides };
+}
 
 function makeProduct(overrides: Partial<ProductSummary> = {}): ProductSummary {
   return {
@@ -101,5 +105,35 @@ describe('usePOSCart', () => {
   it('total is 0 for an empty cart', () => {
     const { result } = renderHook(() => usePOSCart());
     expect(result.current.total).toBe(0);
+  });
+
+  it('carries variant_id and variant_label when adding a product with a selected variant', () => {
+    const { result } = renderHook(() => usePOSCart());
+
+    act(() => result.current.addToCart(makeProduct(), makeVariant({ id: 'v1', label: 'L' })));
+
+    expect(result.current.cart).toEqual([
+      { product_id: 'p1', title: 'Item', base_price: 1000, qty: 1, thumbnail_url: null, variant_id: 'v1', variant_label: 'L' },
+    ]);
+  });
+
+  it('keeps different variants of the same product as separate cart lines', () => {
+    const { result } = renderHook(() => usePOSCart());
+
+    act(() => result.current.addToCart(makeProduct(), makeVariant({ id: 'v1', label: 'L' })));
+    act(() => result.current.addToCart(makeProduct(), makeVariant({ id: 'v2', label: 'XL' })));
+
+    expect(result.current.cart).toHaveLength(2);
+    expect(result.current.cart.map((i) => i.variant_id)).toEqual(['v1', 'v2']);
+  });
+
+  it('increments qty instead of duplicating when the same variant is added again', () => {
+    const { result } = renderHook(() => usePOSCart());
+
+    act(() => result.current.addToCart(makeProduct(), makeVariant({ id: 'v1' })));
+    act(() => result.current.addToCart(makeProduct(), makeVariant({ id: 'v1' })));
+
+    expect(result.current.cart).toHaveLength(1);
+    expect(result.current.cart[0].qty).toBe(2);
   });
 });

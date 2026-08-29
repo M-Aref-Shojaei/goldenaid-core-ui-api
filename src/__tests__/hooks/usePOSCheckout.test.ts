@@ -119,6 +119,36 @@ describe('usePOSCheckout', () => {
     expect(apiFetch).not.toHaveBeenCalled();
   });
 
+  it('sends variant_id and variant_label for a cart line with a selected variant', async () => {
+    vi.mocked(apiFetch).mockResolvedValue({ order_id: 'o1' });
+    const { result } = renderHook(() => usePOSCheckout());
+    const variantCart: CartItem[] = [
+      { product_id: 'p1', title: 'Item', base_price: 1000, qty: 1, thumbnail_url: null, variant_id: 'v1', variant_label: 'L' },
+    ];
+
+    await act(async () => {
+      await result.current.checkout(variantCart, 1000);
+    });
+
+    const body = JSON.parse(vi.mocked(apiFetch).mock.calls[0][1]?.body as string);
+    expect(body.items).toEqual([
+      { product_id: 'p1', quantity: 1, unit_price: 1000, variant_id: 'v1', variant_label: 'L' },
+    ]);
+  });
+
+  it('omits variant_id and variant_label for a cart line with no variant', async () => {
+    vi.mocked(apiFetch).mockResolvedValue({ order_id: 'o1' });
+    const { result } = renderHook(() => usePOSCheckout());
+
+    await act(async () => {
+      await result.current.checkout(cart, 1000);
+    });
+
+    const body = JSON.parse(vi.mocked(apiFetch).mock.calls[0][1]?.body as string);
+    expect(body.items[0]).not.toHaveProperty('variant_id');
+    expect(body.items[0]).not.toHaveProperty('variant_label');
+  });
+
   it('shows a generic Farsi error for a non-ApiError failure (e.g. network error)', async () => {
     vi.mocked(apiFetch).mockRejectedValue(new TypeError('Failed to fetch'));
     const { result } = renderHook(() => usePOSCheckout());
