@@ -4,6 +4,7 @@ import { useNewProduct } from '../../hooks/useNewProduct';
 import { adminCreateProduct } from '../../api/catalog';
 import { adminUploadProductImage, adminAttachProductImage } from '../../api/admin';
 import { ToastProvider } from '../../components/Toast';
+import { ApiError } from '../../api/client';
 
 const push = vi.fn();
 
@@ -91,5 +92,23 @@ describe('useNewProduct', () => {
         'محصول ایجاد شد اما آپلود تصویر ناموفق بود — می‌توانید آن را از صفحه ویرایش اضافه کنید',
       ),
     ).toBeInTheDocument();
+  });
+
+  it('shows the shared getErrorMessage translation for an ApiError', async () => {
+    vi.mocked(adminCreateProduct).mockRejectedValue(new ApiError(403, 'Forbidden'));
+    const { result } = renderNewProduct();
+
+    await act(async () => result.current.submit());
+
+    expect(result.current.error).toBe('شما دسترسی به این بخش ندارید');
+  });
+
+  it('shows a generic Farsi error for a non-ApiError failure (e.g. network error)', async () => {
+    vi.mocked(adminCreateProduct).mockRejectedValue(new TypeError('Failed to fetch'));
+    const { result } = renderNewProduct();
+
+    await act(async () => result.current.submit());
+
+    expect(result.current.error).toBe('خطا در ایجاد محصول');
   });
 });

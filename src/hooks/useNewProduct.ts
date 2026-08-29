@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { adminCreateProduct } from "../api/catalog";
 import { adminUploadProductImage, adminAttachProductImage } from "../api/admin";
-import { ApiError } from "../api/client";
+import { ApiError, getErrorMessage } from "../api/client";
 import { useToast } from "../components/Toast";
 
 /** Form field values for creating a new product. */
@@ -24,20 +24,6 @@ const INITIAL: NewProductForm = {
   currency: "IRR", short_description: "", description: "",
   is_active: true,
 };
-
-function parseApiError(err: unknown): string {
-  if (err instanceof ApiError) {
-    try {
-      const data = JSON.parse(err.message);
-      return data.detail || data.message || "خطا در ایجاد محصول";
-    } catch {
-      if (err.status === 401) return "لطفاً دوباره وارد شوید";
-      if (err.status === 403) return "شما دسترسی به این بخش ندارید";
-      return err.message || "خطا در ایجاد محصول";
-    }
-  }
-  return (err as Error)?.message || "خطا در ایجاد محصول";
-}
 
 /** Manages the new product form state, image upload, and submission. */
 export function useNewProduct() {
@@ -84,7 +70,7 @@ export function useNewProduct() {
       }
       router.push("/products");
     } catch (err) {
-      setError(parseApiError(err));
+      setError(err instanceof ApiError ? getErrorMessage(err) : "خطا در ایجاد محصول");
     } finally {
       setLoading(false);
     }
