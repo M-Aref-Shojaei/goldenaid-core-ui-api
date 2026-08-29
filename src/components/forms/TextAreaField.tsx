@@ -16,11 +16,11 @@ export function TextAreaField({
 }: TextAreaFieldProps) {
   return (
     <div>
-      <label className="block text-sm font-medium text-neutral-300 mb-2">
+      <label htmlFor={name} className="block text-sm font-medium text-neutral-300 mb-2">
         {label} {required && <span className="text-semantic-red-light">*</span>}
       </label>
       <textarea
-        name={name} value={value} onChange={onChange}
+        id={name} name={name} value={value} onChange={onChange}
         placeholder={placeholder} rows={rows}
         className={`w-full px-4 py-3 bg-dark-secondary border ${error ? "border-error" : "border-dark-card"} rounded-lg text-white focus:outline-none focus:border-gold resize-none`}
       />
