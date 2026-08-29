@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { adminCreateProduct } from "../api/catalog";
+import { adminUploadProductImage, adminAttachProductImage } from "../api/admin";
 import { ApiError } from "../api/client";
 
 /** Form field values for creating a new product. */
@@ -15,13 +16,12 @@ export interface NewProductForm {
   short_description: string;
   description: string;
   is_active: boolean;
-  image_url: string;
 }
 
 const INITIAL: NewProductForm = {
   title: "", subtitle: "", sku: "", base_price: "",
   currency: "IRR", short_description: "", description: "",
-  is_active: true, image_url: "",
+  is_active: true,
 };
 
 function parseApiError(err: unknown): string {
@@ -43,25 +43,39 @@ export function useNewProduct() {
   const router = useRouter();
   const [form, setForm] = useState<NewProductForm>(INITIAL);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const setField = <K extends keyof NewProductForm>(key: K, value: NewProductForm[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
+  // The product doesn't exist yet, so there's no ID to upload/attach the
+  // image to. Hold onto the file and preview it locally (data URL, never
+  // sent to the server) — the real upload + attach happens in `submit`,
+  // once we have a product_id.
   const handleImageUpload = (file: File | null) => {
     if (!file) return;
+    setPendingImageFile(file);
     const reader = new FileReader();
     reader.onloadend = () => setImagePreview(reader.result as string);
     reader.readAsDataURL(file);
-    setField("image_url", URL.createObjectURL(file));
   };
 
   const submit = async () => {
     setLoading(true);
     setError("");
     try {
-      await adminCreateProduct({ ...form, base_price: parseInt(form.base_price) });
+      const { product_id } = await adminCreateProduct({ ...form, base_price: parseInt(form.base_price) });
+      if (pendingImageFile) {
+        try {
+          const uploaded = await adminUploadProductImage(product_id, pendingImageFile);
+          await adminAttachProductImage(product_id, { url: uploaded.image_url });
+        } catch {
+          // Product was created successfully — a failed image attach isn't
+          // worth blocking on; the admin can add it from the edit page.
+        }
+      }
       router.push("/products");
     } catch (err) {
       setError(parseApiError(err));

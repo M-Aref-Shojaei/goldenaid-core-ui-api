@@ -1,3 +1,5 @@
+import type { ProductImage } from './catalog';
+
 /** Admin-visible customer record. */
 export interface Customer {
   id: string;
@@ -179,7 +181,12 @@ export interface ImportResult {
   results: ImportResultRow[];
 }
 
-/** Full product detail record used in the admin product-detail view. */
+/** Full product detail record used in the admin product-detail view.
+ *
+ * Backend has no `image_url` column — images live in a `ProductImage` list.
+ * Existing images returned here have no `id` (only ones attached this
+ * session, via `adminAttachProductImage`'s response, do).
+ */
 export type AdminProductDetailProduct = {
   id: string;
   title: string;
@@ -189,7 +196,7 @@ export type AdminProductDetailProduct = {
   currency: string;
   short_description?: string;
   description?: string;
-  image_url?: string;
+  images?: ProductImage[];
   is_active: boolean;
   brand_id?: string;
   category_id?: string;

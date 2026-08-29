@@ -110,3 +110,19 @@ export async function adminUploadProductImage(
   formData.append('file', file);
   return apiFetchFormData(`/admin/products/${productId}/upload-image`, formData);
 }
+
+/** Attaches an already-uploaded image URL to a product as a ProductImage. */
+export async function adminAttachProductImage(
+  productId: string,
+  data: { url: string; alt?: string; sort_order?: number },
+): Promise<{ id: string; url: string; alt: string | null; sort_order: number }> {
+  return apiFetch(`/admin/products/${productId}/images`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+/** Removes a ProductImage from a product. */
+export async function adminRemoveProductImage(productId: string, imageId: string): Promise<void> {
+  await apiFetch(`/admin/products/${productId}/images/${imageId}`, { method: 'DELETE' });
+}
