@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { adminCreateProduct } from "../api/catalog";
 import { adminUploadProductImage, adminAttachProductImage } from "../api/admin";
 import { ApiError } from "../api/client";
+import { useToast } from "../components/Toast";
 
 /** Form field values for creating a new product. */
 export interface NewProductForm {
@@ -41,6 +42,7 @@ function parseApiError(err: unknown): string {
 /** Manages the new product form state, image upload, and submission. */
 export function useNewProduct() {
   const router = useRouter();
+  const { toast } = useToast();
   const [form, setForm] = useState<NewProductForm>(INITIAL);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
@@ -73,7 +75,11 @@ export function useNewProduct() {
           await adminAttachProductImage(product_id, { url: uploaded.image_url });
         } catch {
           // Product was created successfully — a failed image attach isn't
-          // worth blocking on; the admin can add it from the edit page.
+          // worth blocking on, but it shouldn't be silent either.
+          toast(
+            "محصول ایجاد شد اما آپلود تصویر ناموفق بود — می‌توانید آن را از صفحه ویرایش اضافه کنید",
+            "warning",
+          );
         }
       }
       router.push("/products");

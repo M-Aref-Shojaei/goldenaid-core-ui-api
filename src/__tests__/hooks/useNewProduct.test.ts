@@ -1,8 +1,9 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useNewProduct } from '../../hooks/useNewProduct';
 import { adminCreateProduct } from '../../api/catalog';
 import { adminUploadProductImage, adminAttachProductImage } from '../../api/admin';
+import { ToastProvider } from '../../components/Toast';
 
 const push = vi.fn();
 
@@ -19,6 +20,10 @@ vi.mock('../../api/admin', () => ({
   adminAttachProductImage: vi.fn(),
 }));
 
+function renderNewProduct() {
+  return renderHook(() => useNewProduct(), { wrapper: ToastProvider });
+}
+
 describe('useNewProduct', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -26,7 +31,7 @@ describe('useNewProduct', () => {
   });
 
   it('creates the product without ever sending a blob: URL', async () => {
-    const { result } = renderHook(() => useNewProduct());
+    const { result } = renderNewProduct();
     act(() => result.current.setField('title', 'Test'));
 
     await act(async () => result.current.submit());
@@ -49,7 +54,7 @@ describe('useNewProduct', () => {
       sort_order: 0,
     });
 
-    const { result } = renderHook(() => useNewProduct());
+    const { result } = renderNewProduct();
     const file = new File(['data'], 'photo.jpg', { type: 'image/jpeg' });
 
     act(() => result.current.handleImageUpload(file));
@@ -65,11 +70,26 @@ describe('useNewProduct', () => {
   it('still navigates away if the image attach fails after product creation succeeds', async () => {
     vi.mocked(adminUploadProductImage).mockRejectedValue(new Error('upload failed'));
 
-    const { result } = renderHook(() => useNewProduct());
+    const { result } = renderNewProduct();
     act(() => result.current.handleImageUpload(new File(['data'], 'photo.jpg', { type: 'image/jpeg' })));
 
     await act(async () => result.current.submit());
 
     expect(push).toHaveBeenCalledWith('/products');
+  });
+
+  it('shows a warning toast (not a silent failure) when the post-creation image step fails', async () => {
+    vi.mocked(adminUploadProductImage).mockRejectedValue(new Error('upload failed'));
+
+    const { result } = renderNewProduct();
+    act(() => result.current.handleImageUpload(new File(['data'], 'photo.jpg', { type: 'image/jpeg' })));
+
+    await act(async () => result.current.submit());
+
+    expect(
+      await screen.findByText(
+        'محصول ایجاد شد اما آپلود تصویر ناموفق بود — می‌توانید آن را از صفحه ویرایش اضافه کنید',
+      ),
+    ).toBeInTheDocument();
   });
 });
