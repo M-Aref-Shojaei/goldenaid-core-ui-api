@@ -1,5 +1,5 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { usePOSCheckout } from '../../hooks/usePOSCheckout';
 import { apiFetch, ApiError } from '../../api/client';
 import type { CartItem } from '../../types/orders';
@@ -14,6 +14,10 @@ const cart: CartItem[] = [
 ];
 
 describe('usePOSCheckout', () => {
+  beforeEach(() => {
+    vi.mocked(apiFetch).mockReset();
+  });
+
   it('shows the receipt on success', async () => {
     vi.mocked(apiFetch).mockResolvedValue({ order_id: 'o1' });
     const { result } = renderHook(() => usePOSCheckout());
@@ -24,6 +28,52 @@ describe('usePOSCheckout', () => {
 
     expect(result.current.showReceipt).toBe(true);
     expect(result.current.error).toBe('');
+  });
+
+  it('sends the correct request payload shape', async () => {
+    vi.mocked(apiFetch).mockResolvedValue({ order_id: 'o1' });
+    const { result } = renderHook(() => usePOSCheckout());
+
+    act(() => {
+      result.current.setCustomer({ name: 'Ali', phone: '0912', email: 'a@b.com' });
+      result.current.setPaymentMethod('cash');
+      result.current.setAmountPaid('1500');
+    });
+
+    await act(async () => {
+      await result.current.checkout(cart, 1000);
+    });
+
+    expect(apiFetch).toHaveBeenCalledWith('/admin/pos/orders', {
+      method: 'POST',
+      body: JSON.stringify({
+        customer_name: 'Ali',
+        customer_phone: '0912',
+        customer_email: 'a@b.com',
+        items: [{ product_id: 'p1', quantity: 1, unit_price: 1000 }],
+        payment_method: 'cash',
+        amount_paid: 1500,
+        notes: 'فروش حضوری - POS',
+        total_amount: 1000,
+      }),
+    });
+  });
+
+  it('uses total_amount as amount_paid for non-cash payment methods', async () => {
+    vi.mocked(apiFetch).mockResolvedValue({ order_id: 'o1' });
+    const { result } = renderHook(() => usePOSCheckout());
+
+    act(() => {
+      result.current.setPaymentMethod('card');
+    });
+
+    await act(async () => {
+      await result.current.checkout(cart, 1000);
+    });
+
+    const body = JSON.parse(vi.mocked(apiFetch).mock.calls[0][1]?.body as string);
+    expect(body.payment_method).toBe('card');
+    expect(body.amount_paid).toBe(1000);
   });
 
   it('surfaces an error message instead of failing silently (BUG-032)', async () => {
@@ -55,5 +105,53 @@ describe('usePOSCheckout', () => {
     });
     expect(result.current.error).toBe('');
     expect(result.current.showReceipt).toBe(true);
+  });
+
+  it('short-circuits on an empty cart without calling the API', async () => {
+    const { result } = renderHook(() => usePOSCheckout());
+
+    let outcome: boolean | undefined;
+    await act(async () => {
+      outcome = await result.current.checkout([], 0);
+    });
+
+    expect(outcome).toBe(false);
+    expect(apiFetch).not.toHaveBeenCalled();
+  });
+
+  it('shows a generic Farsi error for a non-ApiError failure (e.g. network error)', async () => {
+    vi.mocked(apiFetch).mockRejectedValue(new TypeError('Failed to fetch'));
+    const { result } = renderHook(() => usePOSCheckout());
+
+    await act(async () => {
+      await result.current.checkout(cart, 1000);
+    });
+
+    expect(result.current.error).toBe('خطا در ثبت فروش. دوباره تلاش کنید');
+    expect(result.current.showReceipt).toBe(false);
+  });
+
+  it('documents current behavior for a double-submit while a request is in flight', async () => {
+    let resolveFirst: (value: { order_id: string }) => void;
+    const firstCall = new Promise<{ order_id: string }>((resolve) => {
+      resolveFirst = resolve;
+    });
+    vi.mocked(apiFetch).mockReturnValueOnce(firstCall).mockResolvedValueOnce({ order_id: 'o2' });
+    const { result } = renderHook(() => usePOSCheckout());
+
+    let firstOutcome: Promise<boolean>;
+    let secondOutcome: Promise<boolean>;
+    act(() => {
+      firstOutcome = result.current.checkout(cart, 1000);
+      secondOutcome = result.current.checkout(cart, 1000);
+    });
+
+    await act(async () => {
+      resolveFirst({ order_id: 'o1' });
+      await Promise.all([firstOutcome, secondOutcome]);
+    });
+
+    // No in-flight guard exists today: both calls reach apiFetch.
+    expect(apiFetch).toHaveBeenCalledTimes(2);
   });
 });
