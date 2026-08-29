@@ -100,3 +100,13 @@ export async function importProducts(csvContent: string, skipDuplicates: boolean
   formData.append('file', new Blob([csvContent], { type: 'text/csv' }), 'products.csv');
   return apiFetchFormData<ImportResult>(`/admin/products/import?skip_duplicates=${skipDuplicates}`, formData);
 }
+
+/** Uploads a product image file to the catalog. */
+export async function adminUploadProductImage(
+  productId: string,
+  file: File,
+): Promise<{ success: boolean; image_url: string; filename: string; size: number }> {
+  const formData = new FormData();
+  formData.append('file', file);
+  return apiFetchFormData(`/admin/products/${productId}/upload-image`, formData);
+}
