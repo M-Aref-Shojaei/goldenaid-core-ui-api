@@ -46,6 +46,19 @@ describe('apiFetch', () => {
     });
   });
 
+  describe('request id header', () => {
+    it('sends a fresh X-Request-ID header on every call', async () => {
+      mockFetch.mockResolvedValue(mockResponse({ ok: true }));
+
+      await apiFetch('/some-path');
+
+      const [, options] = mockFetch.mock.calls[0];
+      expect(options.headers['X-Request-ID']).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+      );
+    });
+  });
+
   describe('success', () => {
     it('returns parsed JSON on 2xx', async () => {
       mockFetch.mockResolvedValue(mockResponse({ id: 1, name: 'test' }));

@@ -33,7 +33,10 @@ export async function apiFetch<T = unknown>(
   options?: RequestInit,
 ): Promise<T> {
   const token = getToken();
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'X-Request-ID': crypto.randomUUID(),
+  };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
   const controller = new AbortController();
