@@ -24,8 +24,10 @@ export const ORDER_STATUS = {
   CANCELLED: 'CANCELLED',
 } as const;
 
+const SESSION_EXPIRE_MINUTES = Number(process.env.NEXT_PUBLIC_SESSION_EXPIRE_MINUTES) || 15;
+
 export const SESSION_CONFIG = {
-  EXPIRE_MS: 15 * 60 * 1000,
+  EXPIRE_MS: SESSION_EXPIRE_MINUTES * 60 * 1000,
   CHECK_INTERVAL_MS: 60 * 1000,
 } as const;
 
