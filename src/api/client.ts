@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/browser';
 import { API_CONFIG, STORAGE_KEYS } from './config';
 import { ApiError } from './errors';
 export { ApiError, getErrorMessage } from './errors';
@@ -6,6 +7,19 @@ export { API_CONFIG, STORAGE_KEYS } from './config';
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem(STORAGE_KEYS.TOKEN);
+}
+
+/**
+ * Reports unexpected failures (server errors, network drops, timeouts) to
+ * Sentry/GlitchTip. Expected 4xx validation/auth errors are not reported —
+ * every hook used to swallow these silently in its own try/catch, so no
+ * real backend bug ever reached the error dashboard. This is the one
+ * chokepoint every API call routes through.
+ */
+function reportUnexpectedError(err: ApiError): void {
+  if (err.status === 0 || err.status === 408 || err.status >= 500) {
+    Sentry.captureException(err);
+  }
 }
 
 /**
@@ -60,14 +74,20 @@ export async function apiFetch<T = unknown>(
       } catch {
         // text is already the message
       }
-      throw new ApiError(res.status, message, code);
+      const apiErr = new ApiError(res.status, message, code);
+      reportUnexpectedError(apiErr);
+      throw apiErr;
     }
 
     return res.json();
   } catch (err: any) {
     if (err instanceof ApiError) throw err;
-    if (err?.name === 'AbortError') throw new ApiError(408, 'Request timeout', 'TIMEOUT');
-    throw new ApiError(0, err?.message || 'Network error', 'NETWORK_ERROR');
+    const apiErr =
+      err?.name === 'AbortError'
+        ? new ApiError(408, 'Request timeout', 'TIMEOUT')
+        : new ApiError(0, err?.message || 'Network error', 'NETWORK_ERROR');
+    reportUnexpectedError(apiErr);
+    throw apiErr;
   } finally {
     clearTimeout(tid);
   }
@@ -97,7 +117,9 @@ export async function apiFetchFormData<T = unknown>(
     } catch {
       // text is already the message
     }
-    throw new ApiError(res.status, message);
+    const apiErr = new ApiError(res.status, message);
+    reportUnexpectedError(apiErr);
+    throw apiErr;
   }
 
   return res.json();

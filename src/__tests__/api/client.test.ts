@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { apiFetch, apiFetchFormData } from '../../api/client';
 import { ApiError } from '../../api/errors';
+
+const captureException = vi.fn();
+vi.mock('@sentry/browser', () => ({ captureException }));
+
+const { apiFetch, apiFetchFormData } = await import('../../api/client');
 
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
@@ -18,6 +22,40 @@ function mockResponse(body: unknown, status = 200) {
 beforeEach(() => {
   vi.clearAllMocks();
   localStorage.clear();
+});
+
+describe('error reporting to Sentry/GlitchTip', () => {
+  it('reports 5xx responses (real backend bugs)', async () => {
+    mockFetch.mockResolvedValue(mockResponse('Internal Server Error', 500));
+
+    await expect(apiFetch('/error')).rejects.toBeInstanceOf(ApiError);
+
+    expect(captureException).toHaveBeenCalledTimes(1);
+  });
+
+  it('reports network failures', async () => {
+    mockFetch.mockRejectedValue(new Error('Failed to fetch'));
+
+    await expect(apiFetch('/test')).rejects.toBeInstanceOf(ApiError);
+
+    expect(captureException).toHaveBeenCalledTimes(1);
+  });
+
+  it('reports timeouts', async () => {
+    mockFetch.mockRejectedValue(Object.assign(new Error('Aborted'), { name: 'AbortError' }));
+
+    await expect(apiFetch('/slow')).rejects.toBeInstanceOf(ApiError);
+
+    expect(captureException).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not report expected 4xx validation/auth errors', async () => {
+    mockFetch.mockResolvedValue(mockResponse({ detail: 'Not found' }, 404));
+
+    await expect(apiFetch('/missing')).rejects.toBeInstanceOf(ApiError);
+
+    expect(captureException).not.toHaveBeenCalled();
+  });
 });
 
 afterEach(() => {
