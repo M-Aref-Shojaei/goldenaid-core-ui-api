@@ -79,7 +79,12 @@ export async function apiFetch<T = unknown>(
       throw apiErr;
     }
 
-    return res.json();
+    // A 204 (or any empty body) has nothing for res.json() to parse -- every
+    // DELETE endpoint returns this, and res.json() throws a real
+    // "Unexpected end of JSON input" SyntaxError on it in a real browser.
+    if (res.status === 204) return undefined as T;
+    const raw = await res.text();
+    return raw ? JSON.parse(raw) : (undefined as T);
   } catch (err: any) {
     if (err instanceof ApiError) throw err;
     const apiErr =
@@ -122,5 +127,7 @@ export async function apiFetchFormData<T = unknown>(
     throw apiErr;
   }
 
-  return res.json();
+  if (res.status === 204) return undefined as T;
+  const raw = await res.text();
+  return raw ? JSON.parse(raw) : (undefined as T);
 }

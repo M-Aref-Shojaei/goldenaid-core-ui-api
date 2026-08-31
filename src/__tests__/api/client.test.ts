@@ -115,6 +115,20 @@ describe('apiFetch', () => {
       expect(options.method).toBe('POST');
       expect(options.body).toBe(JSON.stringify({ name: 'x' }));
     });
+
+    it('does not throw on a 204 No Content response (e.g. DELETE endpoints)', async () => {
+      // A real 204 response has no body -- res.json() throws "Unexpected
+      // end of JSON input" on it, which every DELETE call (variants,
+      // batches, images, ...) hit in production every single time.
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 204,
+        json: () => Promise.reject(new SyntaxError('Unexpected end of JSON input')),
+        text: () => Promise.resolve(''),
+      });
+
+      await expect(apiFetch('/items/1', { method: 'DELETE' })).resolves.toBeUndefined();
+    });
   });
 
   describe('error handling', () => {
