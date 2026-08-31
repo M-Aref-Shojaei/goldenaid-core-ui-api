@@ -1,5 +1,5 @@
 import { apiFetch } from './client';
-import type { StockBatch } from '../types/catalog';
+import type { StockBatch, StockItem } from '../types/catalog';
 
 /** Creates a new stock batch for a product (optionally scoped to a variant). */
 export async function adminCreateBatch(data: {
@@ -38,4 +38,9 @@ export async function adminUpdateBatch(
 /** Deletes a stock batch by ID. */
 export async function adminDeleteBatch(batchId: string): Promise<void> {
   return apiFetch(`/admin/stock/batches/${batchId}`, { method: 'DELETE' });
+}
+
+/** Returns current available stock (one row per variant) for a product. */
+export async function adminGetStockItems(productId: string): Promise<StockItem[]> {
+  return apiFetch(`/admin/stock/items?product_id=${encodeURIComponent(productId)}`);
 }

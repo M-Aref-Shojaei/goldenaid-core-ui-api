@@ -28,6 +28,14 @@ export interface StockBatch {
   received_at: string;
 }
 
+/** Current available stock for one (product, variant) pair. */
+export interface StockItem {
+  product_id: string;
+  variant_id: string | null;
+  available_qty: number;
+  unit_label: string;
+}
+
 /** Product summary as returned in list endpoints. */
 export interface ProductSummary {
   product_id: string;
