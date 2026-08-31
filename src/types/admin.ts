@@ -103,12 +103,19 @@ export interface AdminStats {
 /** Kind of event surfaced in the recent-activity feed. */
 export type RecentActivityType = 'product_updated' | 'order_created';
 
+/** Where an order originated. */
+export type OrderChannel = 'online' | 'pos';
+
 /** Single entry in the recent-activity feed. */
 export interface RecentActivityItem {
   type: RecentActivityType;
   id: string;
   title: string;
   timestamp: string;
+  /** Only present for type: 'order_created'. */
+  channel?: OrderChannel;
+  /** Titles of the first few items in the order (not the full order). Only present for type: 'order_created'. */
+  items_preview?: string[];
 }
 
 /** Response shape for the recent-activity feed endpoint. */
@@ -126,6 +133,7 @@ export interface AdminOrder {
   total_amount: number;
   created_at: string;
   updated_at: string;
+  channel?: OrderChannel;
 }
 
 /** Status filter option for the admin orders page. */
