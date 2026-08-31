@@ -100,6 +100,22 @@ export interface AdminStats {
   total_sms_sent: number;
 }
 
+/** Kind of event surfaced in the recent-activity feed. */
+export type RecentActivityType = 'product_updated' | 'order_created';
+
+/** Single entry in the recent-activity feed. */
+export interface RecentActivityItem {
+  type: RecentActivityType;
+  id: string;
+  title: string;
+  timestamp: string;
+}
+
+/** Response shape for the recent-activity feed endpoint. */
+export interface RecentActivityResponse {
+  items: RecentActivityItem[];
+}
+
 /** Order summary as seen in the admin orders listing. */
 export interface AdminOrder {
   id: string;

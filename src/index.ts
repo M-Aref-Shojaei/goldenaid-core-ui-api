@@ -56,6 +56,7 @@ export { useProfile } from './hooks/useProfile';
 export { useOrderDetail } from './hooks/useOrderDetail';
 export { useOrderFilters, filterOrders } from './hooks/useOrderFilters';
 export { useAdminStats } from './hooks/useAdminStats';
+export { useRecentActivity } from './hooks/useRecentActivity';
 export { useOrders } from './hooks/useOrders';
 export { useCustomers } from './hooks/useCustomers';
 export { useBulkSms } from './hooks/useBulkSms';

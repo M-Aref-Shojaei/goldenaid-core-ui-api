@@ -9,6 +9,9 @@ vi.mock('../../api/client', async (importOriginal) => {
   return { ...actual, apiFetch: vi.fn() };
 });
 
+const toast = vi.fn();
+vi.mock('../../components/Toast', () => ({ useToast: () => ({ toast }) }));
+
 const cart: CartItem[] = [
   { product_id: 'p1', title: 'Item', base_price: 1000, qty: 1, thumbnail_url: null },
 ];
@@ -16,6 +19,18 @@ const cart: CartItem[] = [
 describe('usePOSCheckout', () => {
   beforeEach(() => {
     vi.mocked(apiFetch).mockReset();
+    toast.mockReset();
+  });
+
+  it('shows a success toast on a successful checkout', async () => {
+    vi.mocked(apiFetch).mockResolvedValue({ order_id: 'o1' });
+    const { result } = renderHook(() => usePOSCheckout());
+
+    await act(async () => {
+      await result.current.checkout(cart, 1000);
+    });
+
+    expect(toast).toHaveBeenCalledWith('فروش با موفقیت ثبت شد', 'success');
   });
 
   it('shows the receipt on success', async () => {

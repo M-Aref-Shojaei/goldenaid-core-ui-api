@@ -1,6 +1,6 @@
 {
   "name": "@m-aref-shojaei/core-ui-api",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -51,6 +51,7 @@
     "next": "^16.2.7"
   },
   "dependencies": {
+    "@sentry/browser": "^10.72.0",
     "axios": "^1.17.0",
     "lucide-react": "^1.23.0",
     "react": "^19.2.7"

@@ -4,6 +4,7 @@ import type {
   CampaignAnalytics,
   CustomerListResponse,
   ImportResult,
+  RecentActivityResponse,
   UserListResponse,
   UserRole,
 } from '../types/admin';
@@ -11,6 +12,11 @@ import type {
 /** Returns high-level dashboard statistics (users, campaigns, SMS sent). */
 export async function getAdminStats(): Promise<AdminStats> {
   return apiFetch('/admin/stats');
+}
+
+/** Returns the most recent admin-relevant activity events (product updates, new orders). */
+export async function getRecentActivity(limit = 10): Promise<RecentActivityResponse> {
+  return apiFetch(`/admin/activity/recent?limit=${limit}`);
 }
 
 /** Returns a paginated customer list, optionally filtered by phone search query. */

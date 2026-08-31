@@ -3,6 +3,7 @@
 
 import { useCallback, useState } from "react";
 import { apiFetch, ApiError, getErrorMessage } from "../api/client";
+import { useToast } from "../components/Toast";
 import type { CartItem } from "../types/orders";
 
 /** Payment method options for POS checkout. */
@@ -29,6 +30,7 @@ const EMPTY_CUSTOMER: POSCustomer = { name: "", phone: "", email: "" };
 
 /** Manages customer info, payment method, and checkout submission for the POS screen. */
 export function usePOSCheckout(onSuccess?: () => void) {
+  const { toast } = useToast();
   const [customer, setCustomer] = useState<POSCustomer>(EMPTY_CUSTOMER);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
   const [amountPaid, setAmountPaid] = useState("");
@@ -60,6 +62,7 @@ export function usePOSCheckout(onSuccess?: () => void) {
       });
       setLastOrder({ order_id: data.order_id, customer, items: cart, total, paymentMethod, amountPaid: paid, change: paymentMethod === "cash" ? Math.max(0, paid - total) : 0 });
       setShowReceipt(true);
+      toast("فروش با موفقیت ثبت شد", "success");
       onSuccess?.();
       return true;
     } catch (err) {
@@ -67,7 +70,7 @@ export function usePOSCheckout(onSuccess?: () => void) {
       return false;
     }
     finally { setSubmitting(false); }
-  }, [amountPaid, customer, paymentMethod, onSuccess]);
+  }, [amountPaid, customer, paymentMethod, onSuccess, toast]);
 
   const closeReceipt = useCallback(() => {
     setShowReceipt(false); setLastOrder(null);
