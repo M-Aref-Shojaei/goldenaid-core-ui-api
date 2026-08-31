@@ -121,6 +121,9 @@ export { Badge } from './components/Badge';
 export type { BadgeProps } from './components/Badge';
 
 export { ToastProvider, useToast } from './components/Toast';
+export { MaintenanceGate } from './components/MaintenanceGate';
+export type { MaintenanceGateProps } from './components/MaintenanceGate';
+export { useBackendHealth } from './hooks/useBackendHealth';
 export type { ToastItem, ToastVariant } from './components/Toast';
 
 export { EmptyState } from './components/EmptyState';
