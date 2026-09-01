@@ -62,6 +62,9 @@ export interface CartItem {
   thumbnail_url: string | null;
   variant_id?: string;
   variant_label?: string;
+  /** POS-only FEFO selection: which batch/lot this line sells from. */
+  batch_id?: string;
+  batch_expiry_date?: string | null;
 }
 
 /** Inventory stock-reservation record. */

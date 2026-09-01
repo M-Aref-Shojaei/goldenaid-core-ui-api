@@ -12,7 +12,7 @@ export type PaymentMethod = "cash" | "card" | "transfer";
 /** Walk-in customer info collected during POS checkout. */
 export interface POSCustomer { name: string; phone: string; email: string; }
 
-interface POSOrderItemPayload { product_id: string; quantity: number; unit_price: number; variant_id?: string; variant_label?: string; }
+interface POSOrderItemPayload { product_id: string; quantity: number; unit_price: number; variant_id?: string; variant_label?: string; batch_id?: string; }
 
 interface POSOrderPayload {
   customer_name: string; customer_phone: string; customer_email: string;
@@ -51,7 +51,7 @@ export function usePOSCheckout(onSuccess?: () => void) {
     const paid = paymentMethod === "cash" ? parseFloat(amountPaid) || total : total;
     const payload: POSOrderPayload = {
       customer_name: customer.name, customer_phone: customer.phone, customer_email: customer.email,
-      items: cart.map((i) => ({ product_id: i.product_id, quantity: i.qty, unit_price: i.base_price, variant_id: i.variant_id, variant_label: i.variant_label })),
+      items: cart.map((i) => ({ product_id: i.product_id, quantity: i.qty, unit_price: i.base_price, variant_id: i.variant_id, variant_label: i.variant_label, batch_id: i.batch_id })),
       payment_method: paymentMethod, amount_paid: paid, notes: "فروش حضوری - POS",
       total_amount: total,
     };

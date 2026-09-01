@@ -2,18 +2,18 @@
 
 
 import { useCallback, useMemo, useState } from "react";
-import type { ProductSummary, ProductVariant } from "../types/catalog";
+import type { ProductSummary, ProductVariant, StockBatch } from "../types/catalog";
 import type { CartItem } from "../types/orders";
 
 /** In-memory shopping cart for the point-of-sale screen. */
 export function usePOSCart() {
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  const addToCart = useCallback((product: ProductSummary, variant?: ProductVariant) => {
+  const addToCart = useCallback((product: ProductSummary, variant?: ProductVariant, batch?: StockBatch) => {
     setCart((prev) => {
-      const existing = prev.find((i) => i.product_id === product.product_id && i.variant_id === variant?.id);
+      const existing = prev.find((i) => i.product_id === product.product_id && i.variant_id === variant?.id && i.batch_id === batch?.id);
       if (existing) return prev.map((i) => i === existing ? { ...i, qty: i.qty + 1 } : i);
-      return [...prev, { product_id: product.product_id, title: product.title, base_price: product.base_price, qty: 1, thumbnail_url: product.thumbnail_url, variant_id: variant?.id, variant_label: variant?.label }];
+      return [...prev, { product_id: product.product_id, title: product.title, base_price: product.base_price, qty: 1, thumbnail_url: product.thumbnail_url, variant_id: variant?.id, variant_label: variant?.label, batch_id: batch?.id, batch_expiry_date: batch?.expiry_date }];
     });
   }, []);
 
