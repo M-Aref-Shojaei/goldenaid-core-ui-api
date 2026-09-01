@@ -89,6 +89,8 @@ export { usePromoBannersAdmin } from './hooks/usePromoBannersAdmin';
 export { useProductVariants } from './hooks/useProductVariants';
 export { useProductBatches } from './hooks/useProductBatches';
 export { useProductStock } from './hooks/useProductStock';
+export { useAllProductsStock } from './hooks/useAllProductsStock';
+export type { ProductStockSummary } from './hooks/useAllProductsStock';
 export { useExpiringSoonBatches } from './hooks/useExpiringSoonBatches';
 
 // ── Primitives ────────────────────────────────────────────────────────────────
