@@ -44,3 +44,15 @@ export async function adminDeleteBatch(batchId: string): Promise<void> {
 export async function adminGetStockItems(productId: string): Promise<StockItem[]> {
   return apiFetch(`/admin/stock/items?product_id=${encodeURIComponent(productId)}`);
 }
+
+/**
+ * Returns current available stock for *every* product, one row per
+ * (product, variant), in a single request.
+ *
+ * POS shows a stock count on every card and holds the whole catalogue, so
+ * asking per product would mean one HTTP request per product on every page
+ * load.
+ */
+export async function adminGetAllStockItems(): Promise<StockItem[]> {
+  return apiFetch('/admin/stock/items');
+}
