@@ -26,6 +26,8 @@ export interface StockBatch {
   quantity: number;
   expiry_date: string | null;
   received_at: string;
+  /** Supplier invoice number/code for this lot, if any. */
+  code: string | null;
 }
 
 /** Current available stock for one (product, variant) pair. */
