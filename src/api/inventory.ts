@@ -7,6 +7,7 @@ export async function adminCreateBatch(data: {
   variant_id?: string;
   quantity?: number;
   expiry_date?: string;
+  code?: string;
 }): Promise<StockBatch> {
   return apiFetch('/admin/stock/batches', {
     method: 'POST',
@@ -27,7 +28,7 @@ export async function adminListExpiringSoonBatches(days = 30): Promise<StockBatc
 /** Updates an existing stock batch (quantity and/or expiry date). */
 export async function adminUpdateBatch(
   batchId: string,
-  data: Partial<{ quantity: number; expiry_date: string }>,
+  data: Partial<{ quantity: number; expiry_date: string; code: string }>,
 ): Promise<StockBatch> {
   return apiFetch(`/admin/stock/batches/${batchId}`, {
     method: 'PATCH',

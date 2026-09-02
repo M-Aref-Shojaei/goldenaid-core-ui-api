@@ -11,6 +11,7 @@ const baseBatch: StockBatch = {
   quantity: 10,
   expiry_date: '2027-01-01',
   received_at: '2026-08-01T00:00:00Z',
+  code: null,
 };
 
 beforeEach(() => {
@@ -39,6 +40,24 @@ describe('useProductBatches', () => {
       await result.current.createBatch({ quantity: 10, expiry_date: '2027-01-01' });
     });
 
+    expect(result.current.batches).toEqual([created]);
+  });
+
+  it('createBatch passes a supplied code through to the API', async () => {
+    vi.spyOn(inventoryApi, 'adminListBatches').mockResolvedValue([]);
+    const created: StockBatch = { ...baseBatch, id: 'b3', code: 'INV-42' };
+    const createSpy = vi.spyOn(inventoryApi, 'adminCreateBatch').mockResolvedValue(created);
+
+    const { result } = renderHook(() => useProductBatches('p1'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.createBatch({ quantity: 10, code: 'INV-42' });
+    });
+
+    expect(createSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ product_id: 'p1', code: 'INV-42' }),
+    );
     expect(result.current.batches).toEqual([created]);
   });
 

@@ -25,7 +25,7 @@ export function useProductBatches(productId: string) {
   }, [load]);
 
   const createBatch = useCallback(
-    async (data: { variant_id?: string; quantity?: number; expiry_date?: string }) => {
+    async (data: { variant_id?: string; quantity?: number; expiry_date?: string; code?: string }) => {
       const created = await adminCreateBatch({ product_id: productId, ...data });
       setBatches((prev) => [...prev, created]);
       return created;
@@ -34,7 +34,7 @@ export function useProductBatches(productId: string) {
   );
 
   const updateBatch = useCallback(
-    async (batchId: string, data: Partial<{ quantity: number; expiry_date: string }>) => {
+    async (batchId: string, data: Partial<{ quantity: number; expiry_date: string; code: string }>) => {
       const updated = await adminUpdateBatch(batchId, data);
       setBatches((prev) => prev.map((b) => (b.id === batchId ? updated : b)));
       return updated;

@@ -11,6 +11,7 @@ const baseBatch: StockBatch = {
   quantity: 5,
   expiry_date: '2026-09-01',
   received_at: '2026-08-01T00:00:00Z',
+  code: null,
 };
 
 beforeEach(() => {

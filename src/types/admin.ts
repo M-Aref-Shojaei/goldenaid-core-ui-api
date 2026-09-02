@@ -223,6 +223,7 @@ export type AdminProductDetailProduct = {
   images?: ProductImage[];
   is_active: boolean;
   brand_id?: string;
+  brand_name?: string | null;
   category_id?: string;
   created_at: string;
   updated_at: string;
