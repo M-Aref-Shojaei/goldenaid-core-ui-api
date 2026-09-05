@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { adminListExpiringSoonBatches } from "../api/inventory";
-import type { StockBatch } from "../types/catalog";
+import type { ExpiringSoonBatch } from "../types/catalog";
 
 /** Loads stock batches expiring within `days` days, for the admin low-stock/expiry dashboard. */
 export function useExpiringSoonBatches(days = 30) {
-  const [batches, setBatches] = useState<StockBatch[]>([]);
+  const [batches, setBatches] = useState<ExpiringSoonBatch[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

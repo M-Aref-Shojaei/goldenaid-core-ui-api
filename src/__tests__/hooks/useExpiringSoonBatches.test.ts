@@ -2,9 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useExpiringSoonBatches } from '../../hooks/useExpiringSoonBatches';
 import * as inventoryApi from '../../api/inventory';
-import type { StockBatch } from '../../types/catalog';
+import type { ExpiringSoonBatch } from '../../types/catalog';
 
-const baseBatch: StockBatch = {
+const baseBatch: ExpiringSoonBatch = {
   id: 'b1',
   product_id: 'p1',
   variant_id: null,
@@ -12,6 +12,8 @@ const baseBatch: StockBatch = {
   expiry_date: '2026-09-01',
   received_at: '2026-08-01T00:00:00Z',
   code: null,
+  product_title: 'شیر خشک نوزاد',
+  variant_label: null,
 };
 
 beforeEach(() => {

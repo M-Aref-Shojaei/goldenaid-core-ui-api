@@ -1,5 +1,5 @@
 import { apiFetch } from './client';
-import type { StockBatch, StockItem } from '../types/catalog';
+import type { ExpiringSoonBatch, StockBatch, StockItem } from '../types/catalog';
 
 /** Creates a new stock batch for a product (optionally scoped to a variant). */
 export async function adminCreateBatch(data: {
@@ -20,8 +20,9 @@ export async function adminListBatches(productId: string): Promise<StockBatch[]>
   return apiFetch(`/admin/stock/batches?product_id=${encodeURIComponent(productId)}`);
 }
 
-/** Returns stock batches expiring within the given number of days. */
-export async function adminListExpiringSoonBatches(days = 30): Promise<StockBatch[]> {
+/** Returns stock batches expiring within the given number of days, each enriched
+ * with its product/variant title for display. */
+export async function adminListExpiringSoonBatches(days = 30): Promise<ExpiringSoonBatch[]> {
   return apiFetch(`/admin/stock/batches/expiring-soon?days=${days}`);
 }
 

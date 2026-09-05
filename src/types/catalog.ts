@@ -30,6 +30,15 @@ export interface StockBatch {
   code: string | null;
 }
 
+/** A `StockBatch` as returned by the expiring-soon endpoint, enriched by
+ * core-bff with the product/variant name for display (Inventory only knows
+ * IDs). `product_title` falls back to a "deleted product" label if the
+ * product no longer exists in Catalog. */
+export interface ExpiringSoonBatch extends StockBatch {
+  product_title: string;
+  variant_label: string | null;
+}
+
 /** Current available stock for one (product, variant) pair. */
 export interface StockItem {
   product_id: string;
