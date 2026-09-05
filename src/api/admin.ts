@@ -1,5 +1,6 @@
 import { apiFetch, apiFetchFormData } from './client';
 import type {
+  AdminOrder,
   AdminStats,
   CampaignAnalytics,
   CustomerListResponse,
@@ -90,6 +91,11 @@ export async function getCampaignAnalytics(id: string): Promise<CampaignAnalytic
 /** Returns all orders for the admin panel. */
 export async function getAdminOrders(): Promise<unknown[]> {
   return apiFetch('/admin/orders');
+}
+
+/** Returns a single order by ID for the admin panel (admin-gated). */
+export async function getAdminOrder(orderId: string): Promise<AdminOrder> {
+  return apiFetch(`/admin/orders/${orderId}`);
 }
 
 /** Sends an SMS notification about a specific order. */

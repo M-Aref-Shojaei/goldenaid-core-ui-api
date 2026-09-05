@@ -1,4 +1,5 @@
 import type { ProductImage } from './catalog';
+import type { OrderItemDetail } from './orders';
 
 /** Admin-visible customer record. */
 export interface Customer {
@@ -134,6 +135,7 @@ export interface AdminOrder {
   created_at: string;
   updated_at: string;
   channel?: OrderChannel;
+  items?: OrderItemDetail[];
 }
 
 /** Status filter option for the admin orders page. */
