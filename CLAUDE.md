@@ -8,11 +8,11 @@ You are working in the `core-ui-api` shared package.
 
 ## 1. Before any work — read
 
-- `@../../docs/Project-Knowledge-Base/00-Index/Home.md`
-- `@../../docs/Project-Knowledge-Base/03-Frontend/core-ui-api/Core-UI-API.md`
-- `@../../docs/Project-Knowledge-Base/03-Frontend/core-ui-api/Structure.md`
-- `@../../docs/Project-Knowledge-Base/03-Frontend/core-ui-api/Schemas.md`
-- `@../../docs/Project-Knowledge-Base/03-Frontend/core-ui-api/Tests.md`
+- `@../golden-aid-online/docs/GoldenAid/00-Index/Home.md`
+- `@../golden-aid-online/docs/GoldenAid/03-Frontend/core-ui-api/Core-UI-API.md`
+- `@../golden-aid-online/docs/GoldenAid/03-Frontend/core-ui-api/Structure.md`
+- `@../golden-aid-online/docs/GoldenAid/03-Frontend/core-ui-api/Schemas.md`
+- `@../golden-aid-online/docs/GoldenAid/03-Frontend/core-ui-api/Tests.md`
 
 ---
 
@@ -20,7 +20,7 @@ You are working in the `core-ui-api` shared package.
 
 **b) Add the task to the global Bug Registry:**
 
-- Append a new row to `@../../docs/Project-Knowledge-Base/08-Issues/Bug-Registry.md`
+- Append a new row to `@../golden-aid-online/docs/GoldenAid/08-Issues/Bug-Registry.md`
 - Use the next available TASK-xxx ID
 - Set status to 🟡 In Progress
 - Update the `updated:` date in the frontmatter
@@ -41,17 +41,17 @@ Do NOT run `git push` immediately. First, review every file changed since the la
 
 Only after all gates are green: `git add`, `git commit`, `git push`.
 
-Full checklist: `@../../docs/Project-Knowledge-Base/02-Governance/Push-Checklist.md`
+Full checklist: `@../golden-aid-online/docs/GoldenAid/02-Governance/Push-Checklist.md`
 
 ---
 
 ## 3. When done — update all docs
 
 - Before creating the report, review the actual code diff for this task (not the original plan) and base the report and all doc updates below on what was actually implemented
-- Create a report file at `@../../docs/Project-Knowledge-Base/08-Issues/reports/<ID>-<short-name>.md` summarizing what was done (problem, solution, files changed), and link it from the Report column in Bug-Registry.md
-- Mark the task ✅ Solved in `@../../docs/Project-Knowledge-Base/08-Issues/Bug-Registry.md`
-- Mark the task complete in `@../../docs/Project-Knowledge-Base/03-Frontend/core-ui-api/Core-UI-API.md`
+- Create a report file at `@../golden-aid-online/docs/GoldenAid/08-Issues/reports/<ID>-<short-name>.md` summarizing what was done (problem, solution, files changed), and link it from the Report column in Bug-Registry.md
+- Mark the task ✅ Solved in `@../golden-aid-online/docs/GoldenAid/08-Issues/Bug-Registry.md`
+- Mark the task complete in `@../golden-aid-online/docs/GoldenAid/03-Frontend/core-ui-api/Core-UI-API.md`
 - Move the completed task to the bottom of its list/table in both Bug-Registry.md and Core-UI-API.md, so open and 🟡 In Progress tasks stay visible at the top
-- If folder/file layout changed → update `@../../docs/Project-Knowledge-Base/03-Frontend/core-ui-api/Structure.md`
-- If types, exports, or API client changed → update `@../../docs/Project-Knowledge-Base/03-Frontend/core-ui-api/Schemas.md`
-- If tests were added or changed → update `@../../docs/Project-Knowledge-Base/03-Frontend/core-ui-api/Tests.md`
+- If folder/file layout changed → update `@../golden-aid-online/docs/GoldenAid/03-Frontend/core-ui-api/Structure.md`
+- If types, exports, or API client changed → update `@../golden-aid-online/docs/GoldenAid/03-Frontend/core-ui-api/Schemas.md`
+- If tests were added or changed → update `@../golden-aid-online/docs/GoldenAid/03-Frontend/core-ui-api/Tests.md`
