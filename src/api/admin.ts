@@ -6,6 +6,9 @@ import type {
   CustomerListResponse,
   ImportResult,
   RecentActivityResponse,
+  SupplierInvoice,
+  SupplierInvoiceCreate,
+  SupplierInvoiceDetail,
   UserListResponse,
   UserRole,
 } from '../types/admin';
@@ -137,4 +140,29 @@ export async function adminAttachProductImage(
 /** Removes a ProductImage from a product. */
 export async function adminRemoveProductImage(productId: string, imageId: string): Promise<void> {
   await apiFetch(`/admin/products/${productId}/images/${imageId}`, { method: 'DELETE' });
+}
+
+/** Lists supplier invoices, optionally restricted to a date range. */
+export async function getSupplierInvoices(params?: {
+  start_date?: string;
+  end_date?: string;
+}): Promise<SupplierInvoice[]> {
+  const q = new URLSearchParams();
+  if (params?.start_date) q.set('start_date', params.start_date);
+  if (params?.end_date) q.set('end_date', params.end_date);
+  const qs = q.toString();
+  return apiFetch(`/admin/supplier-invoices${qs ? `?${qs}` : ''}`);
+}
+
+/** Gets one supplier invoice with its line items. */
+export async function getSupplierInvoice(id: string): Promise<SupplierInvoiceDetail> {
+  return apiFetch(`/admin/supplier-invoices/${id}`);
+}
+
+/** Creates a supplier invoice, its line items, and a stock batch per line. */
+export async function createSupplierInvoice(data: SupplierInvoiceCreate): Promise<SupplierInvoiceDetail> {
+  return apiFetch('/admin/supplier-invoices', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
 }

@@ -230,3 +230,52 @@ export type AdminProductDetailProduct = {
   created_at: string;
   updated_at: string;
 };
+
+/** One line item on a supplier invoice, enriched with the product's title
+ *  (Inventory only knows the product id; the BFF attaches the title). */
+export type SupplierInvoiceItem = {
+  id: string;
+  product_id: string;
+  variant_id?: string | null;
+  quantity: number;
+  unit_cost: number;
+  product_title: string;
+};
+
+/** Supplier invoice as returned by the list endpoint (no line items, but
+ *  annotated with an item count and total amount computed server-side). */
+export type SupplierInvoice = {
+  id: string;
+  supplier_name: string;
+  invoice_number?: string | null;
+  invoice_date: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at?: string | null;
+  payment_method?: 'cash' | 'transfer' | null;
+  paid_at?: string | null;
+  payment_reference?: string | null;
+  item_count: number;
+  total_amount: number;
+};
+
+/** Supplier invoice detail, including its line items. */
+export type SupplierInvoiceDetail = SupplierInvoice & {
+  items: SupplierInvoiceItem[];
+};
+
+/** Payload for creating one supplier invoice line item. */
+export type SupplierInvoiceItemCreate = {
+  product_id: string;
+  variant_id?: string;
+  quantity: number;
+  unit_cost: number;
+};
+
+/** Payload for creating a supplier invoice. */
+export type SupplierInvoiceCreate = {
+  supplier_name: string;
+  invoice_number?: string;
+  invoice_date: string;
+  items: SupplierInvoiceItemCreate[];
+};
