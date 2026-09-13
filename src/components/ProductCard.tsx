@@ -1,9 +1,11 @@
 "use client";
 
 
+import { useState } from "react";
 import Link from "next/link";
 import type { ProductSummary } from "../types/catalog";
 import { formatPrice } from "../utils/helpers";
+import { useCart } from "../providers/CartProvider";
 
 /** Props for the {@link ProductCard} component. */
 interface ProductCardProps {
@@ -21,9 +23,34 @@ interface ProductCardProps {
 /**
  * Store product card matching Figma: white card, product image, title, Toman price, gold cart button.
  *
+ * Adds directly to cart for products with zero or one variant. Products with
+ * more than one variant (e.g. size/color) still need an explicit choice, so
+ * their button navigates to the detail page instead of guessing one.
+ *
  * @param props - {@link ProductCardProps}
  */
 export function ProductCard({ product, countdownLabel }: ProductCardProps) {
+  const { addItem } = useCart();
+  const [added, setAdded] = useState(false);
+  const needsVariantChoice = product.variants.length > 1;
+
+  const handleAddToCart = () => {
+    const variant = product.variants[0];
+    addItem(
+      {
+        product_id: product.product_id,
+        title: product.title,
+        base_price: product.base_price,
+        thumbnail_url: product.thumbnail_url,
+        variant_id: variant?.id,
+        variant_label: variant?.label,
+      },
+      1,
+    );
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
+  };
+
   return (
     <div className="bg-neutral-0 dark:bg-dark-card border border-neutral-75 dark:border-neutral-700 rounded-product overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group flex flex-col">
       {/* Image area */}
@@ -70,16 +97,37 @@ export function ProductCard({ product, countdownLabel }: ProductCardProps) {
             {formatPrice(product.base_price)}
           </p>
 
-          {/* Add to cart button */}
-          <Link
-            href={`/products/${product.product_id}`}
-            className="flex items-center justify-center gap-1.5 w-full bg-gold hover:bg-gold-dark text-white text-xs font-bold py-2 rounded-xl transition-colors"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
-            افزودن به سبد
-          </Link>
+          {/* Add to cart button — variant products must choose a size/color first */}
+          {needsVariantChoice ? (
+            <Link
+              href={`/products/${product.product_id}`}
+              className="flex items-center justify-center gap-1.5 w-full bg-gold hover:bg-gold-dark text-white text-xs font-bold py-2 rounded-xl transition-colors"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+              افزودن به سبد
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              className={`flex items-center justify-center gap-1.5 w-full text-white text-xs font-bold py-2 rounded-xl transition-colors ${
+                added ? "bg-green-500" : "bg-gold hover:bg-gold-dark"
+              }`}
+            >
+              {added ? (
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+              )}
+              {added ? "افزوده شد" : "افزودن به سبد"}
+            </button>
+          )}
         </div>
       </div>
     </div>
