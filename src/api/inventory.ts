@@ -58,3 +58,19 @@ export async function adminGetStockItems(productId: string): Promise<StockItem[]
 export async function adminGetAllStockItems(): Promise<StockItem[]> {
   return apiFetch('/admin/stock/items');
 }
+
+/**
+ * Sets (or, with `online_allocated_qty: null`, clears back to the 80%
+ * default) the admin override for how much of a (product, variant)'s stock
+ * is sellable online. Returns the updated stock row.
+ */
+export async function adminSetOnlineAllocation(payload: {
+  product_id: string;
+  variant_id: string | null;
+  online_allocated_qty: number | null;
+}): Promise<StockItem> {
+  return apiFetch('/admin/stock/items/online-allocation', {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  });
+}

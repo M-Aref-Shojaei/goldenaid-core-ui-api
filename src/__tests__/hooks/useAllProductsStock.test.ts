@@ -5,9 +5,30 @@ import * as inventoryApi from '../../api/inventory';
 import type { StockItem } from '../../types/catalog';
 
 const rows: StockItem[] = [
-  { product_id: 'p1', variant_id: null, available_qty: 7, unit_label: 'عدد' },
-  { product_id: 'p1', variant_id: 'v1', available_qty: 3, unit_label: 'عدد' },
-  { product_id: 'p2', variant_id: null, available_qty: 99, unit_label: 'عدد' },
+  {
+    product_id: 'p1',
+    variant_id: null,
+    available_qty: 7,
+    unit_label: 'عدد',
+    online_allocated_qty: null,
+    effective_online_qty: 6,
+  },
+  {
+    product_id: 'p1',
+    variant_id: 'v1',
+    available_qty: 3,
+    unit_label: 'عدد',
+    online_allocated_qty: 2,
+    effective_online_qty: 2,
+  },
+  {
+    product_id: 'p2',
+    variant_id: null,
+    available_qty: 99,
+    unit_label: 'عدد',
+    online_allocated_qty: null,
+    effective_online_qty: 79,
+  },
 ];
 
 beforeEach(() => {
@@ -48,6 +69,24 @@ describe('useAllProductsStock', () => {
     expect(result.current.stockByProduct['p2'].byVariant).toEqual({});
   });
 
+  it('carries the online-allocation fields through, keyed the same way as byVariant', async () => {
+    vi.spyOn(inventoryApi, 'adminGetAllStockItems').mockResolvedValue(rows);
+
+    const { result } = renderHook(() => useAllProductsStock());
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    // p1's own (no-variant) row.
+    expect(result.current.stockByProduct['p1'].onlineAllocatedQty).toBeNull();
+    expect(result.current.stockByProduct['p1'].effectiveOnlineQty).toBe(6);
+    // p1's variant row.
+    expect(result.current.stockByProduct['p1'].onlineAllocatedQtyByVariant).toEqual({ v1: 2 });
+    expect(result.current.stockByProduct['p1'].effectiveOnlineQtyByVariant).toEqual({ v1: 2 });
+    // p2 has no variants at all.
+    expect(result.current.stockByProduct['p2'].onlineAllocatedQty).toBeNull();
+    expect(result.current.stockByProduct['p2'].effectiveOnlineQty).toBe(79);
+    expect(result.current.stockByProduct['p2'].onlineAllocatedQtyByVariant).toEqual({});
+  });
+
   it('omits products with no stock rows, so callers can treat missing as zero', async () => {
     vi.spyOn(inventoryApi, 'adminGetAllStockItems').mockResolvedValue(rows);
 
@@ -73,7 +112,14 @@ describe('useAllProductsStock', () => {
     vi.spyOn(inventoryApi, 'adminGetAllStockItems')
       .mockResolvedValueOnce(rows)
       .mockResolvedValueOnce([
-        { product_id: 'p1', variant_id: null, available_qty: 1, unit_label: 'عدد' },
+        {
+          product_id: 'p1',
+          variant_id: null,
+          available_qty: 1,
+          unit_label: 'عدد',
+          online_allocated_qty: null,
+          effective_online_qty: 1,
+        },
       ]);
 
     const { result } = renderHook(() => useAllProductsStock());

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { adminGetStockItems } from "../api/inventory";
+import { adminGetStockItems, adminSetOnlineAllocation } from "../api/inventory";
 import { getErrorMessage, ApiError } from "../api/client";
 import type { StockItem } from "../types/catalog";
 
@@ -27,5 +27,25 @@ export function useProductStock(productId: string) {
     reload();
   }, [reload]);
 
-  return { items, loading, error, reload };
+  /**
+   * Sets (or, passing `null`, clears back to the 80% default) the online
+   * allocation for one (product, variant) row, updating that row in `items`
+   * in place with the server's response.
+   */
+  const setOnlineAllocation = useCallback(
+    async (variantId: string | null, onlineAllocatedQty: number | null) => {
+      const updated = await adminSetOnlineAllocation({
+        product_id: productId,
+        variant_id: variantId,
+        online_allocated_qty: onlineAllocatedQty,
+      });
+      setItems((prev) =>
+        prev.map((item) => (item.variant_id === variantId ? updated : item)),
+      );
+      return updated;
+    },
+    [productId],
+  );
+
+  return { items, loading, error, reload, setOnlineAllocation };
 }

@@ -13,6 +13,21 @@ export interface ProductStockSummary {
   byVariant: Record<string, number>;
   /** Unit label to display (e.g. "عدد"); taken from the product's rows. */
   unitLabel: string;
+  /**
+   * online_allocated_qty keyed by variant_id, for products that have
+   * variants. `null` means "use the 80% default" for that variant.
+   */
+  onlineAllocatedQtyByVariant: Record<string, number | null>;
+  /** effective_online_qty keyed by variant_id, for products that have variants. */
+  effectiveOnlineQtyByVariant: Record<string, number>;
+  /**
+   * online_allocated_qty for the product's own (no-variant) row, if it has
+   * one — i.e. products without variants. `undefined` when every row for
+   * this product has a variant_id.
+   */
+  onlineAllocatedQty: number | null | undefined;
+  /** effective_online_qty for the product's own (no-variant) row; see `onlineAllocatedQty`. */
+  effectiveOnlineQty: number | undefined;
 }
 
 /**
@@ -56,10 +71,19 @@ export function useAllProductsStock() {
         total: 0,
         byVariant: {},
         unitLabel: item.unit_label,
+        onlineAllocatedQtyByVariant: {},
+        effectiveOnlineQtyByVariant: {},
+        onlineAllocatedQty: undefined,
+        effectiveOnlineQty: undefined,
       };
       entry.total += item.available_qty;
       if (item.variant_id !== null) {
         entry.byVariant[item.variant_id] = item.available_qty;
+        entry.onlineAllocatedQtyByVariant[item.variant_id] = item.online_allocated_qty;
+        entry.effectiveOnlineQtyByVariant[item.variant_id] = item.effective_online_qty;
+      } else {
+        entry.onlineAllocatedQty = item.online_allocated_qty;
+        entry.effectiveOnlineQty = item.effective_online_qty;
       }
       map[item.product_id] = entry;
     }

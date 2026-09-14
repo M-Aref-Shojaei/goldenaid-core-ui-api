@@ -9,6 +9,8 @@ const baseItem: StockItem = {
   variant_id: null,
   available_qty: 12,
   unit_label: 'عدد',
+  online_allocated_qty: null,
+  effective_online_qty: 9,
 };
 
 beforeEach(() => {
@@ -49,5 +51,21 @@ describe('useProductStock', () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.error).toBeTruthy();
     expect(result.current.items).toEqual([]);
+  });
+
+  it('setOnlineAllocation calls the API and updates the matching row in place', async () => {
+    vi.spyOn(inventoryApi, 'adminGetStockItems').mockResolvedValue([baseItem]);
+    const updated: StockItem = { ...baseItem, online_allocated_qty: 5, effective_online_qty: 5 };
+    const spy = vi.spyOn(inventoryApi, 'adminSetOnlineAllocation').mockResolvedValue(updated);
+
+    const { result } = renderHook(() => useProductStock('p1'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.setOnlineAllocation(null, 5);
+    });
+
+    expect(spy).toHaveBeenCalledWith({ product_id: 'p1', variant_id: null, online_allocated_qty: 5 });
+    expect(result.current.items).toEqual([updated]);
   });
 });

@@ -45,6 +45,10 @@ export interface StockItem {
   variant_id: string | null;
   available_qty: number;
   unit_label: string;
+  /** Admin's raw online-allocation override; `null` means "use the 80% default". */
+  online_allocated_qty: number | null;
+  /** Computed current online-sellable amount. */
+  effective_online_qty: number;
 }
 
 /** Product summary as returned in list endpoints. */
