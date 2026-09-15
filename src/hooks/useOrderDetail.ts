@@ -30,7 +30,7 @@ export function useOrderDetail() {
     if (!order) return;
     setPaying(true);
     try {
-      const resp = await createPayment(order.id, order.total_amount);
+      const resp = await createPayment(order.id);
       window.location.href = resp.payment_url;
     } catch {
       alert("خطا در ایجاد پرداخت. لطفاً دوباره تلاش کنید.");

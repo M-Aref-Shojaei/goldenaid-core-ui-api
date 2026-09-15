@@ -7,10 +7,15 @@ export interface CreatePaymentResponse {
   payment_url: string;
 }
 
-/** Initiates a Zarinpal payment for an order and returns the redirect URL. */
-export async function createPayment(orderId: string, amount: number): Promise<CreatePaymentResponse> {
+/**
+ * Initiates a Zarinpal payment for an order and returns the redirect URL.
+ *
+ * No amount is sent: the backend always derives the charge from the order's
+ * real total (Sales' authoritative record), never from client input.
+ */
+export async function createPayment(orderId: string): Promise<CreatePaymentResponse> {
   return apiFetch('/shop/payments', {
     method: 'POST',
-    body: JSON.stringify({ order_id: orderId, amount }),
+    body: JSON.stringify({ order_id: orderId }),
   });
 }

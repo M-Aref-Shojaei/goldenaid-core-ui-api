@@ -92,4 +92,26 @@ describe('useCheckout', () => {
       variant_label: 'Large',
     });
   });
+
+  it('never sends a client-computed amount to createPayment, and never clears the cart before the gateway redirect', async () => {
+    items = [
+      { product_id: 'p1', title: 'Simple', base_price: 1000, qty: 2, thumbnail_url: null },
+    ];
+
+    const { result } = renderHook(() => useCheckout());
+    await waitFor(() => expect(result.current.loadingAddresses).toBe(false));
+
+    await act(async () => {
+      await result.current.handleCheckout();
+    });
+
+    // createPayment must be called with only the order id -- the amount is
+    // always derived server-side from Sales' order total, never the client's
+    // totalPrice (amount-tampering fix, IPG-readiness audit).
+    expect(createPayment).toHaveBeenCalledWith('o1');
+
+    // The cart must not be cleared here: it's only cleared on the
+    // payment-result page once a VERIFIED callback confirms the payment.
+    expect(clearCart).not.toHaveBeenCalled();
+  });
 });

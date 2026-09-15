@@ -16,7 +16,7 @@ export type CheckoutStatus = "idle" | "ordering" | "paying";
 /** Manages the multi-step checkout: address selection → order creation → payment redirect. */
 export function useCheckout() {
   const { isAuthenticated } = useAuth();
-  const { items, totalPrice, clearCart } = useCart();
+  const { items, totalPrice } = useCart();
 
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
@@ -58,12 +58,14 @@ export function useCheckout() {
       }));
       const orderResp = await createOrder(orderItems, totalPrice);
       setStatus("paying");
-      // The order total (and every price in the app) is toman-denominated.
-      // The payment gateway is the one boundary that requires rial, so this
-      // is the single toman→rial conversion point in the whole checkout flow.
-      const rialAmount = Math.round(totalPrice * 10);
-      const paymentResp = await createPayment(orderResp.order_id, rialAmount);
-      clearCart();
+      // The amount charged is derived entirely server-side (Payments looks
+      // up the order's real total from Sales) -- the client never sends an
+      // amount. See the IPG-readiness audit amount-tampering fix.
+      const paymentResp = await createPayment(orderResp.order_id);
+      // Do NOT clear the cart here: the user hasn't paid yet, and a
+      // cancelled/failed gateway attempt would otherwise wrongly empty it.
+      // The cart is cleared on the payment-result page, only once the
+      // callback confirms a VERIFIED payment.
       window.location.href = paymentResp.payment_url;
     } catch (e: unknown) {
       setError(e instanceof ApiError ? getErrorMessage(e) : "خطا در ثبت سفارش");
@@ -71,7 +73,7 @@ export function useCheckout() {
     } finally {
       setLoading(false);
     }
-  }, [selectedAddressId, items, totalPrice, clearCart]);
+  }, [selectedAddressId, items, totalPrice]);
 
   return {
     isAuthenticated, items, totalPrice,
