@@ -5,9 +5,16 @@ import { useCallback, useMemo, useState } from "react";
 import type { ProductSummary, ProductVariant, StockBatch } from "../types/catalog";
 import type { CartItem } from "../types/orders";
 
-/** In-memory shopping cart for the point-of-sale screen. */
-export function usePOSCart() {
-  const [cart, setCart] = useState<CartItem[]>([]);
+/**
+ * In-memory shopping cart for the point-of-sale screen.
+ *
+ * @param initialItems Optional pre-seeded items -- used by the "edit POS
+ * sale" flow to load an existing order's items into the cart. Only read on
+ * first render (like `useState`'s initializer); pass a stable reference or
+ * remount the component when it changes.
+ */
+export function usePOSCart(initialItems: CartItem[] = []) {
+  const [cart, setCart] = useState<CartItem[]>(initialItems);
 
   const addToCart = useCallback((product: ProductSummary, variant?: ProductVariant, batch?: StockBatch) => {
     setCart((prev) => {

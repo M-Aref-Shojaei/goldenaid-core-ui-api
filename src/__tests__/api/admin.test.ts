@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { adminUploadProductImage, adminAttachProductImage, adminRemoveProductImage } from '../../api/admin';
+import {
+  adminUploadProductImage,
+  adminAttachProductImage,
+  adminRemoveProductImage,
+  updateAdminOrderItems,
+} from '../../api/admin';
 
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
@@ -62,5 +67,25 @@ describe('adminRemoveProductImage', () => {
     const [url, options] = mockFetch.mock.calls[0];
     expect(url).toContain('/admin/products/prod-1/images/img-1');
     expect(options.method).toBe('DELETE');
+  });
+});
+
+describe('updateAdminOrderItems', () => {
+  it('PATCHes the full desired item list to /admin/pos/orders/{orderId}/items', async () => {
+    mockFetch.mockResolvedValue(
+      mockResponse({ id: 'order-1', status: 'CONFIRMED', total_amount: 150000, items: [] }),
+    );
+
+    const result = await updateAdminOrderItems('order-1', [
+      { product_id: 'p1', quantity: 3, unit_price: 50000 },
+    ]);
+
+    const [url, options] = mockFetch.mock.calls[0];
+    expect(url).toContain('/admin/pos/orders/order-1/items');
+    expect(options.method).toBe('PATCH');
+    expect(JSON.parse(options.body)).toEqual({
+      items: [{ product_id: 'p1', quantity: 3, unit_price: 50000 }],
+    });
+    expect(result.total_amount).toBe(150000);
   });
 });

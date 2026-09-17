@@ -136,4 +136,12 @@ describe('usePOSCart', () => {
     expect(result.current.cart).toHaveLength(1);
     expect(result.current.cart[0].qty).toBe(2);
   });
+
+  it('seeds the cart from initialItems (edit POS sale flow)', () => {
+    const seeded = [{ product_id: 'p1', title: 'Item', base_price: 1000, qty: 3 }];
+    const { result } = renderHook(() => usePOSCart(seeded));
+
+    expect(result.current.cart).toEqual(seeded);
+    expect(result.current.total).toBe(3000);
+  });
 });

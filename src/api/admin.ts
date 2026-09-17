@@ -9,6 +9,7 @@ import type {
   SupplierInvoice,
   SupplierInvoiceCreate,
   SupplierInvoiceDetail,
+  UpdateOrderItemInput,
   UserListResponse,
   UserRole,
 } from '../types/admin';
@@ -99,6 +100,21 @@ export async function getAdminOrders(): Promise<unknown[]> {
 /** Returns a single order by ID for the admin panel (admin-gated). */
 export async function getAdminOrder(orderId: string): Promise<AdminOrder> {
   return apiFetch(`/admin/orders/${orderId}`);
+}
+
+/**
+ * Edits an existing POS sale's line items within its 48h edit window.
+ * Sends the full desired item list (not a delta) -- Sales recomputes the
+ * total and adjusts the SAME Inventory reservation in place.
+ */
+export async function updateAdminOrderItems(
+  orderId: string,
+  items: UpdateOrderItemInput[],
+): Promise<AdminOrder> {
+  return apiFetch(`/admin/pos/orders/${orderId}/items`, {
+    method: 'PATCH',
+    body: JSON.stringify({ items }),
+  });
 }
 
 /** Sends an SMS notification about a specific order. */

@@ -138,6 +138,15 @@ export interface AdminOrder {
   items?: OrderItemDetail[];
 }
 
+/** One line item in an "edit POS sale" request -- full desired state, not a delta. */
+export interface UpdateOrderItemInput {
+  product_id: string;
+  quantity: number;
+  unit_price: number;
+  variant_id?: string;
+  variant_label?: string;
+}
+
 /** Status filter option for the admin orders page. */
 export type FilterStatus =
   | 'all'
