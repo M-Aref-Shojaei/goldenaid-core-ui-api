@@ -55,3 +55,22 @@ Full checklist: `@../golden-aid-online/docs/GoldenAid/02-Governance/Push-Checkli
 - If folder/file layout changed → update `@../golden-aid-online/docs/GoldenAid/03-Frontend/core-ui-api/Structure.md`
 - If types, exports, or API client changed → update `@../golden-aid-online/docs/GoldenAid/03-Frontend/core-ui-api/Schemas.md`
 - If tests were added or changed → update `@../golden-aid-online/docs/GoldenAid/03-Frontend/core-ui-api/Tests.md`
+
+---
+
+## 5. Publishing a new version (no GitHub Actions)
+
+Actions is billing-blocked, so `publish.yml` was removed. Publish from a dev
+machine; `prepublishOnly` runs `npm test && npm run build`, so a failing test
+blocks the publish.
+
+1. Bump `version` in `package.json` (semver) and commit it on `main`.
+2. Get a GitHub token with `write:packages` (one-time: `gh auth refresh -s write:packages`).
+3. `NODE_AUTH_TOKEN=$(gh auth token) npm publish` — `.npmrc` reads the token from the env; never commit a token.
+4. `git tag v<version> && git push origin v<version>` for traceability.
+5. Bump consumers (admin, store, dashboard, articles-web) and push them; Coolify
+   builds each from GitHub, reading the package with its `NODE_AUTH_TOKEN`
+   build secret (`read:packages`).
+
+**Rollback:** `npm deprecate @m-aref-shojaei/core-ui-api@<bad> "<reason>"` and pin
+consumers to the previous version. Never `npm unpublish`.

@@ -28,7 +28,8 @@
     "dev": "tsup --watch",
     "test": "NODE_ENV=test vitest run",
     "test:watch": "vitest",
-    "test:coverage": "NODE_ENV=test vitest run --coverage"
+    "test:coverage": "NODE_ENV=test vitest run --coverage",
+    "prepublishOnly": "npm test && npm run build"
   },
   "keywords": [],
   "author": "",
