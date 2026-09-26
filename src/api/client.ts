@@ -29,6 +29,7 @@ function reportUnexpectedError(err: ApiError): void {
  * `{loc, msg, type}` objects, not a string — passing that straight through
  * as an `Error.message` renders as `"[object Object],[object Object]"` when
  * displayed (Array.prototype.toString on a list of plain objects).
+ * core-bff errors put `{error_code, message}` in `detail`; the message is used.
  */
 function formatErrorDetail(detail: unknown, fallback: string): string {
   if (typeof detail === 'string') return detail;
@@ -37,6 +38,10 @@ function formatErrorDetail(detail: unknown, fallback: string): string {
       .map((item) => (item && typeof item === 'object' && 'msg' in item ? String(item.msg) : null))
       .filter((msg): msg is string => msg !== null);
     if (messages.length > 0) return messages.join('، ');
+  }
+  // core-bff's own and proxied upstream errors: `{error_code, message}`.
+  if (detail && typeof detail === 'object' && typeof (detail as { message?: unknown }).message === 'string') {
+    return (detail as { message: string }).message;
   }
   return fallback;
 }
