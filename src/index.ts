@@ -95,6 +95,7 @@ export { useProductStock } from './hooks/useProductStock';
 export { useAllProductsStock } from './hooks/useAllProductsStock';
 export type { ProductStockSummary } from './hooks/useAllProductsStock';
 export { useExpiringSoonBatches } from './hooks/useExpiringSoonBatches';
+export { usePurchaseList, usePurchaseListSuppliers, usePurchaseListInvoiceOptions } from './hooks/usePurchaseList';
 
 // ── Primitives ────────────────────────────────────────────────────────────────
 export { Button } from './components/Button';

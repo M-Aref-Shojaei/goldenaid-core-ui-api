@@ -5,6 +5,11 @@ import type {
   CampaignAnalytics,
   CustomerListResponse,
   ImportResult,
+  PurchaseListInvoiceOption,
+  PurchaseListItem,
+  PurchaseListItemCreateInput,
+  PurchaseListItemUpdateInput,
+  PurchaseListTransitionInput,
   RecentActivityResponse,
   SupplierInvoice,
   SupplierInvoiceCreate,
@@ -181,4 +186,59 @@ export async function createSupplierInvoice(data: SupplierInvoiceCreate): Promis
     method: 'POST',
     body: JSON.stringify(data),
   });
+}
+
+/** Lists every non-deleted purchase-list item («لیست سفارش خرید», TASK-309),
+ *  newest first, enriched with catalog and invoice display fields. Admin or
+ *  manager. */
+export async function getPurchaseList(): Promise<PurchaseListItem[]> {
+  return apiFetch('/admin/purchase-list');
+}
+
+/** Adds a purchase-list item at «در انتظار سفارش» (todo). Admin or manager. */
+export async function createPurchaseItem(data: PurchaseListItemCreateInput): Promise<PurchaseListItem> {
+  return apiFetch('/admin/purchase-list', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+/** Edits a purchase-list item's fields (never its status). Admin or manager. */
+export async function updatePurchaseItem(
+  itemId: string,
+  data: PurchaseListItemUpdateInput,
+): Promise<PurchaseListItem> {
+  return apiFetch(`/admin/purchase-list/${itemId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+/** Orders, receives, or undoes-received one or more items, all-or-nothing.
+ *  Admin or manager. */
+export async function transitionPurchaseItems(data: PurchaseListTransitionInput): Promise<PurchaseListItem[]> {
+  return apiFetch('/admin/purchase-list/transition', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+/** Soft-deletes a purchase-list item. Full admin only -- managers get 403. */
+export async function deletePurchaseItem(itemId: string): Promise<void> {
+  return apiFetch(`/admin/purchase-list/${itemId}`, { method: 'DELETE' });
+}
+
+/** Returns distinct supplier-name suggestions for the free-text supplier field. */
+export async function getPurchaseListSuppliers(): Promise<string[]> {
+  const res = await apiFetch<{ names: string[] }>('/admin/purchase-list/suppliers');
+  return res.names;
+}
+
+/** Returns recent supplier invoices for the receive dialog's «فاکتور خرید»
+ *  select, invoices of the given supplier names sorted first. */
+export async function getPurchaseListInvoiceOptions(suppliers?: string[]): Promise<PurchaseListInvoiceOption[]> {
+  const q = new URLSearchParams();
+  (suppliers ?? []).forEach((s) => q.append('supplier', s));
+  const qs = q.toString();
+  return apiFetch(`/admin/purchase-list/invoice-options${qs ? `?${qs}` : ''}`);
 }
