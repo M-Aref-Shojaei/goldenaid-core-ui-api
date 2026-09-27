@@ -10,13 +10,34 @@ import type { Order } from "../types/orders";
 /** Possible outcomes on the payment callback page. */
 export type PaymentStatusType = "success" | "failed" | "unknown";
 
-function deriveStatus(status: string | null): PaymentStatusType {
-  if (status === "VERIFIED") return "success";
-  if (status === "FAILED" || status === "ERROR") return "failed";
-  return "unknown";
+/**
+ * Decide what the payment-result page shows.
+ *
+ * The authenticated order is the source of truth; the `status` query param
+ * (VERIFIED | FAILED | PENDING | ERROR, set by the callback redirect) is only
+ * a hint, because anyone can type it into the URL.
+ *
+ * - order CONFIRMED -> success
+ * - order AWAITING_PAYMENT -> "failed" when this attempt definitively failed
+ *   (hint FAILED; the order can still be paid from its detail page), else
+ *   "unknown" (verification still pending)
+ * - any other order status (PAYMENT_FAILED = payment window expired, ...) -> failed
+ * - order not loaded -> the hint, but never "success"
+ */
+function deriveStatus(order: Order | null, hint: string | null): PaymentStatusType {
+  if (order) {
+    if (order.status === "CONFIRMED") return "success";
+    if (order.status === "AWAITING_PAYMENT") return hint === "FAILED" ? "failed" : "unknown";
+    return "failed";
+  }
+  return hint === "FAILED" ? "failed" : "unknown";
 }
 
-/** Reads payment callback query params, derives status, and fetches the associated order. */
+/**
+ * Reads payment callback query params, fetches the order and derives the
+ * outcome from the order's real status (see {@link deriveStatus}). The cart
+ * is cleared only once the order itself is CONFIRMED.
+ */
 export function usePaymentResult() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -30,16 +51,15 @@ export function usePaymentResult() {
   const refId = searchParams.get("ref_id");
   const authority = searchParams.get("Authority");
 
-  // The cart is only ever cleared here, once the backend-confirmed callback
-  // says the payment was actually VERIFIED -- never optimistically before
-  // the gateway redirect. A cancelled/failed payment must leave the cart
-  // intact. Guarded by a ref so re-renders don't clear more than once.
+  // Cleared only when the backend order is CONFIRMED -- never from the URL
+  // hint (a forged ?status=VERIFIED must not empty the cart) and never on a
+  // failed/pending payment. Guarded by a ref so re-renders clear at most once.
   useEffect(() => {
-    if (status === "VERIFIED" && !clearedRef.current) {
+    if (order?.status === "CONFIRMED" && !clearedRef.current) {
       clearedRef.current = true;
       clearCart();
     }
-  }, [status, clearCart]);
+  }, [order, clearCart]);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -47,7 +67,7 @@ export function usePaymentResult() {
       try {
         setOrder(await getOrder(orderId));
       } catch {
-        // order fetch failed — page still renders result
+        // order fetch failed — page still renders from the hint
       } finally {
         setLoading(false);
       }
@@ -59,5 +79,5 @@ export function usePaymentResult() {
   const goToDashboard = useCallback(() => router.push("/dashboard"), [router]);
   const goToHome = useCallback(() => router.push("/"), [router]);
 
-  return { loading, order, orderId, status, refId, authority, statusType: deriveStatus(status), goToOrder, goToDashboard, goToHome };
+  return { loading, order, orderId, status, refId, authority, statusType: deriveStatus(order, status), goToOrder, goToDashboard, goToHome };
 }
