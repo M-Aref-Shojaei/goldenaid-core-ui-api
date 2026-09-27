@@ -288,3 +288,81 @@ export type SupplierInvoiceCreate = {
   invoice_date: string;
   items: SupplierInvoiceItemCreate[];
 };
+
+/** Lifecycle of one purchase-list item («لیست سفارش خرید», TASK-309). */
+export type PurchaseListStatus = 'todo' | 'ordered' | 'received';
+
+/** One purchase-list item, enriched with its catalog title/variant label
+ *  and its linked invoice's display fields (all joined by the backend). */
+export type PurchaseListItem = {
+  id: string;
+  product_id: string | null;
+  variant_id: string | null;
+  free_text: string | null;
+  variety_text: string | null;
+  quantity: number;
+  supplier_name: string | null;
+  compare_price: boolean;
+  winning_supplier_name: string | null;
+  winning_unit_price: number | null;
+  status: PurchaseListStatus;
+  invoice_id: string | null;
+  invoice_number: string | null;
+  invoice_supplier_name: string | null;
+  invoice_date: string | null;
+  invoice_deleted: boolean;
+  created_at: string;
+  updated_at: string;
+  ordered_at: string | null;
+  received_at: string | null;
+  created_by: string;
+  updated_by: string;
+  ordered_by: string | null;
+  received_by: string | null;
+  product_title: string | null;
+  variant_label: string | null;
+};
+
+/** Payload for creating a purchase-list item: exactly one of `product_id` /
+ *  `free_text`; `variant_id` (if given) requires `product_id`. A null/absent
+ *  `supplier_name` means «مقایسه قیمت» (compare price). */
+export type PurchaseListItemCreateInput = {
+  product_id?: string;
+  variant_id?: string;
+  free_text?: string;
+  variety_text?: string;
+  quantity: number;
+  supplier_name?: string;
+};
+
+/** Partial edit of a purchase-list item (never status). */
+export type PurchaseListItemUpdateInput = Partial<{
+  product_id: string | null;
+  variant_id: string | null;
+  free_text: string | null;
+  variety_text: string | null;
+  quantity: number;
+  supplier_name: string | null;
+  winning_supplier_name: string | null;
+  winning_unit_price: number | null;
+}>;
+
+/** Moves one or more items. `to: "ordered"` on already-received items is
+ *  the undo-received action. Winner fields apply only to a single
+ *  compare-price item moving todo -> ordered; `invoice_id` only applies to
+ *  ordered -> received. */
+export type PurchaseListTransitionInput = {
+  ids: string[];
+  to: 'ordered' | 'received';
+  winning_supplier_name?: string;
+  winning_unit_price?: number;
+  invoice_id?: string;
+};
+
+/** A supplier invoice offered in the receiving dialog's «فاکتور خرید» select. */
+export type PurchaseListInvoiceOption = {
+  id: string;
+  invoice_number: string | null;
+  supplier_name: string;
+  invoice_date: string;
+};

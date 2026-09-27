@@ -148,6 +148,16 @@ describe('apiFetch', () => {
       );
     });
 
+    it('uses detail.message from a core-bff {error_code, message} body', async () => {
+      mockFetch.mockResolvedValue(
+        mockResponse({ detail: { error_code: 'VALIDATION_ERROR', message: 'محصول پیدا نشد.' } }, 422),
+      );
+
+      await expect(apiFetch('/bad')).rejects.toSatisfy(
+        (e: ApiError) => e instanceof ApiError && e.status === 422 && e.message === 'محصول پیدا نشد.',
+      );
+    });
+
     it('throws ApiError with raw text when response is not JSON', async () => {
       mockFetch.mockResolvedValue(mockResponse('Internal Server Error', 500));
 
