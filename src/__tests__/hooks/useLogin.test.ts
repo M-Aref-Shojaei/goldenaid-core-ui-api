@@ -92,4 +92,48 @@ describe('useLogin', () => {
 
     expect(result.current.error).toBe('خطا در برقراری ارتباط با سرور');
   });
+
+  it('on a rate-limited resend, shows the Persian message and restarts the countdown from Retry-After', async () => {
+    const { result } = renderHook(() => useLogin());
+    act(() => result.current.setPhone('09123456789'));
+    await act(async () => result.current.requestOtp());
+
+    vi.mocked(requestOtp).mockRejectedValue(
+      new ApiError(429, 'کد تأیید به‌تازگی ارسال شده است. برای ارسال مجدد ۳۵ ثانیه صبر کنید.', 'RATE_LIMITED', 35),
+    );
+    await act(async () => result.current.resendOtp());
+
+    expect(result.current.countdown).toBe(35);
+    expect(result.current.error).toBe(
+      'کد تأیید به‌تازگی ارسال شده است. برای ارسال مجدد ۳۵ ثانیه صبر کنید.',
+    );
+  });
+
+  it('shows the circuit-breaker 503 message instead of the generic server error', async () => {
+    vi.mocked(requestOtp).mockRejectedValue(
+      new ApiError(503, 'ارسال پیامک موقتاً امکان‌پذیر نیست.', 'SMS_TEMPORARILY_UNAVAILABLE', 120),
+    );
+    const { result } = renderHook(() => useLogin());
+    act(() => result.current.setPhone('09123456789'));
+    await act(async () => result.current.requestOtp());
+
+    expect(result.current.error).toBe('ارسال پیامک موقتاً امکان‌پذیر نیست.');
+    expect(result.current.step).toBe('phone');
+  });
+
+  it('offers an immediate resend once the code is invalidated after too many wrong guesses', async () => {
+    const { result } = renderHook(() => useLogin());
+    act(() => result.current.setPhone('09123456789'));
+    await act(async () => result.current.requestOtp());
+    act(() => result.current.setCode('00000'));
+
+    vi.mocked(verifyOtp).mockRejectedValue(
+      new ApiError(400, 'کد تأیید باطل شد. لطفاً کد جدید دریافت کنید.', 'OTP_ATTEMPTS_EXCEEDED'),
+    );
+    await act(async () => result.current.verifyOtp());
+
+    expect(result.current.countdown).toBe(0);
+    expect(result.current.code).toBe('');
+    expect(result.current.error).toBe('کد تأیید باطل شد. لطفاً کد جدید دریافت کنید.');
+  });
 });
