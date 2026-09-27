@@ -158,6 +158,27 @@ describe('apiFetch', () => {
       );
     });
 
+    it('reads error_code and retry_after_seconds from a rate-limited body', async () => {
+      mockFetch.mockResolvedValue(
+        mockResponse(
+          {
+            detail: {
+              error_code: 'RATE_LIMITED',
+              message: 'لطفاً ۴۲ ثانیه دیگر دوباره تلاش کنید.',
+              details: { retry_after_seconds: 42 },
+            },
+          },
+          429,
+        ),
+      );
+
+      await expect(apiFetch('/auth/request-otp')).rejects.toSatisfy(
+        (e: ApiError) =>
+          e.status === 429 && e.code === 'RATE_LIMITED' && e.retryAfter === 42 &&
+          e.message === 'لطفاً ۴۲ ثانیه دیگر دوباره تلاش کنید.',
+      );
+    });
+
     it('throws ApiError with raw text when response is not JSON', async () => {
       mockFetch.mockResolvedValue(mockResponse('Internal Server Error', 500));
 

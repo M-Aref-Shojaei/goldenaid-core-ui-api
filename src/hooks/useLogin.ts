@@ -67,6 +67,9 @@ export function useLogin(): UseLoginResult {
       setCountdown(OTP_COUNTDOWN_SECONDS);
       setCode("");
     } catch (e: unknown) {
+      // Rate-limited (cooldown / caps): drive the existing resend countdown
+      // from the server's wait so the button reappears exactly when allowed.
+      if (e instanceof ApiError && e.retryAfter) setCountdown(e.retryAfter);
       setError(e instanceof ApiError ? getErrorMessage(e) : "ارسال مجدد کد با خطا مواجه شد");
     } finally {
       setLoading(false);
@@ -91,6 +94,12 @@ export function useLogin(): UseLoginResult {
         login(access_token, me.user_id, me.phone, isAdmin, me.name || undefined, userRole);
         router.push("/");
       } catch (e: unknown) {
+        // Code invalidated after too many wrong guesses: offer resend now
+        // (the server still enforces its own cooldown).
+        if (e instanceof ApiError && e.code === "OTP_ATTEMPTS_EXCEEDED") {
+          setCode("");
+          setCountdown(0);
+        }
         setError(e instanceof ApiError ? getErrorMessage(e) : "کد وارد شده صحیح نیست");
       } finally {
         setLoading(false);

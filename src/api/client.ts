@@ -72,14 +72,18 @@ export async function apiFetch<T = unknown>(
       const text = await res.text();
       let message = text;
       let code: string | undefined;
+      let retryAfter: number | undefined;
       try {
         const parsed = JSON.parse(text);
         message = formatErrorDetail(parsed.detail, parsed.message || text);
-        code = parsed.code;
+        // core-bff errors: `{detail: {error_code, message, details}}`.
+        code = parsed.code ?? parsed.detail?.error_code;
+        const seconds = Number(parsed.detail?.details?.retry_after_seconds);
+        if (Number.isFinite(seconds) && seconds > 0) retryAfter = Math.ceil(seconds);
       } catch {
         // text is already the message
       }
-      const apiErr = new ApiError(res.status, message, code);
+      const apiErr = new ApiError(res.status, message, code, retryAfter);
       reportUnexpectedError(apiErr);
       throw apiErr;
     }
