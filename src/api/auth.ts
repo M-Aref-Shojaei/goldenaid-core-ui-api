@@ -29,3 +29,15 @@ export async function updateProfile(name: string): Promise<UpdateProfileResponse
     body: JSON.stringify({ name }),
   });
 }
+
+/**
+ * Revokes the given access token server-side (core-bff blacklists its `jti`).
+ * The token is passed explicitly so the call is unaffected by storage being
+ * cleared right after it starts.
+ */
+export async function revokeSession(token: string): Promise<void> {
+  await apiFetch('/auth/logout', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}

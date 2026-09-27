@@ -11,6 +11,7 @@ import {
 } from "react";
 import { SESSION_CONFIG, USER_ROLES } from "../utils/constants";
 import { STORAGE_KEYS } from "../api/config";
+import { revokeSession } from "../api/auth";
 import type { UserRole } from "../types/admin";
 import { isSessionExpired } from "../utils/helpers";
 
@@ -25,7 +26,8 @@ interface AuthState {
 
 interface AuthContextValue extends AuthState {
   login: (token: string, userId: string, phone: string, isAdmin?: boolean, userName?: string | null, role?: UserRole) => void;
-  logout: () => void;
+  /** Revokes the token server-side (best-effort) and clears the local session. */
+  logout: () => Promise<void>;
   updateUserName: (name: string) => void;
   isAuthenticated: boolean;
   isFullAdmin: boolean;
@@ -110,9 +112,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const logout = useCallback(() => {
+  const logout = useCallback((): Promise<void> => {
+    // Send the revoke with the current token first, then clear locally at once;
+    // a network/server failure must never keep the user logged in.
+    const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
+    const revoked = token ? revokeSession(token).catch(() => undefined) : Promise.resolve();
     ALL_KEYS.forEach((k) => localStorage.removeItem(k));
     setState(EMPTY_STATE);
+    return revoked;
   }, []);
 
   const updateUserName = useCallback((name: string) => {
