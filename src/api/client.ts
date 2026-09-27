@@ -16,10 +16,33 @@ function getToken(): string | null {
  * real backend bug ever reached the error dashboard. This is the one
  * chokepoint every API call routes through.
  */
-function reportUnexpectedError(err: ApiError): void {
+function reportUnexpectedError(err: ApiError, method: string | undefined, path: string, requestId?: string): void {
   if (err.status === 0 || err.status === 408 || err.status >= 500) {
-    Sentry.captureException(err);
+    // Backends answer every unhandled failure with the same generic message,
+    // so without this every broken endpoint landed in one vague GlitchTip
+    // issue (GT-91/30: 182 events, all one catalog bug). Name + fingerprint
+    // split issues per endpoint/status; tags keep the cause searchable, and
+    // request_id joins the event to the backend's own logs.
+    const endpoint = `${(method ?? 'GET').toUpperCase()} ${templatePath(path)}`;
+    err.name = `ApiError ${err.status} ${endpoint}`;
+    Sentry.captureException(err, {
+      fingerprint: ['api-error', endpoint, String(err.status), err.code ?? ''],
+      tags: {
+        'api.endpoint': endpoint,
+        'api.status': String(err.status),
+        'api.code': err.code ?? 'none',
+        ...(requestId ? { request_id: requestId } : {}),
+      },
+    });
   }
+}
+
+/** Replaces UUIDs and numeric ids in a path with `{id}` and drops the query, so one endpoint is one issue. */
+function templatePath(path: string): string {
+  return path
+    .split('?')[0]
+    .replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, '{id}')
+    .replace(/\/\d+(?=\/|$)/g, '/{id}');
 }
 
 /**
@@ -52,9 +75,10 @@ export async function apiFetch<T = unknown>(
   options?: RequestInit,
 ): Promise<T> {
   const token = getToken();
+  const requestId = crypto.randomUUID();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'X-Request-ID': crypto.randomUUID(),
+    'X-Request-ID': requestId,
   };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
@@ -84,7 +108,7 @@ export async function apiFetch<T = unknown>(
         // text is already the message
       }
       const apiErr = new ApiError(res.status, message, code, retryAfter);
-      reportUnexpectedError(apiErr);
+      reportUnexpectedError(apiErr, options?.method, path, requestId);
       throw apiErr;
     }
 
@@ -100,7 +124,7 @@ export async function apiFetch<T = unknown>(
       err?.name === 'AbortError'
         ? new ApiError(408, 'Request timeout', 'TIMEOUT')
         : new ApiError(0, err?.message || 'Network error', 'NETWORK_ERROR');
-    reportUnexpectedError(apiErr);
+    reportUnexpectedError(apiErr, options?.method, path, requestId);
     throw apiErr;
   } finally {
     clearTimeout(tid);
@@ -132,7 +156,7 @@ export async function apiFetchFormData<T = unknown>(
       // text is already the message
     }
     const apiErr = new ApiError(res.status, message);
-    reportUnexpectedError(apiErr);
+    reportUnexpectedError(apiErr, 'POST', path);
     throw apiErr;
   }
 

@@ -49,6 +49,38 @@ describe('error reporting to Sentry/GlitchTip', () => {
     expect(captureException).toHaveBeenCalledTimes(1);
   });
 
+  it('keeps the real cause (endpoint, status, code, request id) on the GlitchTip event', async () => {
+    // Backends answer every unhandled failure with one generic message, so
+    // without this all broken endpoints grouped into a single vague issue.
+    mockFetch.mockResolvedValue(
+      mockResponse({ detail: { error_code: 'INTERNAL_ERROR', message: 'An unexpected error occurred.' } }, 500),
+    );
+
+    const err = await apiFetch<never>('/products/fc088bc1-a727-4dee-be94-c26190a3a20e?x=1').catch((e: ApiError) => e);
+
+    expect(err.message).toBe('An unexpected error occurred.');
+    expect(err.name).toBe('ApiError 500 GET /products/{id}');
+    const [reported, context] = captureException.mock.calls[0];
+    expect(reported).toBe(err);
+    expect(context.fingerprint).toEqual(['api-error', 'GET /products/{id}', '500', 'INTERNAL_ERROR']);
+    const sentId = mockFetch.mock.calls[0][1].headers['X-Request-ID'];
+    expect(context.tags).toEqual({
+      'api.endpoint': 'GET /products/{id}',
+      'api.status': '500',
+      'api.code': 'INTERNAL_ERROR',
+      request_id: sentId,
+    });
+  });
+
+  it('groups network failures per endpoint and method', async () => {
+    mockFetch.mockRejectedValue(new Error('Failed to fetch'));
+
+    await apiFetch('/admin/orders/42/items', { method: 'patch' }).catch(() => {});
+
+    expect(captureException.mock.calls[0][1].tags['api.endpoint']).toBe('PATCH /admin/orders/{id}/items');
+    expect(captureException.mock.calls[0][1].tags['api.code']).toBe('NETWORK_ERROR');
+  });
+
   it('does not report expected 4xx validation/auth errors', async () => {
     mockFetch.mockResolvedValue(mockResponse({ detail: 'Not found' }, 404));
 
