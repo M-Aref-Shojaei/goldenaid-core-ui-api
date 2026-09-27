@@ -12,6 +12,13 @@ export interface ModalProps {
   children: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
+  /**
+   * Id of an element (usually a heading in `children`) that labels this
+   * dialog for assistive tech. Use this when the modal has no `title` prop
+   * but renders its own heading in the body — give that heading the id and
+   * pass it here. Takes precedence over the auto id generated for `title`.
+   */
+  ariaLabelledBy?: string;
 }
 
 const sizes = {
@@ -22,7 +29,17 @@ const sizes = {
 };
 
 /** Accessible dialog overlay with optional title and Escape-key dismiss. */
-export function Modal({ open, onClose, title, children, size = 'md', className = '' }: ModalProps) {
+export function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  size = 'md',
+  className = '',
+  ariaLabelledBy,
+}: ModalProps) {
+  const titleId = React.useId();
+
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -43,10 +60,11 @@ export function Modal({ open, onClose, title, children, size = 'md', className =
         className={`relative w-full ${sizes[size]} bg-neutral-0 dark:bg-dark-card rounded-2xl shadow-xl flex flex-col max-h-[90vh] ${className}`}
         role="dialog"
         aria-modal
+        aria-labelledby={ariaLabelledBy ?? (title ? titleId : undefined)}
       >
         {title && (
           <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-75 dark:border-neutral-700">
-            <h2 className="text-lg font-semibold text-dark dark:text-white">{title}</h2>
+            <h2 id={titleId} className="text-lg font-semibold text-dark dark:text-white">{title}</h2>
             <button
               onClick={onClose}
               className="text-neutral-400 hover:text-neutral-600 dark:hover:text-white transition-colors text-xl leading-none"

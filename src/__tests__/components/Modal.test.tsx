@@ -55,4 +55,23 @@ describe('Modal', () => {
     render(<Modal open onClose={vi.fn()}>Content</Modal>);
     expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
+
+  it('has an accessible name from title', () => {
+    render(<Modal open onClose={vi.fn()} title="My Modal">Body</Modal>);
+    expect(screen.getByRole('dialog', { name: 'My Modal' })).toBeInTheDocument();
+  });
+
+  it('has an accessible name from ariaLabelledBy when no title', () => {
+    render(
+      <Modal open onClose={vi.fn()} ariaLabelledBy="custom-heading">
+        <h3 id="custom-heading">Custom heading</h3>
+      </Modal>,
+    );
+    expect(screen.getByRole('dialog', { name: 'Custom heading' })).toBeInTheDocument();
+  });
+
+  it('renders unchanged (no aria-labelledby) without title or ariaLabelledBy', () => {
+    render(<Modal open onClose={vi.fn()}>Body</Modal>);
+    expect(screen.getByRole('dialog')).not.toHaveAttribute('aria-labelledby');
+  });
 });
