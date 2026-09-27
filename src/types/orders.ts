@@ -38,6 +38,8 @@ export interface Order {
   total_amount: number;
   created_at: string;
   updated_at?: string;
+  /** ISO time after which no new payment attempt is accepted; set only while AWAITING_PAYMENT. */
+  payment_deadline?: string | null;
 }
 
 /** Payload for creating a new order. */
