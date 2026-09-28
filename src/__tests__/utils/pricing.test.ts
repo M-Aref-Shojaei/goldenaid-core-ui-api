@@ -54,8 +54,8 @@ describe('computeDiscount', () => {
 
   // Regression: a plain `Number` multiply (`subtotal * n / 100`) lands one
   // unit off of these exact `x.5` boundaries due to float rounding, while
-  // the server's Decimal `ROUND_HALF_UP` doesn't. Exact BigInt fraction math
-  // must match `goldenaid-sales` `tests/test_discount.py` on every case here.
+  // the server's Decimal `ROUND_HALF_UP` doesn't. Exact basis-point integer
+  // math must match `goldenaid-sales` `tests/test_discount.py` on every case here.
   it.each([
     // subtotal * n / 100 = 161.5 -> half-up 162 (was 161 under float math).
     [250, 'percent' as const, 64.6, 162],
@@ -89,5 +89,34 @@ describe('computeDiscount', () => {
 
   it('accepts a string value from an input field', () => {
     expect(computeDiscount(1000, 'amount', '250')).toEqual({ amount: 250, error: null });
+  });
+
+  it('rejects an amount with a fractional value (Q10 / DISCOUNT_INVALID)', () => {
+    expect(computeDiscount(1000, 'amount', 12.5)).toEqual({
+      amount: 0,
+      error: 'مبلغ تخفیف باید عدد صحیح باشد.',
+    });
+  });
+
+  it('rejects a percent with more than 2 decimal places (Q10 / DISCOUNT_INVALID)', () => {
+    expect(computeDiscount(1000, 'percent', '12.345')).toEqual({
+      amount: 0,
+      error: 'درصد تخفیف حداکثر تا دو رقم اعشار مجاز است.',
+    });
+  });
+
+  it('parses scientific notation the same as the server (Decimal("1e3") over 100%)', () => {
+    expect(computeDiscount(1000, 'percent', '1e3')).toEqual({
+      amount: 0,
+      error: 'درصد تخفیف نمی‌تواند بیشتر از ۱۰۰ باشد.',
+    });
+  });
+
+  it('parses scientific notation as an integer amount', () => {
+    expect(computeDiscount(2000, 'amount', '1e3')).toEqual({ amount: 1000, error: null });
+  });
+
+  it('computes a large-subtotal percent discount without float or overflow error', () => {
+    expect(computeDiscount(999999999, 'percent', 99.99)).toEqual({ amount: 999899999, error: null });
   });
 });

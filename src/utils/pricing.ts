@@ -35,33 +35,48 @@ export interface DiscountResult {
 }
 
 /**
- * Parses a decimal number/string into an exact `num/den` fraction, so
- * `computeDiscount` never runs a `float`/`Number` multiplication on a
- * fractional value -- the server side is Python `Decimal`, and a plain
- * `Number` multiply (e.g. `250 * 64.6`) can land one unit off of the exact
- * `x.5` half-up boundary (TASK-333 follow-up). Malformed input (not a plain
- * `-?digits(.digits)?`) falls back to `0/1`, matching `Number(x) || 0`.
+ * Splits a decimal literal (optionally scientific, e.g. `"1e3"`) into plain
+ * sign/integer/fraction digit strings -- mirrors Python `Decimal(str(x))`
+ * without ever running `float`/`BigInt` arithmetic on the value itself. A
+ * `BigInt` port broke the design prototype (in-browser Babel rewrites
+ * `10n ** x` to `Math.pow`, which throws on a BigInt operand) and risked
+ * older Safari in the admin app (TASK-333 follow-up). Trailing fractional
+ * zeros are stripped, so `"12.50"` reads as 1 decimal place, matching
+ * `Decimal` value-equality. Returns `null` for anything that isn't a plain
+ * decimal or scientific literal.
  */
-function toExactFraction(value: number | string): { num: bigint; den: bigint } {
-  const match = /^(-)?(\d*)(?:\.(\d+))?$/.exec(String(value).trim());
-  const intPart = match?.[2] ?? '';
-  const fracPart = match?.[3] ?? '';
-  if (!match || (!intPart && !fracPart)) return { num: 0n, den: 1n };
-  const den = 10n ** BigInt(fracPart.length);
-  const num = BigInt((intPart || '0') + fracPart) * (match[1] ? -1n : 1n);
-  return { num, den };
+function normalizeDecimal(value: number | string): { negative: boolean; intPart: string; fracPart: string } | null {
+  const match = /^(-)?(\d+)(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/.exec(String(value).trim());
+  if (!match) return null;
+  const [, sign, intDigits, fracDigits = '', expStr] = match;
+  let digits = intDigits + fracDigits;
+  let point = intDigits.length + (expStr ? parseInt(expStr, 10) : 0);
+  while (point > digits.length) digits += '0';
+  while (point < 0) {
+    digits = '0' + digits;
+    point += 1;
+  }
+  const intPart = digits.slice(0, point).replace(/^0+(?=\d)/, '') || '0';
+  const fracPart = digits.slice(point).replace(/0+$/, '');
+  return { negative: sign === '-', intPart, fracPart };
 }
 
 /**
  * Computes a POS discount amount from `subtotal` and a type/value pair.
- * Faithful port of `goldenaid-sales`'s `compute_discount` (`app/discount.py`,
- * itself a Decimal port of the design prototype's `computeDiscount` in
- * `AdminPos.jsx`): an empty or zero value is "no discount"; a negative
- * value, an over-100 percent, or an amount over the subtotal are rejected
- * with the same Persian messages. All math is exact integer/BigInt
- * arithmetic -- never a `float` multiply -- so it can't round a boundary
- * value (e.g. `x.5`) the opposite way from the server's `Decimal`
- * `ROUND_HALF_UP`.
+ * Faithful port of `goldenaid-sales`'s `compute_discount` plus its
+ * `DISCOUNT_INVALID` precision rule (`app/discount.py`, `app/api/v1/orders.py`
+ * `_resolve_discount`), itself a Decimal port of the design prototype's
+ * `computeDiscount` in `AdminPos.jsx`: an empty or zero value is "no
+ * discount"; a negative value, a non-integer amount, a percent with more
+ * than 2 decimal places, an over-100 percent, or an amount over the
+ * subtotal are all rejected with a Persian message.
+ *
+ * All math is plain-integer (percent is scaled to basis points, `value *
+ * 100`, before multiplying) -- never a `float` multiply on the raw value --
+ * so it can't round a boundary value (e.g. `x.5`) the opposite way from the
+ * server's `Decimal` `ROUND_HALF_UP`. `subtotal * basisPoints` stays far
+ * under `Number.MAX_SAFE_INTEGER` for any realistic POS subtotal, but is
+ * guarded regardless.
  */
 export function computeDiscount(
   subtotal: number,
@@ -69,18 +84,23 @@ export function computeDiscount(
   discountValue: number | string,
 ): DiscountResult {
   if (!discountValue) return { amount: 0, error: null };
-  const { num, den } = toExactFraction(discountValue);
-  if (num === 0n) return { amount: 0, error: null };
-  if (num < 0n) return { amount: 0, error: 'مقدار تخفیف نمی‌تواند منفی باشد.' };
-  const subtotalBig = BigInt(Math.trunc(subtotal));
-  if (discountType === 'percent') {
-    if (num > 100n * den) return { amount: 0, error: 'درصد تخفیف نمی‌تواند بیشتر از ۱۰۰ باشد.' };
-    // round_half_up(subtotal * num / den / 100) via one integer division:
-    // floor((subtotal*num*2 + den*100) / (den*200)); numerator is always >= 0 here.
-    const amount = (subtotalBig * num * 2n + den * 100n) / (den * 200n);
-    return { amount: Number(amount), error: null };
+  const parsed = normalizeDecimal(discountValue);
+  if (!parsed) return { amount: 0, error: null };
+  const { negative, intPart, fracPart } = parsed;
+  if (intPart === '0' && fracPart === '') return { amount: 0, error: null };
+  if (negative) return { amount: 0, error: 'مقدار تخفیف نمی‌تواند منفی باشد.' };
+  if (discountType === 'amount') {
+    if (fracPart !== '') return { amount: 0, error: 'مبلغ تخفیف باید عدد صحیح باشد.' };
+    const value = Number(intPart);
+    if (value > subtotal) return { amount: 0, error: 'مبلغ تخفیف نمی‌تواند از جمع کل سبد بیشتر باشد.' };
+    return { amount: value, error: null };
   }
-  if (num > subtotalBig * den) return { amount: 0, error: 'مبلغ تخفیف نمی‌تواند از جمع کل سبد بیشتر باشد.' };
-  // Amount-type values are integers (Q10); truncate any stray fraction like the server's `int(Decimal)`.
-  return { amount: Number(num / den), error: null };
+  if (fracPart.length > 2) return { amount: 0, error: 'درصد تخفیف حداکثر تا دو رقم اعشار مجاز است.' };
+  // basisPoints = percent * 100, an exact integer (fracPart is <= 2 digits).
+  const basisPoints = Number(intPart + (fracPart + '00').slice(0, 2));
+  if (basisPoints > 10000) return { amount: 0, error: 'درصد تخفیف نمی‌تواند بیشتر از ۱۰۰ باشد.' };
+  const product = subtotal * basisPoints;
+  if (!Number.isSafeInteger(product)) return { amount: 0, error: 'مقدار تخفیف قابل محاسبه نیست.' };
+  // round_half_up(subtotal * basisPoints / 10000) via one integer division.
+  return { amount: Math.floor((product + 5000) / 10000), error: null };
 }
