@@ -52,6 +52,30 @@ describe('computeDiscount', () => {
     expect(computeDiscount(101, 'percent', 50)).toEqual({ amount: 51, error: null });
   });
 
+  // Regression: a plain `Number` multiply (`subtotal * n / 100`) lands one
+  // unit off of these exact `x.5` boundaries due to float rounding, while
+  // the server's Decimal `ROUND_HALF_UP` doesn't. Exact BigInt fraction math
+  // must match `goldenaid-sales` `tests/test_discount.py` on every case here.
+  it.each([
+    // subtotal * n / 100 = 161.5 -> half-up 162 (was 161 under float math).
+    [250, 'percent' as const, 64.6, 162],
+    // 375 * 9.2 / 100 = 34.5 -> half-up 35 (was 34 under float math).
+    [375, 'percent' as const, 9.2, 35],
+    // Shared with goldenaid-sales test_discount.py (Q10 precision cases).
+    [1004, 'percent' as const, 12.5, 126], // 125.5 -> 126
+    [1003, 'percent' as const, 12.5, 125], // 125.375 -> 125
+    [10000, 'percent' as const, '0.05', 5],
+    [1000, 'percent' as const, 100, 1000],
+    // Small subtotals, still exact.
+    [1, 'percent' as const, 50, 1], // 0.5 -> half-up 1
+    [3, 'percent' as const, 50, 2], // 1.5 -> half-up 2
+    // Two-decimal-place percent edge case.
+    [333333, 'percent' as const, 12.5, 41667], // 41666.625 -> 41667
+    [100000, 'percent' as const, 0.01, 10],
+  ])('subtotal=%s type=%s value=%s -> amount=%s', (subtotal, type, value, expected) => {
+    expect(computeDiscount(subtotal, type, value)).toEqual({ amount: expected, error: null });
+  });
+
   it('rejects an amount over the subtotal', () => {
     expect(computeDiscount(1000, 'amount', 1001)).toEqual({
       amount: 0,
