@@ -33,6 +33,35 @@ describe('usePOSCheckout', () => {
     expect(toast).toHaveBeenCalledWith('فروش با موفقیت ثبت شد', 'success');
   });
 
+  it('exposes the server-computed cash_tendered/change_due on the receipt (TASK-335)', async () => {
+    vi.mocked(apiFetch).mockResolvedValue({ order_id: 'o1', cash_tendered: 1500, change_due: 500 });
+    const { result } = renderHook(() => usePOSCheckout());
+
+    act(() => {
+      result.current.setPaymentMethod('cash');
+      result.current.setAmountPaid('1500');
+    });
+
+    await act(async () => {
+      await result.current.checkout(cart, 1000);
+    });
+
+    expect(result.current.lastOrder?.cashTendered).toBe(1500);
+    expect(result.current.lastOrder?.changeDue).toBe(500);
+  });
+
+  it('leaves cashTendered/changeDue undefined when the server omits them (older core-bff)', async () => {
+    vi.mocked(apiFetch).mockResolvedValue({ order_id: 'o1' });
+    const { result } = renderHook(() => usePOSCheckout());
+
+    await act(async () => {
+      await result.current.checkout(cart, 1000);
+    });
+
+    expect(result.current.lastOrder?.cashTendered).toBeUndefined();
+    expect(result.current.lastOrder?.changeDue).toBeUndefined();
+  });
+
   it('shows the receipt on success', async () => {
     vi.mocked(apiFetch).mockResolvedValue({ order_id: 'o1' });
     const { result } = renderHook(() => usePOSCheckout());

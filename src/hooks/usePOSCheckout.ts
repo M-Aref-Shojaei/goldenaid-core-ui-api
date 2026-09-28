@@ -24,6 +24,17 @@ interface POSOrderPayload {
 export interface POSReceipt {
   order_id?: string; customer: POSCustomer; items: CartItem[];
   total: number; paymentMethod: PaymentMethod; amountPaid: number; change: number;
+  /** Server-computed cash tendered / change due (core-bff normalizes `amount_paid`
+   *  server-side, TASK-335); undefined for non-cash payments or an older core-bff. */
+  cashTendered?: number; changeDue?: number;
+}
+
+/** POS order-create response shape this hook reads; the server returns the
+ *  full enriched order, but only these fields are used here. */
+interface POSOrderResponse {
+  order_id?: string;
+  cash_tendered?: number;
+  change_due?: number;
 }
 
 const EMPTY_CUSTOMER: POSCustomer = { name: "", phone: "", email: "" };
@@ -56,11 +67,15 @@ export function usePOSCheckout(onSuccess?: () => void) {
       total_amount: total,
     };
     try {
-      const data = await apiFetch<{ order_id?: string }>("/admin/pos/orders", {
+      const data = await apiFetch<POSOrderResponse>("/admin/pos/orders", {
         method: "POST",
         body: JSON.stringify(payload),
       });
-      setLastOrder({ order_id: data.order_id, customer, items: cart, total, paymentMethod, amountPaid: paid, change: paymentMethod === "cash" ? Math.max(0, paid - total) : 0 });
+      setLastOrder({
+        order_id: data.order_id, customer, items: cart, total, paymentMethod, amountPaid: paid,
+        change: paymentMethod === "cash" ? Math.max(0, paid - total) : 0,
+        cashTendered: data.cash_tendered, changeDue: data.change_due,
+      });
       setShowReceipt(true);
       toast("فروش با موفقیت ثبت شد", "success");
       onSuccess?.();

@@ -5,6 +5,7 @@ import type {
   CampaignAnalytics,
   CustomerListResponse,
   ImportResult,
+  PricingSettings,
   PurchaseListInvoiceOption,
   PurchaseListItem,
   PurchaseListItemCreateInput,
@@ -14,10 +15,12 @@ import type {
   SupplierInvoice,
   SupplierInvoiceCreate,
   SupplierInvoiceDetail,
+  SupplierInvoiceUpdate,
   UpdateOrderItemInput,
   UserListResponse,
   UserRole,
 } from '../types/admin';
+import type { DiscountInput } from '../types/orders';
 
 /** Returns high-level dashboard statistics (users, campaigns, SMS sent). */
 export async function getAdminStats(): Promise<AdminStats> {
@@ -110,15 +113,20 @@ export async function getAdminOrder(orderId: string): Promise<AdminOrder> {
 /**
  * Edits an existing POS sale's line items within its 48h edit window.
  * Sends the full desired item list (not a delta) -- Sales recomputes the
- * total and adjusts the SAME Inventory reservation in place.
+ * total and adjusts the SAME Inventory reservation in place. Passing
+ * `discount` changes it too; omitting it keeps the order's existing
+ * discount and just recomputes its amount against the new subtotal (TASK-333).
  */
 export async function updateAdminOrderItems(
   orderId: string,
   items: UpdateOrderItemInput[],
+  discount?: DiscountInput | null,
 ): Promise<AdminOrder> {
+  const body: { items: UpdateOrderItemInput[]; discount?: DiscountInput | null } = { items };
+  if (discount !== undefined) body.discount = discount;
   return apiFetch(`/admin/pos/orders/${orderId}/items`, {
     method: 'PATCH',
-    body: JSON.stringify({ items }),
+    body: JSON.stringify(body),
   });
 }
 
@@ -180,11 +188,45 @@ export async function getSupplierInvoice(id: string): Promise<SupplierInvoiceDet
   return apiFetch(`/admin/supplier-invoices/${id}`);
 }
 
-/** Creates a supplier invoice, its line items, and a stock batch per line. */
+/** Creates a supplier invoice, its line items, and a stock batch per line.
+ *  Also prices each line against the current markup settings; the response's
+ *  `pricing_applied` is false if stock committed but a catalog price write
+ *  failed -- retry with `applySupplierInvoicePrices`. */
 export async function createSupplierInvoice(data: SupplierInvoiceCreate): Promise<SupplierInvoiceDetail> {
   return apiFetch('/admin/supplier-invoices', {
     method: 'POST',
     body: JSON.stringify(data),
+  });
+}
+
+/** Edits a supplier invoice's header/payment fields, or its full item list
+ *  (which reprices only the lines whose `unit_cost` changed). Admin or manager (TASK-332). */
+export async function updateSupplierInvoice(
+  id: string,
+  data: SupplierInvoiceUpdate,
+): Promise<SupplierInvoiceDetail> {
+  return apiFetch(`/admin/supplier-invoices/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+/** Retries writing computed sell prices to the catalog for an invoice whose
+ *  prior create/edit left `pricing_applied: false`. Idempotent. */
+export async function applySupplierInvoicePrices(id: string): Promise<SupplierInvoiceDetail> {
+  return apiFetch(`/admin/supplier-invoices/${id}/apply-prices`, { method: 'POST' });
+}
+
+/** Returns the current price-band settings (markup % and rounding step). Admin and manager. */
+export async function getPricingSettings(): Promise<PricingSettings> {
+  return apiFetch('/admin/settings/pricing');
+}
+
+/** Sets the markup percent (0-500). Admin only -- managers get 403. */
+export async function updatePricingSettings(markupPercent: number): Promise<PricingSettings> {
+  return apiFetch('/admin/settings/pricing', {
+    method: 'PUT',
+    body: JSON.stringify({ markup_percent: markupPercent }),
   });
 }
 

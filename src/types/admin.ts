@@ -145,6 +145,9 @@ export interface UpdateOrderItemInput {
   unit_price: number;
   variant_id?: string;
   variant_label?: string;
+  /** POS-only: a free line given away, not charged (TASK-333). */
+  is_gift?: boolean;
+  source?: Record<string, unknown> | null;
 }
 
 /** Status filter option for the admin orders page. */
@@ -249,6 +252,10 @@ export type SupplierInvoiceItem = {
   quantity: number;
   unit_cost: number;
   product_title: string;
+  /** null means "use the default (ceil) of the price band" (TASK-332). */
+  sell_price?: number | null;
+  /** true for a new line or one whose `unit_cost` changed in this PATCH -- these are the lines core-bff reprices. */
+  cost_changed?: boolean;
 };
 
 /** Supplier invoice as returned by the list endpoint (no line items, but
@@ -271,6 +278,11 @@ export type SupplierInvoice = {
 /** Supplier invoice detail, including its line items. */
 export type SupplierInvoiceDetail = SupplierInvoice & {
   items: SupplierInvoiceItem[];
+  /** false means at least one line's catalog price write failed after stock was already
+   *  committed (TASK-332); retry with `applySupplierInvoicePrices`. Absent on plain reads. */
+  pricing_applied?: boolean;
+  /** Per-line pricing outcome, present on create/edit/apply-prices responses only. */
+  pricing?: PricingResultLine[];
 };
 
 /** Payload for creating one supplier invoice line item. */
@@ -279,7 +291,35 @@ export type SupplierInvoiceItemCreate = {
   variant_id?: string;
   quantity: number;
   unit_cost: number;
+  /** null/omitted means the price band's default (ceil). */
+  sell_price?: number | null;
 };
+
+/** Payload for editing one supplier invoice line item -- full desired state,
+ *  not a delta. Omitting `id` creates a new line. */
+export type SupplierInvoiceItemUpdate = {
+  id?: string;
+  product_id: string;
+  variant_id?: string;
+  quantity: number;
+  unit_cost: number;
+  sell_price?: number | null;
+};
+
+/** Payload for `updateSupplierInvoice` -- every field optional and only the
+ *  given ones are changed. Sending `items` replaces the full line list and
+ *  triggers a stock/price reconciliation; omitting it edits only the header/payment. */
+export type SupplierInvoiceUpdate = Partial<{
+  supplier_name: string;
+  invoice_number: string | null;
+  invoice_date: string;
+  deleted: boolean;
+  payment_method: 'cash' | 'transfer' | null;
+  paid_at: string | null;
+  payment_reference: string | null;
+  clear_payment: boolean;
+  items: SupplierInvoiceItemUpdate[];
+}>;
 
 /** Payload for creating a supplier invoice. */
 export type SupplierInvoiceCreate = {
@@ -366,3 +406,42 @@ export type PurchaseListInvoiceOption = {
   supplier_name: string;
   invoice_date: string;
 };
+
+// ── Pricing (TASK-332) ──────────────────────────────────────────────────────
+
+/** Global markup/rounding settings used to price supplier-invoice lines. */
+export interface PricingSettings {
+  /** 0..500. */
+  markup_percent: number;
+  /** Toman; the sell price is always rounded to a multiple of this. */
+  round_step: number;
+  updated_at: string;
+  updated_by: string | null;
+}
+
+/** Reasons a proposed line's sell price is rejected by `POST /admin/pricing/apply`. */
+export type PricingErrorCode =
+  | 'OUT_OF_BAND'
+  | 'COST_CONFLICT'
+  | 'SELL_PRICE_CONFLICT'
+  | 'PRODUCT_NOT_FOUND';
+
+/** Per-line pricing error, keyed by the caller's `ref` (matches `client.ts`'s `ApiError.details.lines`). */
+export interface PricingErrorLine {
+  ref: string;
+  code: PricingErrorCode;
+  floor: number;
+  ceil: number;
+}
+
+/** Per-line pricing outcome: the computed band and the price that would apply. */
+export interface PricingResultLine {
+  ref: string;
+  product_id: string;
+  computed: number;
+  floor: number;
+  ceil: number;
+  /** null for a skipped `unit_cost === 0` (supplier freebie) line. */
+  sell_price: number | null;
+  applied: boolean;
+}
