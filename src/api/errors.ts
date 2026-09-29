@@ -37,6 +37,9 @@ const ERROR_MESSAGES_FA: Record<string, string> = {
   DISCOUNT_NEGATIVE: 'مقدار تخفیف نمی‌تواند منفی باشد.',
   DISCOUNT_PERCENT_OVER_100: 'درصد تخفیف نمی‌تواند بیشتر از ۱۰۰ باشد.',
   DISCOUNT_EXCEEDS_SUBTOTAL: 'مبلغ تخفیف نمی‌تواند از جمع کل سبد بیشتر باشد.',
+  // Catalog rejections.
+  INVENTORY_UNAVAILABLE: 'سرویس انبار در دسترس نیست؛ حذف انجام نشد. لطفاً دوباره تلاش کنید یا با پشتیبانی تماس بگیرید.',
+  VARIANT_HAS_STOCK: 'این تنوع موجودی دارد و قابل حذف نیست. ابتدا موجودی آن را صفر کنید.',
 };
 
 /** Translates an `ApiError` to a user-facing Persian string. */

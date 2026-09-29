@@ -80,4 +80,14 @@ describe('getErrorMessage', () => {
     const err = new ApiError(409, '');
     expect(getErrorMessage(err)).toBe('خطای نامشخص');
   });
+
+  it('returns Farsi message for INVENTORY_UNAVAILABLE code', () => {
+    const err = new ApiError(409, 'Inventory service unavailable', 'INVENTORY_UNAVAILABLE');
+    expect(getErrorMessage(err)).toBe('سرویس انبار در دسترس نیست؛ حذف انجام نشد. لطفاً دوباره تلاش کنید یا با پشتیبانی تماس بگیرید.');
+  });
+
+  it('returns Farsi message for VARIANT_HAS_STOCK code', () => {
+    const err = new ApiError(409, 'Variant has stock', 'VARIANT_HAS_STOCK');
+    expect(getErrorMessage(err)).toBe('این تنوع موجودی دارد و قابل حذف نیست. ابتدا موجودی آن را صفر کنید.');
+  });
 });
