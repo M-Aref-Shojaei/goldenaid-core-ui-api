@@ -4,7 +4,7 @@ import React from 'react';
 
 /** Props for the {@link Badge} component. */
 export interface BadgeProps {
-  variant?: 'default' | 'success' | 'warning' | 'danger' | 'info' | 'purple';
+  variant?: 'default' | 'success' | 'warning' | 'danger' | 'info' | 'purple' | 'accent';
   size?: 'sm' | 'md';
   children: React.ReactNode;
   className?: string;
@@ -17,6 +17,10 @@ const variants = {
   danger:  'bg-semantic-red-extralight text-semantic-red-dark',
   info:    'bg-primary-50 text-primary-700',
   purple:  'bg-purple-100 text-purple-700',
+  /** DS Badge tone "accent" (secondary), e.g. the POS «هدیه» gift badge.
+   *  Deliberate deviation: the DS pairs secondary-100 with secondary-700
+   *  (3.74:1, below AA; known DS debt); 800 gives 4.76:1. */
+  accent:  'bg-secondary-100 text-secondary-800',
 };
 
 const sizes = {

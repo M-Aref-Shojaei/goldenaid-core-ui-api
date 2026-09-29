@@ -52,6 +52,8 @@ export interface OrderDiscount {
   value: number;
   amount: number;
   given_by: string | null;
+  /** Display name for `given_by`, enriched by core-bff (null if unknown). */
+  given_by_name?: string | null;
   source: Record<string, unknown> | null;
 }
 
@@ -100,6 +102,10 @@ export interface CartItem {
   /** POS-only FEFO selection: which batch/lot this line sells from. */
   batch_id?: string;
   batch_expiry_date?: string | null;
+  /** POS-only: a free gift line (`base_price` 0), kept apart from a paid line of the same product. */
+  is_gift?: boolean;
+  /** POS-only line identity set by `usePOSCart`: `(gift-)product-variant-batch`. */
+  key?: string;
 }
 
 /** Inventory stock-reservation record. */

@@ -25,6 +25,11 @@ describe('ApiError', () => {
 });
 
 describe('getErrorMessage', () => {
+  it('returns Farsi copy for a Sales DISCOUNT_* rejection instead of the raw 422 text', () => {
+    const err = new ApiError(422, 'Discount exceeds subtotal', 'DISCOUNT_EXCEEDS_SUBTOTAL');
+    expect(getErrorMessage(err)).toBe('مبلغ تخفیف نمی‌تواند از جمع کل سبد بیشتر باشد.');
+  });
+
   it('returns Farsi message for NETWORK_ERROR code', () => {
     const err = new ApiError(0, 'raw', 'NETWORK_ERROR');
     expect(getErrorMessage(err)).toBe('خطا در برقراری ارتباط با سرور');

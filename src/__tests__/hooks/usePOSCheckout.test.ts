@@ -94,11 +94,12 @@ describe('usePOSCheckout', () => {
         customer_name: 'Ali',
         customer_phone: '0912',
         customer_email: 'a@b.com',
-        items: [{ product_id: 'p1', quantity: 1, unit_price: 1000 }],
+        items: [{ product_id: 'p1', quantity: 1, unit_price: 1000, is_gift: false }],
         payment_method: 'cash',
         amount_paid: 1500,
         notes: 'فروش حضوری - POS',
         total_amount: 1000,
+        discount: null,
       }),
     });
   });
@@ -176,7 +177,7 @@ describe('usePOSCheckout', () => {
 
     const body = JSON.parse(vi.mocked(apiFetch).mock.calls[0][1]?.body as string);
     expect(body.items).toEqual([
-      { product_id: 'p1', quantity: 1, unit_price: 1000, variant_id: 'v1', variant_label: 'L' },
+      { product_id: 'p1', quantity: 1, unit_price: 1000, variant_id: 'v1', variant_label: 'L', is_gift: false },
     ]);
   });
 
@@ -191,6 +192,45 @@ describe('usePOSCheckout', () => {
     const body = JSON.parse(vi.mocked(apiFetch).mock.calls[0][1]?.body as string);
     expect(body.items[0]).not.toHaveProperty('variant_id');
     expect(body.items[0]).not.toHaveProperty('variant_label');
+  });
+
+  it('sends gift lines with is_gift and unit_price 0, and the discount', async () => {
+    vi.mocked(apiFetch).mockResolvedValue({ order_id: 'o1' });
+    const { result } = renderHook(() => usePOSCheckout());
+    const giftCart: CartItem[] = [
+      ...cart,
+      // unit_price must be 0 even if a stale base_price rode along
+      { product_id: 'p2', title: 'Gift', base_price: 700, qty: 2, thumbnail_url: null, is_gift: true },
+    ];
+
+    await act(async () => {
+      await result.current.checkout(giftCart, 875, { type: 'percent', value: 12.5 });
+    });
+
+    const body = JSON.parse(vi.mocked(apiFetch).mock.calls[0][1]?.body as string);
+    expect(body.items).toEqual([
+      { product_id: 'p1', quantity: 1, unit_price: 1000, is_gift: false },
+      { product_id: 'p2', quantity: 2, unit_price: 0, is_gift: true },
+    ]);
+    expect(body.discount).toEqual({ type: 'percent', value: 12.5 });
+    expect(body.total_amount).toBe(875);
+  });
+
+  it('stores the server order verbatim on the receipt', async () => {
+    const serverOrder = {
+      order_id: 'o1', id: 'o1', status: 'CONFIRMED', total_amount: 875, subtotal_amount: 1000,
+      discount: { type: 'percent', value: 12.5, amount: 125, given_by: 'u1', given_by_name: 'Admin', source: null },
+      items: [], cash_tendered: 1000, change_due: 125,
+    };
+    vi.mocked(apiFetch).mockResolvedValue(serverOrder);
+    const { result } = renderHook(() => usePOSCheckout());
+
+    await act(async () => {
+      await result.current.checkout(cart, 875, { type: 'percent', value: 12.5 });
+    });
+
+    expect(result.current.lastOrder?.order).toEqual(serverOrder);
+    expect(result.current.lastOrder?.changeDue).toBe(125);
   });
 
   it('shows a generic Farsi error for a non-ApiError failure (e.g. network error)', async () => {

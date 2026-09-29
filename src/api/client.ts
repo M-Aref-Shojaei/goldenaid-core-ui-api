@@ -69,6 +69,13 @@ function formatErrorDetail(detail: unknown, fallback: string): string {
   return fallback;
 }
 
+/** A core-bff error body's `detail.details`, when it is a plain object. */
+function asDetails(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined;
+}
+
 /** Authenticated JSON fetch wrapper — attaches Bearer token, handles errors, and times out after 30 s. */
 export async function apiFetch<T = unknown>(
   path: string,
@@ -97,6 +104,7 @@ export async function apiFetch<T = unknown>(
       let message = text;
       let code: string | undefined;
       let retryAfter: number | undefined;
+      let details: Record<string, unknown> | undefined;
       try {
         const parsed = JSON.parse(text);
         message = formatErrorDetail(parsed.detail, parsed.message || text);
@@ -104,10 +112,11 @@ export async function apiFetch<T = unknown>(
         code = parsed.code ?? parsed.detail?.error_code;
         const seconds = Number(parsed.detail?.details?.retry_after_seconds);
         if (Number.isFinite(seconds) && seconds > 0) retryAfter = Math.ceil(seconds);
+        details = asDetails(parsed.detail?.details);
       } catch {
         // text is already the message
       }
-      const apiErr = new ApiError(res.status, message, code, retryAfter);
+      const apiErr = new ApiError(res.status, message, code, retryAfter, details);
       reportUnexpectedError(apiErr, options?.method, path, requestId);
       throw apiErr;
     }
@@ -149,13 +158,15 @@ export async function apiFetchFormData<T = unknown>(
   if (!res.ok) {
     const text = await res.text();
     let message = text;
+    let details: Record<string, unknown> | undefined;
     try {
       const parsed = JSON.parse(text);
       message = formatErrorDetail(parsed.detail, parsed.message || text);
+      details = asDetails(parsed.detail?.details);
     } catch {
       // text is already the message
     }
-    const apiErr = new ApiError(res.status, message);
+    const apiErr = new ApiError(res.status, message, undefined, undefined, details);
     reportUnexpectedError(apiErr, 'POST', path);
     throw apiErr;
   }

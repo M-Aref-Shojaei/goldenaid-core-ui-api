@@ -211,6 +211,28 @@ describe('apiFetch', () => {
       );
     });
 
+    it('keeps detail.details (per-line 409/422 info) on the ApiError', async () => {
+      const lines = [{ line_id: 'l1', requested_reduction: 3, max_reducible: 1, reason: 'SOLD' }];
+      mockFetch.mockResolvedValue(
+        mockResponse(
+          { detail: { error_code: 'SUPPLIER_INVOICE_STOCK_CONFLICT', message: 'conflict', details: { lines } } },
+          409,
+        ),
+      );
+
+      await expect(apiFetch('/admin/supplier-invoices/i1')).rejects.toSatisfy(
+        (e: ApiError) =>
+          e.status === 409 && e.code === 'SUPPLIER_INVOICE_STOCK_CONFLICT' &&
+          JSON.stringify(e.details) === JSON.stringify({ lines }),
+      );
+    });
+
+    it('leaves details undefined when the body has none', async () => {
+      mockFetch.mockResolvedValue(mockResponse({ detail: 'Bad request' }, 400));
+
+      await expect(apiFetch('/x')).rejects.toSatisfy((e: ApiError) => e.details === undefined);
+    });
+
     it('throws ApiError with raw text when response is not JSON', async () => {
       mockFetch.mockResolvedValue(mockResponse('Internal Server Error', 500));
 
@@ -258,6 +280,16 @@ describe('apiFetchFormData', () => {
 
     const [, options] = mockFetch.mock.calls[0];
     expect(options.headers['Authorization']).toBe('Bearer test-jwt');
+  });
+
+  it('keeps detail.details on the ApiError', async () => {
+    mockFetch.mockResolvedValue(
+      mockResponse({ detail: { error_code: 'PRICING_INVALID', message: 'bad', details: { lines: [{ ref: '0' }] } } }, 422),
+    );
+
+    await expect(apiFetchFormData('/upload', new FormData())).rejects.toSatisfy(
+      (e: ApiError) => JSON.stringify(e.details) === JSON.stringify({ lines: [{ ref: '0' }] }),
+    );
   });
 
   it('throws ApiError on non-2xx', async () => {

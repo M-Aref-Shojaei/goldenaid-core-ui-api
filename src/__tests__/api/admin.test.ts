@@ -4,6 +4,7 @@ import {
   adminAttachProductImage,
   adminRemoveProductImage,
   updateAdminOrderItems,
+  applySupplierInvoicePrices,
 } from '../../api/admin';
 
 const mockFetch = vi.fn();
@@ -87,5 +88,18 @@ describe('updateAdminOrderItems', () => {
       items: [{ product_id: 'p1', quantity: 3, unit_price: 50000 }],
     });
     expect(result.total_amount).toBe(150000);
+  });
+});
+
+describe('applySupplierInvoicePrices', () => {
+  it('POSTs the required {item_ids} to /admin/supplier-invoices/{id}/apply-prices', async () => {
+    mockFetch.mockResolvedValue(mockResponse({ id: 'inv-1', pricing_applied: true, items: [] }));
+
+    await applySupplierInvoicePrices('inv-1', ['l1', 'l2']);
+
+    const [url, options] = mockFetch.mock.calls[0];
+    expect(url).toContain('/admin/supplier-invoices/inv-1/apply-prices');
+    expect(options.method).toBe('POST');
+    expect(JSON.parse(options.body)).toEqual({ item_ids: ['l1', 'l2'] });
   });
 });

@@ -1,5 +1,5 @@
 import type { ProductImage } from './catalog';
-import type { OrderItemDetail } from './orders';
+import type { OrderDiscount, OrderItemDetail } from './orders';
 
 /** Admin-visible customer record. */
 export interface Customer {
@@ -132,6 +132,12 @@ export interface AdminOrder {
   customer_name?: string;
   status: string;
   total_amount: number;
+  /** Sum of non-gift line prices before the discount (TASK-333); absent on legacy orders. */
+  subtotal_amount?: number;
+  /** null on legacy orders and orders with no discount applied. */
+  discount?: OrderDiscount | null;
+  /** User id who created the order (POS: the cashier). */
+  created_by?: string | null;
   created_at: string;
   updated_at: string;
   channel?: OrderChannel;
@@ -283,6 +289,10 @@ export type SupplierInvoiceDetail = SupplierInvoice & {
   pricing_applied?: boolean;
   /** Per-line pricing outcome, present on create/edit/apply-prices responses only. */
   pricing?: PricingResultLine[];
+  /** Only when `pricing_applied` is false: the upstream error body (`{error_code, message, details?}`). */
+  pricing_error?: { error_code?: string; message?: string; details?: Record<string, unknown> } | null;
+  /** Only when `pricing_applied` is false: the line ids to pass to `applySupplierInvoicePrices`. */
+  pending_item_ids?: string[];
 };
 
 /** Payload for creating one supplier invoice line item. */

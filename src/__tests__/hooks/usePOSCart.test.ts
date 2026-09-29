@@ -1,7 +1,8 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { usePOSCart } from '../../hooks/usePOSCart';
-import type { ProductSummary, ProductVariant } from '../../types/catalog';
+import type { ProductSummary, ProductVariant, StockBatch } from '../../types/catalog';
+import type { CartItem } from '../../types/orders';
 
 function makeVariant(overrides: Partial<ProductVariant> = {}): ProductVariant {
   return { id: 'v1', label: 'L', sort_order: 0, attributes: { size: 'L' }, sku: null, ...overrides };
@@ -33,7 +34,7 @@ describe('usePOSCart', () => {
     act(() => result.current.addToCart(makeProduct()));
 
     expect(result.current.cart).toEqual([
-      { product_id: 'p1', title: 'Item', base_price: 1000, qty: 1, thumbnail_url: null },
+      { key: 'p1--', product_id: 'p1', title: 'Item', base_price: 1000, qty: 1, thumbnail_url: null },
     ]);
   });
 
@@ -51,7 +52,7 @@ describe('usePOSCart', () => {
     const { result } = renderHook(() => usePOSCart());
 
     act(() => result.current.addToCart(makeProduct()));
-    act(() => result.current.updateQuantity('p1', 0));
+    act(() => result.current.updateQuantity('p1--', 0));
 
     expect(result.current.cart).toEqual([]);
   });
@@ -60,7 +61,7 @@ describe('usePOSCart', () => {
     const { result } = renderHook(() => usePOSCart());
 
     act(() => result.current.addToCart(makeProduct()));
-    act(() => result.current.updateQuantity('p1', -1));
+    act(() => result.current.updateQuantity('p1--', -1));
 
     expect(result.current.cart).toEqual([]);
   });
@@ -69,7 +70,7 @@ describe('usePOSCart', () => {
     const { result } = renderHook(() => usePOSCart());
 
     act(() => result.current.addToCart(makeProduct()));
-    act(() => result.current.updateQuantity('p1', 5));
+    act(() => result.current.updateQuantity('p1--', 5));
 
     expect(result.current.cart[0].qty).toBe(5);
   });
@@ -78,7 +79,7 @@ describe('usePOSCart', () => {
     const { result } = renderHook(() => usePOSCart());
 
     act(() => result.current.addToCart(makeProduct()));
-    act(() => result.current.removeFromCart('p1'));
+    act(() => result.current.removeFromCart('p1--'));
 
     expect(result.current.cart).toEqual([]);
   });
@@ -113,7 +114,7 @@ describe('usePOSCart', () => {
     act(() => result.current.addToCart(makeProduct(), makeVariant({ id: 'v1', label: 'L' })));
 
     expect(result.current.cart).toEqual([
-      { product_id: 'p1', title: 'Item', base_price: 1000, qty: 1, thumbnail_url: null, variant_id: 'v1', variant_label: 'L' },
+      { key: 'p1-v1-', product_id: 'p1', title: 'Item', base_price: 1000, qty: 1, thumbnail_url: null, variant_id: 'v1', variant_label: 'L' },
     ]);
   });
 
@@ -137,11 +138,60 @@ describe('usePOSCart', () => {
     expect(result.current.cart[0].qty).toBe(2);
   });
 
-  it('seeds the cart from initialItems (edit POS sale flow)', () => {
-    const seeded = [{ product_id: 'p1', title: 'Item', base_price: 1000, qty: 3 }];
+  it('seeds the cart from initialItems with derived keys (edit POS sale flow)', () => {
+    const seeded: CartItem[] = [
+      { product_id: 'p1', title: 'Item', base_price: 1000, qty: 3, thumbnail_url: null },
+      { product_id: 'p1', title: 'Item', base_price: 0, qty: 1, thumbnail_url: null, is_gift: true },
+    ];
     const { result } = renderHook(() => usePOSCart(seeded));
 
-    expect(result.current.cart).toEqual(seeded);
+    expect(result.current.cart.map((i) => i.key)).toEqual(['p1--', 'gift-p1--']);
     expect(result.current.total).toBe(3000);
+  });
+
+  it('keeps a gift and a paid line of the same product separate', () => {
+    const { result } = renderHook(() => usePOSCart());
+
+    act(() => result.current.addToCart(makeProduct()));
+    act(() => result.current.addToCart(makeProduct(), undefined, undefined, { gift: true }));
+    act(() => result.current.addToCart(makeProduct(), undefined, undefined, { gift: true }));
+
+    expect(result.current.cart).toEqual([
+      expect.objectContaining({ key: 'p1--', base_price: 1000, qty: 1 }),
+      expect.objectContaining({ key: 'gift-p1--', base_price: 0, qty: 2, is_gift: true }),
+    ]);
+    expect(result.current.cart[0]).not.toHaveProperty('is_gift');
+  });
+
+  it('updates and removes by line key, leaving the other line of the product alone', () => {
+    const { result } = renderHook(() => usePOSCart());
+
+    act(() => result.current.addToCart(makeProduct()));
+    act(() => result.current.addToCart(makeProduct(), undefined, undefined, { gift: true }));
+    act(() => result.current.updateQuantity('gift-p1--', 4));
+    expect(result.current.cart.map((i) => i.qty)).toEqual([1, 4]);
+
+    act(() => result.current.removeFromCart('p1--'));
+    expect(result.current.cart.map((i) => i.key)).toEqual(['gift-p1--']);
+  });
+
+  it('total excludes gift lines', () => {
+    const { result } = renderHook(() => usePOSCart());
+
+    act(() => result.current.addToCart(makeProduct({ base_price: 1000 })));
+    act(() => result.current.addToCart(makeProduct({ product_id: 'p2', base_price: 700 }), undefined, undefined, { gift: true }));
+
+    expect(result.current.total).toBe(1000);
+  });
+
+  it('keeps two FEFO batches of the same product as separate lines, each updatable on its own', () => {
+    const batch = (id: string) => ({ id, expiry_date: '2027-01-01' }) as StockBatch;
+    const { result } = renderHook(() => usePOSCart());
+
+    act(() => result.current.addToCart(makeProduct(), undefined, batch('b1')));
+    act(() => result.current.addToCart(makeProduct(), undefined, batch('b2')));
+    act(() => result.current.updateQuantity('p1--b2', 3));
+
+    expect(result.current.cart.map((i) => [i.key, i.qty])).toEqual([['p1--b1', 1], ['p1--b2', 3]]);
   });
 });

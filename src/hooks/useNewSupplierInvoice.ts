@@ -21,7 +21,10 @@ function emptyLine(): InvoiceLineDraft {
 /** Manages the new supplier-invoice manual-entry form: header fields, line
  *  items (add/update/remove), running total, and submission. Each line
  *  must resolve to a real product (via search or quick-create) before the
- *  invoice can be submitted — the backend requires a product_id per item. */
+ *  invoice can be submitted — the backend requires a product_id per item.
+ *
+ *  @deprecated Sends no `sell_price`, so its invoices skip TASK-332 pricing.
+ *  Admin's own invoice form replaces it; to be removed in the next major. */
 export function useNewSupplierInvoice() {
   const router = useRouter();
   const [supplierName, setSupplierName] = useState("");

@@ -4,7 +4,7 @@
 import { useCallback, useState } from "react";
 import { apiFetch, ApiError, getErrorMessage } from "../api/client";
 import { useToast } from "../components/Toast";
-import type { CartItem } from "../types/orders";
+import type { CartItem, DiscountInput, Order } from "../types/orders";
 
 /** Payment method options for POS checkout. */
 export type PaymentMethod = "cash" | "card" | "transfer";
@@ -12,12 +12,13 @@ export type PaymentMethod = "cash" | "card" | "transfer";
 /** Walk-in customer info collected during POS checkout. */
 export interface POSCustomer { name: string; phone: string; email: string; }
 
-interface POSOrderItemPayload { product_id: string; quantity: number; unit_price: number; variant_id?: string; variant_label?: string; batch_id?: string; }
+interface POSOrderItemPayload { product_id: string; quantity: number; unit_price: number; variant_id?: string; variant_label?: string; batch_id?: string; is_gift: boolean; }
 
 interface POSOrderPayload {
   customer_name: string; customer_phone: string; customer_email: string;
   items: POSOrderItemPayload[]; payment_method: PaymentMethod;
   amount_paid: number; notes: string; total_amount: number;
+  discount: DiscountInput | null;
 }
 
 /** Printable receipt data generated after a successful POS checkout. */
@@ -27,15 +28,16 @@ export interface POSReceipt {
   /** Server-computed cash tendered / change due (core-bff normalizes `amount_paid`
    *  server-side, TASK-335); undefined for non-cash payments or an older core-bff. */
   cashTendered?: number; changeDue?: number;
+  /** The server's order-create response, verbatim: the enriched order
+   *  (items with gift lines, `subtotal_amount`, `discount`, net `total_amount`)
+   *  plus `cash_tendered`/`change_due`. Render the receipt from this. It is only
+   *  partial (no `items`) when core-bff's post-confirm re-fetch failed. */
+  order?: POSOrderResponse;
 }
 
-/** POS order-create response shape this hook reads; the server returns the
- *  full enriched order, but only these fields are used here. */
-interface POSOrderResponse {
-  order_id?: string;
-  cash_tendered?: number;
-  change_due?: number;
-}
+/** POS order-create response: the enriched order (fields optional, since
+ *  core-bff degrades to the bare confirm result if its re-fetch fails). */
+export type POSOrderResponse = Partial<Order> & { cash_tendered?: number; change_due?: number };
 
 const EMPTY_CUSTOMER: POSCustomer = { name: "", phone: "", email: "" };
 
@@ -55,16 +57,18 @@ export function usePOSCheckout(onSuccess?: () => void) {
     [amountPaid],
   );
 
-  const checkout = useCallback(async (cart: CartItem[], total: number): Promise<boolean> => {
+  /** Submits the sale. `total` is the expected NET total (after `discount`);
+   *  gift lines go out with `unit_price` 0. Resolves false on failure (see `error`). */
+  const checkout = useCallback(async (cart: CartItem[], total: number, discount?: DiscountInput | null): Promise<boolean> => {
     if (cart.length === 0) return false;
     setSubmitting(true);
     setError("");
     const paid = paymentMethod === "cash" ? parseFloat(amountPaid) || total : total;
     const payload: POSOrderPayload = {
       customer_name: customer.name, customer_phone: customer.phone, customer_email: customer.email,
-      items: cart.map((i) => ({ product_id: i.product_id, quantity: i.qty, unit_price: i.base_price, variant_id: i.variant_id, variant_label: i.variant_label, batch_id: i.batch_id })),
+      items: cart.map((i) => ({ product_id: i.product_id, quantity: i.qty, unit_price: i.is_gift ? 0 : i.base_price, variant_id: i.variant_id, variant_label: i.variant_label, batch_id: i.batch_id, is_gift: i.is_gift === true })),
       payment_method: paymentMethod, amount_paid: paid, notes: "فروش حضوری - POS",
-      total_amount: total,
+      total_amount: total, discount: discount ?? null,
     };
     try {
       const data = await apiFetch<POSOrderResponse>("/admin/pos/orders", {
@@ -74,7 +78,7 @@ export function usePOSCheckout(onSuccess?: () => void) {
       setLastOrder({
         order_id: data.order_id, customer, items: cart, total, paymentMethod, amountPaid: paid,
         change: paymentMethod === "cash" ? Math.max(0, paid - total) : 0,
-        cashTendered: data.cash_tendered, changeDue: data.change_due,
+        cashTendered: data.cash_tendered, changeDue: data.change_due, order: data,
       });
       setShowReceipt(true);
       toast("فروش با موفقیت ثبت شد", "success");

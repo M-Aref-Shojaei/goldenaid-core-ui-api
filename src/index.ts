@@ -80,7 +80,7 @@ export { useEditArticle } from './hooks/useEditArticle';
 export type { EditArticleForm } from './hooks/useEditArticle';
 export { usePOSCart } from './hooks/usePOSCart';
 export { usePOSCheckout } from './hooks/usePOSCheckout';
-export type { PaymentMethod, POSCustomer, POSReceipt } from './hooks/usePOSCheckout';
+export type { PaymentMethod, POSCustomer, POSReceipt, POSOrderResponse } from './hooks/usePOSCheckout';
 export { usePOSProducts } from './hooks/usePOSProducts';
 export { useProductImport } from './hooks/useProductImport';
 export type { ImportMode } from './hooks/useProductImport';

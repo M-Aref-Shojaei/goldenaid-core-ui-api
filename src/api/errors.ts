@@ -2,17 +2,26 @@
  * Typed HTTP error thrown by `apiFetch` — carries HTTP status, optional backend
  * error code and, for rate-limited responses (429/503), the seconds to wait
  * (`details.retry_after_seconds` from the body; the `Retry-After` header is not
- * readable cross-origin).
+ * readable cross-origin), plus the body's `details` object as-is (e.g. the
+ * per-line `lines` of a 422 `PRICING_INVALID` or 409 stock conflict).
  */
 export class ApiError extends Error {
   status: number;
   code?: string;
   retryAfter?: number;
-  constructor(status: number, message: string, code?: string, retryAfter?: number) {
+  details?: Record<string, unknown>;
+  constructor(
+    status: number,
+    message: string,
+    code?: string,
+    retryAfter?: number,
+    details?: Record<string, unknown>,
+  ) {
     super(message);
     this.status = status;
     this.code = code;
     this.retryAfter = retryAfter;
+    this.details = details;
   }
 }
 
@@ -23,6 +32,11 @@ const ERROR_MESSAGES_FA: Record<string, string> = {
   FORBIDDEN: 'شما دسترسی به این بخش ندارید',
   NOT_FOUND: 'اطلاعات مورد نظر یافت نشد',
   SERVER_ERROR: 'خطای سرور. لطفاً بعداً تلاش کنید',
+  // POS discount rejections from Sales (same copy as `computeDiscount`).
+  DISCOUNT_INVALID: 'مقدار تخفیف معتبر نیست.',
+  DISCOUNT_NEGATIVE: 'مقدار تخفیف نمی‌تواند منفی باشد.',
+  DISCOUNT_PERCENT_OVER_100: 'درصد تخفیف نمی‌تواند بیشتر از ۱۰۰ باشد.',
+  DISCOUNT_EXCEEDS_SUBTOTAL: 'مبلغ تخفیف نمی‌تواند از جمع کل سبد بیشتر باشد.',
 };
 
 /** Translates an `ApiError` to a user-facing Persian string. */

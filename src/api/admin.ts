@@ -211,10 +211,18 @@ export async function updateSupplierInvoice(
   });
 }
 
-/** Retries writing computed sell prices to the catalog for an invoice whose
- *  prior create/edit left `pricing_applied: false`. Idempotent. */
-export async function applySupplierInvoicePrices(id: string): Promise<SupplierInvoiceDetail> {
-  return apiFetch(`/admin/supplier-invoices/${id}/apply-prices`, { method: 'POST' });
+/** Retries writing the stored sell prices to the catalog for the given lines
+ *  of an invoice whose prior create/edit left `pricing_applied: false`; pass
+ *  that response's `pending_item_ids` (the BFF 422s on an empty list or an id
+ *  not on the invoice). Idempotent. */
+export async function applySupplierInvoicePrices(
+  id: string,
+  itemIds: string[],
+): Promise<SupplierInvoiceDetail> {
+  return apiFetch(`/admin/supplier-invoices/${id}/apply-prices`, {
+    method: 'POST',
+    body: JSON.stringify({ item_ids: itemIds }),
+  });
 }
 
 /** Returns the current price-band settings (markup % and rounding step). Admin and manager. */
