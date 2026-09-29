@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { usePOSCart } from '../../hooks/usePOSCart';
 import type { ProductSummary, ProductVariant, StockBatch } from '../../types/catalog';
 import type { CartItem } from '../../types/orders';
@@ -193,5 +193,17 @@ describe('usePOSCart', () => {
     act(() => result.current.updateQuantity('p1--b2', 3));
 
     expect(result.current.cart.map((i) => [i.key, i.qty])).toEqual([['p1--b1', 1], ['p1--b2', 3]]);
+  });
+
+  it('warns in dev (instead of silently no-oping) when called with a product_id, not a line key', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const { result } = renderHook(() => usePOSCart());
+
+    act(() => result.current.addToCart(makeProduct()));
+    act(() => result.current.removeFromCart('p1'));
+
+    expect(result.current.cart).toHaveLength(1);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('CartItem.key'));
+    warn.mockRestore();
   });
 });

@@ -258,7 +258,8 @@ export type SupplierInvoiceItem = {
   quantity: number;
   unit_cost: number;
   product_title: string;
-  /** null means "use the default (ceil) of the price band" (TASK-332). */
+  /** The stored effective sell price (the band default is resolved before the
+   *  write); null = the line was never priced (zero-cost or legacy line). */
   sell_price?: number | null;
   /** true for a new line or one whose `unit_cost` changed in this PATCH -- these are the lines core-bff reprices. */
   cost_changed?: boolean;
@@ -301,7 +302,10 @@ export type SupplierInvoiceItemCreate = {
   variant_id?: string;
   quantity: number;
   unit_cost: number;
-  /** null/omitted means the price band's default (ceil). */
+  /** Pricing is opt-in by the key's presence (TASK-332): omitted = the line is
+   *  not priced (legacy behavior; if no line carries the key, no pricing runs at
+   *  all); `null` = the price band's default (ceil); a number = that price,
+   *  validated against the band server-side (422 `PRICING_INVALID`). */
   sell_price?: number | null;
 };
 
@@ -313,6 +317,11 @@ export type SupplierInvoiceItemUpdate = {
   variant_id?: string;
   quantity: number;
   unit_cost: number;
+  /** Pricing is opt-in by the key's presence (TASK-332): omitted = the line is
+   *  not priced (legacy behavior; if no line carries the key, no pricing runs at
+   *  all); `null` = the price band's default (ceil); a number = that price,
+   *  validated against the band server-side (422 `PRICING_INVALID`).
+   *  On edit only new, re-costed or re-priced lines are repriced. */
   sell_price?: number | null;
 };
 

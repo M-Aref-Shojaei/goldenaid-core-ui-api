@@ -10,7 +10,18 @@ function lineKey(i: Pick<CartItem, "product_id" | "variant_id" | "batch_id" | "i
   return `${i.is_gift ? "gift-" : ""}${i.product_id}-${i.variant_id ?? ""}-${i.batch_id ?? ""}`;
 }
 
+/** Dev-only: flags a pre-2.0 `product_id` call that would otherwise silently no-op. */
+function warnUnknownKey(cart: CartItem[], key: string): void {
+  if (process.env.NODE_ENV !== "production" && !cart.some((i) => i.key === key)) {
+    console.warn(`usePOSCart: no cart line with key "${key}" -- pass CartItem.key, not product_id (2.0.0).`);
+  }
+}
+
 /**
+ * **2.0.0 migration:** `updateQuantity`/`removeFromCart` now take the line's
+ * `CartItem.key`, not `product_id` (both are strings, so an old call still
+ * type-checks; in dev it logs a warning instead of silently doing nothing).
+ *
  * In-memory shopping cart for the point-of-sale screen. Every line carries a
  * `key` (see `CartItem.key`); `updateQuantity`/`removeFromCart` act by it, so a
  * gift and a paid line of one product, or two batches of it, stay separate.
@@ -34,12 +45,14 @@ export function usePOSCart(initialItems: CartItem[] = []) {
   }, []);
 
   const updateQuantity = useCallback((key: string, qty: number) => {
-    if (qty <= 0) { setCart((prev) => prev.filter((i) => i.key !== key)); return; }
-    setCart((prev) => prev.map((i) => (i.key === key ? { ...i, qty } : i)));
+    setCart((prev) => {
+      warnUnknownKey(prev, key);
+      return qty <= 0 ? prev.filter((i) => i.key !== key) : prev.map((i) => (i.key === key ? { ...i, qty } : i));
+    });
   }, []);
 
   const removeFromCart = useCallback((key: string) => {
-    setCart((prev) => prev.filter((i) => i.key !== key));
+    setCart((prev) => { warnUnknownKey(prev, key); return prev.filter((i) => i.key !== key); });
   }, []);
 
   const clearCart = useCallback(() => setCart([]), []);
