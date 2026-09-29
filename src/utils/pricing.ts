@@ -42,13 +42,15 @@ export interface DiscountResult {
  * `10n ** x` to `Math.pow`, which throws on a BigInt operand) and risked
  * older Safari in the admin app (TASK-333 follow-up). Trailing fractional
  * zeros are stripped, so `"12.50"` reads as 1 decimal place, matching
- * `Decimal` value-equality. Returns `null` for anything that isn't a plain
- * decimal or scientific literal.
+ * `Decimal` value-equality. Like `Decimal`, a bare leading or trailing point
+ * is fine (`".5"`, `"12."`), as is a leading `+`. Returns `null` for anything
+ * that isn't a plain decimal or scientific literal (e.g. `"."`, `"1,5"`).
  */
 function normalizeDecimal(value: number | string): { negative: boolean; intPart: string; fracPart: string } | null {
-  const match = /^(-)?(\d+)(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/.exec(String(value).trim());
+  const match = /^([+-])?(?:(\d+)(?:\.(\d*))?|\.(\d+))(?:[eE]([+-]?\d+))?$/.exec(String(value).trim());
   if (!match) return null;
-  const [, sign, intDigits, fracDigits = '', expStr] = match;
+  const [, sign, intDigits = '', intFrac, bareFrac, expStr] = match;
+  const fracDigits = intFrac ?? bareFrac ?? '';
   let digits = intDigits + fracDigits;
   let point = intDigits.length + (expStr ? parseInt(expStr, 10) : 0);
   while (point > digits.length) digits += '0';
@@ -67,7 +69,7 @@ function normalizeDecimal(value: number | string): { negative: boolean; intPart:
  * `DISCOUNT_INVALID` precision rule (`app/discount.py`, `app/api/v1/orders.py`
  * `_resolve_discount`), itself a Decimal port of the design prototype's
  * `computeDiscount` in `AdminPos.jsx`: an empty or zero value is "no
- * discount"; a negative value, a non-integer amount, a percent with more
+ * discount"; an unparseable value (`"."`, `"abc"`), a negative value, a non-integer amount, a percent with more
  * than 2 decimal places, an over-100 percent, or an amount over the
  * subtotal are all rejected with a Persian message.
  *
@@ -83,9 +85,9 @@ export function computeDiscount(
   discountType: 'amount' | 'percent',
   discountValue: number | string,
 ): DiscountResult {
-  if (!discountValue) return { amount: 0, error: null };
+  if (!discountValue || String(discountValue).trim() === '') return { amount: 0, error: null };
   const parsed = normalizeDecimal(discountValue);
-  if (!parsed) return { amount: 0, error: null };
+  if (!parsed) return { amount: 0, error: 'مقدار تخفیف معتبر نیست.' };
   const { negative, intPart, fracPart } = parsed;
   if (intPart === '0' && fracPart === '') return { amount: 0, error: null };
   if (negative) return { amount: 0, error: 'مقدار تخفیف نمی‌تواند منفی باشد.' };

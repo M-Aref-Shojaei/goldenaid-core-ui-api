@@ -105,6 +105,33 @@ describe('computeDiscount', () => {
     });
   });
 
+  it.each([
+    ['percent', '.5', 5],
+    ['percent', '12.', 120],
+    ['percent', '0.50', 5],
+    ['percent', '+12.5', 125],
+    ['amount', '12.', 12],
+    ['amount', '12.0', 12],
+  ] as const)('accepts a bare leading/trailing point like Decimal: %s %s', (type, value, expected) => {
+    expect(computeDiscount(1000, type, value)).toEqual({ amount: expected, error: null });
+  });
+
+  it.each(['.', 'abc', '1,5', '12..5', '1.2.3', '. 5', '٫۵'])(
+    'rejects unparseable %j with an error, never a silent 0',
+    (value) => {
+      expect(computeDiscount(1000, 'percent', value)).toEqual({ amount: 0, error: 'مقدار تخفیف معتبر نیست.' });
+    },
+  );
+
+  it('still rejects more than 2 decimals with a bare leading point, and a fraction as an amount', () => {
+    expect(computeDiscount(1000, 'percent', '.125').error).toBe('درصد تخفیف حداکثر تا دو رقم اعشار مجاز است.');
+    expect(computeDiscount(1000, 'amount', '.5').error).toBe('مبلغ تخفیف باید عدد صحیح باشد.');
+  });
+
+  it('treats a whitespace-only value as empty (no discount)', () => {
+    expect(computeDiscount(1000, 'amount', '  ')).toEqual({ amount: 0, error: null });
+  });
+
   it('parses scientific notation the same as the server (Decimal("1e3") over 100%)', () => {
     expect(computeDiscount(1000, 'percent', '1e3')).toEqual({
       amount: 0,
