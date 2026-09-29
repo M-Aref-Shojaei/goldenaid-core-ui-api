@@ -67,7 +67,7 @@ export function Modal({
             <h2 id={titleId} className="text-lg font-semibold text-dark dark:text-white">{title}</h2>
             <button
               onClick={onClose}
-              className="text-neutral-400 hover:text-neutral-600 dark:hover:text-white transition-colors text-xl leading-none"
+              className="text-neutral-500 dark:text-neutral-300 hover:text-neutral-600 dark:hover:text-white transition-colors text-xl leading-none"
             >
               ×
             </button>
@@ -76,7 +76,7 @@ export function Modal({
         {!title && (
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 text-neutral-400 hover:text-neutral-600 dark:hover:text-white transition-colors text-xl leading-none z-10"
+            className="absolute top-3 right-3 text-neutral-500 dark:text-neutral-300 hover:text-neutral-600 dark:hover:text-white transition-colors text-xl leading-none z-10"
           >
             ×
           </button>

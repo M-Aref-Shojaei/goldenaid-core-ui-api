@@ -47,7 +47,7 @@ export function Drawer({ open, onClose, title, children, side = 'right', size = 
           {title && <h2 className="text-lg font-semibold text-dark dark:text-white">{title}</h2>}
           <button
             onClick={onClose}
-            className="ml-auto text-neutral-400 hover:text-neutral-600 dark:hover:text-white transition-colors text-xl leading-none"
+            className="ml-auto text-neutral-500 dark:text-neutral-300 hover:text-neutral-600 dark:hover:text-white transition-colors text-xl leading-none"
           >
             ×
           </button>
