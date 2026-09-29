@@ -99,6 +99,8 @@
   --color-dark:           #0D0D0D;   /* neutral/900 — text/primary, dark sections */
   --color-dark-secondary: #1A1A1A;   /* neutral/800 */
   --color-dark-card:      #333333;   /* neutral/700 */
+  /* Label on gold (button/primary). Flat both themes: white on #CC9B2B is 2.53:1, #0D0D0D is 7.67:1 (DS --text-on-primary, D-43) */
+  --color-on-primary:     #0D0D0D;
 
   /* Light backgrounds */
   --color-cream:      #FBFBFB;   /* neutral/25  — background/primary */
@@ -121,6 +123,12 @@
   --radius-badge:   10px;
   --radius-field:   15px;
   --radius-product: 20px;
+}
+
+/* Apps scan core-ui-api/src, which ships no component sources, so a utility used only inside a package
+   component is never generated in them. Emit the on-gold label colour explicitly (D-43). */
+@layer utilities {
+  .text-on-primary { color: var(--color-on-primary); }
 }
 
 /* Dark-only neutral-300 (DS D-41): #999 is 4.43:1 on dark-card #333; #A3A3A3 is 5.01:1. Light unchanged. */

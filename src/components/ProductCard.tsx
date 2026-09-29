@@ -101,7 +101,7 @@ export function ProductCard({ product, countdownLabel }: ProductCardProps) {
           {needsVariantChoice ? (
             <Link
               href={`/products/${product.product_id}`}
-              className="flex items-center justify-center gap-1.5 w-full bg-gold hover:bg-gold-dark text-white text-xs font-bold py-2 rounded-xl transition-colors"
+              className="flex items-center justify-center gap-1.5 w-full bg-gold hover:bg-gold-dark text-on-primary text-xs font-bold py-2 rounded-xl transition-colors"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
