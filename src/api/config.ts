@@ -27,6 +27,7 @@ export const SESSION_KEYS = [
   'isAdmin',
   STORAGE_KEYS.ROLE,
   'loginTime',
+  'sessionDeadline',
 ] as const;
 
 /** window event dispatched when the server rejects the session token (401). */

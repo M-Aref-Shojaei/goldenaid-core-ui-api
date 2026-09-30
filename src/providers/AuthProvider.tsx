@@ -13,7 +13,18 @@ import { SESSION_CONFIG, USER_ROLES } from "../utils/constants";
 import { STORAGE_KEYS, SESSION_KEYS, SESSION_EXPIRED_EVENT } from "../api/config";
 import { revokeSession } from "../api/auth";
 import type { UserRole } from "../types/admin";
-import { isSessionExpired } from "../utils/helpers";
+import { getSessionDeadlineMs } from "../utils/validators";
+
+/** setTimeout max delay is 2^31-1 ms; longer waits are re-armed. */
+const MAX_TIMEOUT_MS = 2 ** 31 - 1;
+
+function sessionEnd(token: string): number {
+  const stored = parseInt(localStorage.getItem("sessionDeadline") ?? "", 10);
+  if (Number.isFinite(stored)) return stored;
+  // Legacy session stored before deadlines existed: derive from loginTime.
+  const loginTime = parseInt(localStorage.getItem("loginTime") ?? "0", 10);
+  return getSessionDeadlineMs(token, loginTime, SESSION_CONFIG.EXPIRE_MS);
+}
 
 interface AuthState {
   token: string | null;
@@ -55,11 +66,9 @@ function loadAuthFromStorage(): AuthState {
   const userName = localStorage.getItem(STORAGE_KEYS.USER_NAME);
   const isAdmin = localStorage.getItem('isAdmin') === 'true';
   const role = (localStorage.getItem(STORAGE_KEYS.ROLE) as UserRole) || USER_ROLES.USER;
-  const loginTime = parseInt(localStorage.getItem('loginTime') ?? '0', 10);
-
   if (token) {
-    if (isSessionExpired(loginTime, SESSION_CONFIG.EXPIRE_MS)) {
-      // Expired while the tab was closed: revoke best-effort, then clear.
+    if (Date.now() >= sessionEnd(token)) {
+      // Token expired while the tab was closed: revoke best-effort, then clear.
       revokeSession(token).catch(() => undefined);
       SESSION_KEYS.forEach((k) => localStorage.removeItem(k));
       return EMPTY_STATE;
@@ -87,16 +96,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return revoked;
   }, []);
 
+  // Session lasts exactly as long as the token: log out when its exp passes.
+  // Timer is re-armed for far-off exp; visibility/focus re-check because
+  // background tabs throttle timers.
   useEffect(() => {
-    const interval = setInterval(() => {
-      const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
-      const loginTime = parseInt(localStorage.getItem('loginTime') ?? '0', 10);
-      if (token && isSessionExpired(loginTime, SESSION_CONFIG.EXPIRE_MS)) {
+    const token = state.token;
+    if (!token) return;
+    let timer: ReturnType<typeof setTimeout>;
+    const check = () => {
+      clearTimeout(timer);
+      const left = sessionEnd(token) - Date.now();
+      if (left <= 0) {
         void logout(); // same path as manual logout: revoke best-effort, clear locally
+        return;
       }
-    }, SESSION_CONFIG.CHECK_INTERVAL_MS);
-    return () => clearInterval(interval);
-  }, [logout]);
+      timer = setTimeout(check, Math.min(left, MAX_TIMEOUT_MS));
+    };
+    const onVisible = () => document.visibilityState === "visible" && check();
+    check();
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", check);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", check);
+    };
+  }, [state.token, logout]);
 
   // apiFetch already cleared storage on a 401; reset state so guards redirect to login.
   useEffect(() => {
@@ -113,7 +138,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem(STORAGE_KEYS.PHONE, phone);
       localStorage.setItem('isAdmin', String(isAdmin));
       localStorage.setItem(STORAGE_KEYS.ROLE, finalRole);
-      localStorage.setItem('loginTime', String(Date.now()));
+      const now = Date.now();
+      localStorage.setItem('loginTime', String(now));
+      // Anchored to local receipt time so a skewed device clock can't end the session early.
+      localStorage.setItem('sessionDeadline', String(getSessionDeadlineMs(token, now, SESSION_CONFIG.EXPIRE_MS)));
       if (userName) localStorage.setItem(STORAGE_KEYS.USER_NAME, userName);
       setState({ token, userId, phone, userName, isAdmin, role: finalRole });
     },

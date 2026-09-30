@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 
 vi.mock('@sentry/browser', () => ({ captureException: vi.fn() }));
@@ -164,47 +164,119 @@ describe('401 narrowing', () => {
   });
 });
 
-describe('auto-expiry', () => {
-  it('interval expiry calls revoke with the token, then clears', async () => {
-    vi.useFakeTimers();
-    try {
-      mockFetch.mockResolvedValue(res(204));
-      const { result } = loggedIn();
-      await act(async () => {
-        vi.advanceTimersByTime(SESSION_CONFIG.EXPIRE_MS + SESSION_CONFIG.CHECK_INTERVAL_MS);
-      });
-      const [url, init] = mockFetch.mock.calls[0];
-      expect(url).toMatch(/\/auth\/logout$/);
-      expect(init.headers.Authorization).toBe('Bearer tok-123');
-      expect(localStorage.getItem(STORAGE_KEYS.TOKEN)).toBeNull();
+const jwt = (exp?: number, iat?: number) => {
+  const b64u = (o: object) => btoa(JSON.stringify(o)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  return `${b64u({ alg: 'HS256' })}.${b64u(exp === undefined ? { sub: 'u1' } : { sub: 'u1', exp, ...(iat ? { iat } : {}) })}.sig`;
+};
+const nowS = () => Math.floor(Date.now() / 1000);
+
+describe('auto-expiry follows token exp', () => {
+  beforeEach(() => { vi.useFakeTimers(); mockFetch.mockResolvedValue(res(204)); });
+  afterEach(() => { vi.useRealTimers(); });
+
+  const loginWith = (token: string) => {
+    const hook = renderHook(() => useAuth(), { wrapper: AuthProvider });
+    act(() => hook.result.current.login(token, 'u1', '09120000000'));
+    return hook;
+  };
+
+  it('logs out ~30s before exp (not earlier), revoking with the token', async () => {
+    const tok = jwt(nowS() + 3600);
+    const { result } = loginWith(tok);
+    await act(async () => { vi.advanceTimersByTime(3600 * 1000 - 35000); });
+    expect(result.current.isAuthenticated).toBe(true);
+    await act(async () => { vi.advanceTimersByTime(6000); });
+    expect(result.current.isAuthenticated).toBe(false);
+    expect(localStorage.getItem(STORAGE_KEYS.TOKEN)).toBeNull();
+    expect(mockFetch.mock.calls[0][1].headers.Authorization).toBe(`Bearer ${tok}`);
+  });
+
+  it('is not cut off by the old fixed cap', async () => {
+    const { result } = loginWith(jwt(nowS() + 24 * 3600));
+    await act(async () => { vi.advanceTimersByTime(SESSION_CONFIG.EXPIRE_MS * 10); });
+    expect(result.current.isAuthenticated).toBe(true);
+  });
+
+  it('re-arms across the 2^31 ms timer limit', async () => {
+    const days = 40; // > 24.8 days
+    const { result } = loginWith(jwt(nowS() + days * 86400));
+    await act(async () => { vi.advanceTimersByTime((days * 86400 - 40) * 1000); });
+    expect(result.current.isAuthenticated).toBe(true);
+    await act(async () => { vi.advanceTimersByTime(15 * 1000); });
+    expect(result.current.isAuthenticated).toBe(false);
+  });
+
+  it('missing/invalid exp falls back to the login-time cap', async () => {
+    for (const tok of ['tok-123', jwt(undefined)]) {
+      localStorage.clear();
+      const { result, unmount } = loginWith(tok);
+      await act(async () => { vi.advanceTimersByTime(SESSION_CONFIG.EXPIRE_MS - 1000); });
+      expect(result.current.isAuthenticated).toBe(true);
+      await act(async () => { vi.advanceTimersByTime(2000); });
       expect(result.current.isAuthenticated).toBe(false);
-    } finally {
-      vi.useRealTimers();
+      unmount();
     }
   });
 
-  it('interval expiry still clears when revoke fails', async () => {
-    vi.useFakeTimers();
-    try {
-      mockFetch.mockRejectedValue(new Error('offline'));
-      const { result } = loggedIn();
-      await act(async () => {
-        vi.advanceTimersByTime(SESSION_CONFIG.EXPIRE_MS + SESSION_CONFIG.CHECK_INTERVAL_MS);
-      });
-      expect(result.current.isAuthenticated).toBe(false);
-    } finally {
-      vi.useRealTimers();
-    }
+  it('visibilitychange to visible logs out an already-expired token (throttled timer)', async () => {
+    const { result } = loginWith(jwt(nowS() + 60));
+    // clock jumps without timers firing (background throttling)
+    vi.setSystemTime(Date.now() + 120 * 1000);
+    await act(async () => { document.dispatchEvent(new Event('visibilitychange')); });
+    expect(result.current.isAuthenticated).toBe(false);
   });
 
   it('expired on load: revokes best-effort and starts logged out', async () => {
-    mockFetch.mockResolvedValue(res(204));
-    localStorage.setItem(STORAGE_KEYS.TOKEN, 'old-tok');
-    localStorage.setItem('loginTime', String(Date.now() - SESSION_CONFIG.EXPIRE_MS - 1000));
+    localStorage.setItem(STORAGE_KEYS.TOKEN, jwt(nowS() - 10));
     const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
     expect(result.current.isAuthenticated).toBe(false);
     expect(localStorage.getItem(STORAGE_KEYS.TOKEN)).toBeNull();
     expect(mockFetch).toHaveBeenCalledTimes(1);
-    expect(mockFetch.mock.calls[0][1].headers.Authorization).toBe('Bearer old-tok');
+  });
+
+  it('valid token on load stays logged in', () => {
+    localStorage.setItem(STORAGE_KEYS.TOKEN, jwt(nowS() + 3600));
+    const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+    expect(result.current.isAuthenticated).toBe(true);
+  });
+
+  it('client clock 5h ahead: no immediate logout, ends at login + lifetime - margin', async () => {
+    const serverNow = nowS();
+    vi.setSystemTime(Date.now() + 5 * 3600 * 1000); // client ahead of server
+    const { result } = loginWith(jwt(serverNow + 5 * 3600, serverNow));
+    expect(result.current.isAuthenticated).toBe(true);
+    await act(async () => { vi.advanceTimersByTime(5 * 3600 * 1000 - 40 * 1000); });
+    expect(result.current.isAuthenticated).toBe(true);
+    await act(async () => { vi.advanceTimersByTime(15 * 1000); });
+    expect(result.current.isAuthenticated).toBe(false);
+  });
+
+  it('client clock behind: still logs out at login + lifetime', async () => {
+    const serverNow = nowS();
+    vi.setSystemTime(Date.now() - 5 * 3600 * 1000);
+    const { result } = loginWith(jwt(serverNow + 3600, serverNow));
+    await act(async () => { vi.advanceTimersByTime(3600 * 1000 - 40 * 1000); });
+    expect(result.current.isAuthenticated).toBe(true);
+    await act(async () => { vi.advanceTimersByTime(15 * 1000); });
+    expect(result.current.isAuthenticated).toBe(false);
+  });
+
+  it('malformed base64 payload falls back to the cap without crashing', async () => {
+    const { result } = loginWith('a.!!!.c');
+    await act(async () => { vi.advanceTimersByTime(SESSION_CONFIG.EXPIRE_MS - 1000); });
+    expect(result.current.isAuthenticated).toBe(true);
+    await act(async () => { vi.advanceTimersByTime(2000); });
+    expect(result.current.isAuthenticated).toBe(false);
+  });
+
+  it('reload uses the stored deadline, not the token exp vs client clock', async () => {
+    const serverNow = nowS();
+    vi.setSystemTime(Date.now() + 5 * 3600 * 1000);
+    loginWith(jwt(serverNow + 5 * 3600, serverNow)).unmount();
+    const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider }); // "reload"
+    expect(result.current.isAuthenticated).toBe(true);
+    localStorage.setItem('sessionDeadline', String(Date.now() - 1));
+    const again = renderHook(() => useAuth(), { wrapper: AuthProvider });
+    expect(again.result.current.isAuthenticated).toBe(false);
   });
 });

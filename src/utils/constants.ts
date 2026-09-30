@@ -24,10 +24,16 @@ export const ORDER_STATUS = {
   CANCELLED: 'CANCELLED',
 } as const;
 
+/**
+ * Fallback only: sessions end at the JWT `exp`. This login-time cap applies
+ * solely to tokens with no usable `exp`. NEXT_PUBLIC_SESSION_EXPIRE_MINUTES is
+ * otherwise ignored.
+ */
 const SESSION_EXPIRE_MINUTES = Number(process.env.NEXT_PUBLIC_SESSION_EXPIRE_MINUTES) || 15;
 
 export const SESSION_CONFIG = {
   EXPIRE_MS: SESSION_EXPIRE_MINUTES * 60 * 1000,
+  /** @deprecated No longer used (expiry is timer-scheduled); kept so consumers still build. */
   CHECK_INTERVAL_MS: 60 * 1000,
 } as const;
 
