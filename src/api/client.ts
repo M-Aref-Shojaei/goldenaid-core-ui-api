@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/browser';
-import { API_CONFIG, STORAGE_KEYS } from './config';
+import { API_CONFIG, STORAGE_KEYS, SESSION_KEYS, SESSION_EXPIRED_EVENT } from './config';
 import { ApiError } from './errors';
 export { ApiError, getErrorMessage } from './errors';
 export { API_CONFIG, STORAGE_KEYS } from './config';
@@ -7,6 +7,32 @@ export { API_CONFIG, STORAGE_KEYS } from './config';
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem(STORAGE_KEYS.TOKEN);
+}
+
+/** core-bff error codes that mean the user's token itself is bad. */
+const SESSION_ERROR_CODES = ['TOKEN_REVOKED', 'INVALID_TOKEN', 'MISSING_AUTH_TOKEN'];
+
+/** Endpoints whose 401 means "wrong credentials / already logged out", not "session ended". */
+const AUTH_FLOW_PATHS = ['/auth/request-otp', '/auth/verify-otp', '/auth/logout'];
+
+/**
+ * A 401 on a request that carried the stored token means the session is over
+ * server-side: clear it and tell AuthProvider. Single-flight by construction --
+ * only the request whose token is still the stored one acts, so parallel 401s
+ * (and 401s from a token replaced by a newer login) cause one logout, not a storm.
+ * 403 is a permission error and is deliberately not handled.
+ */
+function handleUnauthorized(status: number, path: string, sentToken: string | null, code?: string): void {
+  if (status !== 401 || !sentToken || typeof window === 'undefined') return;
+  const bare = path.split('?')[0];
+  if (AUTH_FLOW_PATHS.includes(bare)) return;
+  // Only genuine token failures end the session. Any other 401 (e.g. a forwarded
+  // downstream/internal-token 401) must not log the user out. /auth/me is the
+  // session probe and its upstream 401 carries no code.
+  if (!(code && SESSION_ERROR_CODES.includes(code)) && bare !== '/auth/me') return;
+  if (getToken() !== sentToken) return;
+  SESSION_KEYS.forEach((k) => localStorage.removeItem(k));
+  window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
 }
 
 /**
@@ -117,6 +143,7 @@ export async function apiFetch<T = unknown>(
         // text is already the message
       }
       const apiErr = new ApiError(res.status, message, code, retryAfter, details);
+      handleUnauthorized(res.status, path, token, code);
       reportUnexpectedError(apiErr, options?.method, path, requestId);
       throw apiErr;
     }
@@ -158,15 +185,18 @@ export async function apiFetchFormData<T = unknown>(
   if (!res.ok) {
     const text = await res.text();
     let message = text;
+    let code: string | undefined;
     let details: Record<string, unknown> | undefined;
     try {
       const parsed = JSON.parse(text);
       message = formatErrorDetail(parsed.detail, parsed.message || text);
+      code = parsed.code ?? parsed.detail?.error_code;
       details = asDetails(parsed.detail?.details);
     } catch {
       // text is already the message
     }
-    const apiErr = new ApiError(res.status, message, undefined, undefined, details);
+    const apiErr = new ApiError(res.status, message, code, undefined, details);
+    handleUnauthorized(res.status, path, token, code);
     reportUnexpectedError(apiErr, 'POST', path);
     throw apiErr;
   }

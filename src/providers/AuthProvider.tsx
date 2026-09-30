@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { SESSION_CONFIG, USER_ROLES } from "../utils/constants";
-import { STORAGE_KEYS } from "../api/config";
+import { STORAGE_KEYS, SESSION_KEYS, SESSION_EXPIRED_EVENT } from "../api/config";
 import { revokeSession } from "../api/auth";
 import type { UserRole } from "../types/admin";
 import { isSessionExpired } from "../utils/helpers";
@@ -44,16 +44,6 @@ const EMPTY_STATE: AuthState = {
   role: USER_ROLES.USER,
 };
 
-const ALL_KEYS = [
-  STORAGE_KEYS.TOKEN,
-  STORAGE_KEYS.USER_ID,
-  STORAGE_KEYS.PHONE,
-  STORAGE_KEYS.USER_NAME,
-  'isAdmin',
-  STORAGE_KEYS.ROLE,
-  'loginTime',
-];
-
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 function loadAuthFromStorage(): AuthState {
@@ -69,7 +59,9 @@ function loadAuthFromStorage(): AuthState {
 
   if (token) {
     if (isSessionExpired(loginTime, SESSION_CONFIG.EXPIRE_MS)) {
-      ALL_KEYS.forEach((k) => localStorage.removeItem(k));
+      // Expired while the tab was closed: revoke best-effort, then clear.
+      revokeSession(token).catch(() => undefined);
+      SESSION_KEYS.forEach((k) => localStorage.removeItem(k));
       return EMPTY_STATE;
     }
     return { token, userId, phone, userName, isAdmin, role };
@@ -85,16 +77,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState(loadAuthFromStorage());
   }, []);
 
+  const logout = useCallback((): Promise<void> => {
+    // Send the revoke with the current token first, then clear locally at once;
+    // a network/server failure must never keep the user logged in.
+    const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
+    const revoked = token ? revokeSession(token).catch(() => undefined) : Promise.resolve();
+    SESSION_KEYS.forEach((k) => localStorage.removeItem(k));
+    setState(EMPTY_STATE);
+    return revoked;
+  }, []);
+
   useEffect(() => {
     const interval = setInterval(() => {
       const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
       const loginTime = parseInt(localStorage.getItem('loginTime') ?? '0', 10);
       if (token && isSessionExpired(loginTime, SESSION_CONFIG.EXPIRE_MS)) {
-        ALL_KEYS.forEach((k) => localStorage.removeItem(k));
-        setState(EMPTY_STATE);
+        void logout(); // same path as manual logout: revoke best-effort, clear locally
       }
     }, SESSION_CONFIG.CHECK_INTERVAL_MS);
     return () => clearInterval(interval);
+  }, [logout]);
+
+  // apiFetch already cleared storage on a 401; reset state so guards redirect to login.
+  useEffect(() => {
+    const onExpired = () => setState(EMPTY_STATE);
+    window.addEventListener(SESSION_EXPIRED_EVENT, onExpired);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired);
   }, []);
 
   const login = useCallback(
@@ -111,16 +119,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     [],
   );
-
-  const logout = useCallback((): Promise<void> => {
-    // Send the revoke with the current token first, then clear locally at once;
-    // a network/server failure must never keep the user logged in.
-    const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
-    const revoked = token ? revokeSession(token).catch(() => undefined) : Promise.resolve();
-    ALL_KEYS.forEach((k) => localStorage.removeItem(k));
-    setState(EMPTY_STATE);
-    return revoked;
-  }, []);
 
   const updateUserName = useCallback((name: string) => {
     localStorage.setItem(STORAGE_KEYS.USER_NAME, name);

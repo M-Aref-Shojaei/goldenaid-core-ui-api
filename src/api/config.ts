@@ -17,3 +17,17 @@ export const STORAGE_KEYS = {
   ROLE: 'role',
   CART: 'cart',
 } as const;
+
+/** Every localStorage key that makes up a login session; all are removed on logout/expiry. */
+export const SESSION_KEYS = [
+  STORAGE_KEYS.TOKEN,
+  STORAGE_KEYS.USER_ID,
+  STORAGE_KEYS.PHONE,
+  STORAGE_KEYS.USER_NAME,
+  'isAdmin',
+  STORAGE_KEYS.ROLE,
+  'loginTime',
+] as const;
+
+/** window event dispatched when the server rejects the session token (401). */
+export const SESSION_EXPIRED_EVENT = 'ga:session-expired';
