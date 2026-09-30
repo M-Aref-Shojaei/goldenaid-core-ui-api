@@ -40,6 +40,9 @@ const ERROR_MESSAGES_FA: Record<string, string> = {
   // Catalog rejections.
   INVENTORY_UNAVAILABLE: 'سرویس انبار در دسترس نیست؛ حذف انجام نشد. لطفاً دوباره تلاش کنید یا با پشتیبانی تماس بگیرید.',
   VARIANT_HAS_STOCK: 'این تنوع موجودی دارد و قابل حذف نیست. ابتدا موجودی آن را صفر کنید.',
+  // Supplier-invoice edit/delete rejections (inventory 409s, forwarded by the BFF).
+  SUPPLIER_INVOICE_STOCK_CONFLICT: 'موجودی فعلی کالا از تعداد این فاکتور کمتر است (بخشی از آن فروخته شده)؛ تغییر ممکن نیست.',
+  SUPPLIER_INVOICE_DELETED: 'این فاکتور حذف شده و قابل ویرایش نیست.',
 };
 
 /** Translates an `ApiError` to a user-facing Persian string. */

@@ -5,6 +5,7 @@ import {
   adminRemoveProductImage,
   updateAdminOrderItems,
   applySupplierInvoicePrices,
+  updateSupplierInvoice,
 } from '../../api/admin';
 
 const mockFetch = vi.fn();
@@ -101,5 +102,30 @@ describe('applySupplierInvoicePrices', () => {
     expect(url).toContain('/admin/supplier-invoices/inv-1/apply-prices');
     expect(options.method).toBe('POST');
     expect(JSON.parse(options.body)).toEqual({ item_ids: ['l1', 'l2'] });
+  });
+});
+
+describe('updateSupplierInvoice', () => {
+  it('PATCHes items: [] and returns the soft-deleted invoice (deleted_at set)', async () => {
+    mockFetch.mockResolvedValue(mockResponse({ id: 'inv-1', items: [], deleted_at: '2026-09-30T10:00:00Z' }));
+
+    const res = await updateSupplierInvoice('inv-1', { items: [] });
+
+    const [url, options] = mockFetch.mock.calls[0];
+    expect(url).toContain('/admin/supplier-invoices/inv-1');
+    expect(options.method).toBe('PATCH');
+    expect(JSON.parse(options.body)).toEqual({ items: [] });
+    expect(res.deleted_at).toBe('2026-09-30T10:00:00Z');
+  });
+
+  it('rejects with the 409 code and details.lines on a stock conflict', async () => {
+    mockFetch.mockResolvedValue(mockResponse(
+      { detail: { error_code: 'SUPPLIER_INVOICE_STOCK_CONFLICT', message: 'm', details: { lines: [{ line_id: 'l1', max_reducible: 5 }] } } }, 409));
+
+    await expect(updateSupplierInvoice('inv-1', { items: [] })).rejects.toMatchObject({
+      status: 409,
+      code: 'SUPPLIER_INVOICE_STOCK_CONFLICT',
+      details: { lines: [{ line_id: 'l1', max_reducible: 5 }] },
+    });
   });
 });

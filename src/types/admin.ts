@@ -274,6 +274,7 @@ export type SupplierInvoice = {
   invoice_date: string;
   created_at: string;
   updated_at: string;
+  /** Set when the invoice is soft-deleted (also by `updateSupplierInvoice` with `items: []`). */
   deleted_at?: string | null;
   payment_method?: 'cash' | 'transfer' | null;
   paid_at?: string | null;
@@ -327,7 +328,11 @@ export type SupplierInvoiceItemUpdate = {
 
 /** Payload for `updateSupplierInvoice` -- every field optional and only the
  *  given ones are changed. Sending `items` replaces the full line list and
- *  triggers a stock/price reconciliation; omitting it edits only the header/payment. */
+ *  triggers a stock/price reconciliation; omitting it edits only the header/payment.
+ *  `items: []` removes every line and soft-deletes the invoice in one step: the 200
+ *  response has `deleted_at` set; 409 `SUPPLIER_INVOICE_STOCK_CONFLICT` (nothing
+ *  changed) when a product's available stock can't absorb the removed quantity,
+ *  409 `SUPPLIER_INVOICE_DELETED` if it was already deleted. */
 export type SupplierInvoiceUpdate = Partial<{
   supplier_name: string;
   invoice_number: string | null;

@@ -25,6 +25,11 @@ describe('ApiError', () => {
 });
 
 describe('getErrorMessage', () => {
+  it('maps the supplier-invoice 409 codes to Farsi copy', () => {
+    expect(getErrorMessage(new ApiError(409, 'x', 'SUPPLIER_INVOICE_STOCK_CONFLICT'))).toContain('موجودی فعلی');
+    expect(getErrorMessage(new ApiError(409, 'x', 'SUPPLIER_INVOICE_DELETED'))).toBe('این فاکتور حذف شده و قابل ویرایش نیست.');
+  });
+
   it('returns Farsi copy for a Sales DISCOUNT_* rejection instead of the raw 422 text', () => {
     const err = new ApiError(422, 'Discount exceeds subtotal', 'DISCOUNT_EXCEEDS_SUBTOTAL');
     expect(getErrorMessage(err)).toBe('مبلغ تخفیف نمی‌تواند از جمع کل سبد بیشتر باشد.');
