@@ -31,6 +31,7 @@ export * from './utils/helpers';
 export * from './utils/variantAttributes';
 export * from './utils/pricing';
 export * from './utils/search';
+export * from './utils/productGroups';
 
 // ── Providers ─────────────────────────────────────────────────────────────────
 export { AuthProvider, useAuth } from './providers/AuthProvider';
@@ -63,6 +64,8 @@ export { useOrders } from './hooks/useOrders';
 export { useCustomers } from './hooks/useCustomers';
 export { useBulkSms } from './hooks/useBulkSms';
 export { useAdminProducts } from './hooks/useAdminProducts';
+export type { AdminProductsOptions } from './hooks/useAdminProducts';
+export { useProductNameCheck } from './hooks/useProductNameCheck';
 export { useNewProduct } from './hooks/useNewProduct';
 export { useProductDetail } from './hooks/useProductDetail';
 export { useUsersManagement } from './hooks/useUsersManagement';

@@ -4,6 +4,7 @@ import type {
   AdminStats,
   CampaignAnalytics,
   CustomerListResponse,
+  DiscardedProducts,
   ImportResult,
   PricingSettings,
   PurchaseListInvoiceOption,
@@ -223,6 +224,13 @@ export async function applySupplierInvoicePrices(
     method: 'POST',
     body: JSON.stringify({ item_ids: itemIds }),
   });
+}
+
+/** Deletes the never-sold quick-add products of a draft (left without saving) or of
+ *  a deleted invoice; products sold, on another live invoice, or stocked are kept.
+ *  Idempotent — also the retry for a create/delete `discard_error` (TASK-351). */
+export async function discardSupplierInvoiceProducts(id: string): Promise<DiscardedProducts> {
+  return apiFetch(`/admin/supplier-invoices/${id}/discard-products`, { method: 'POST' });
 }
 
 /** Returns the current price-band settings (markup % and rounding step). Admin and manager. */
