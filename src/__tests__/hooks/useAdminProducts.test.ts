@@ -107,4 +107,30 @@ describe('useAdminProducts', () => {
 
     expect(adminListProducts).toHaveBeenCalledTimes(1);
   });
+
+  it('filters by group and status tab server-side, immediately, and exposes status counts', async () => {
+    vi.mocked(adminListProducts).mockResolvedValue({
+      total: 1,
+      skip: 0,
+      limit: 40,
+      products: [{ product_id: 'p1', title: 'A', variants: [], group: 'supplement', pending_invoice: true, incomplete: true, missing: ['image'], created_from_invoice_id: 'inv' } as never],
+      status_counts: { all: 9, active: 5, hidden: 4, incomplete: 3, imported: 2 },
+    });
+
+    const { result } = renderHook(() => useAdminProducts(true, { withCounts: true, initialStatus: 'active' }));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(adminListProducts).toHaveBeenLastCalledWith({ skip: 0, limit: 40, search: undefined, group: undefined, status: 'active', counts: true });
+    expect(result.current.statusCounts).toEqual({ all: 9, active: 5, hidden: 4, incomplete: 3, imported: 2 });
+    const row = result.current.filteredProducts[0];
+    expect(row.group).toBe('supplement');
+    expect(row.pending_invoice).toBe(true);
+    expect(row.incomplete).toBe(true);
+    expect(row.missing).toEqual(['image']);
+    expect(row.created_from_invoice_id).toBe('inv');
+
+    act(() => result.current.setGroup('hygiene'));
+    await waitFor(() => expect(adminListProducts).toHaveBeenLastCalledWith(expect.objectContaining({ group: 'hygiene', status: 'active', skip: 0 })));
+    act(() => result.current.setStatus('incomplete'));
+    await waitFor(() => expect(adminListProducts).toHaveBeenLastCalledWith(expect.objectContaining({ group: 'hygiene', status: 'incomplete' })));
+  });
 });

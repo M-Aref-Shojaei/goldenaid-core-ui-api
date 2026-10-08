@@ -96,3 +96,10 @@ describe('getErrorMessage', () => {
     expect(getErrorMessage(err)).toBe('این تنوع موجودی دارد و قابل حذف نیست. ابتدا موجودی آن را صفر کنید.');
   });
 });
+
+describe('getErrorMessage — TASK-351 codes', () => {
+  it('maps DUPLICATE_NAME and PRODUCT_PENDING_INVOICE to Farsi copy', () => {
+    expect(getErrorMessage(new ApiError(409, 'dup', 'DUPLICATE_NAME'))).toBe('این نام قبلاً ثبت شده است.');
+    expect(getErrorMessage(new ApiError(422, 'Product x is waiting', 'PRODUCT_PENDING_INVOICE'))).toContain('در انتظار تکمیل فاکتور');
+  });
+});

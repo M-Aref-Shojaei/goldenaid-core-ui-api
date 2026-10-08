@@ -43,6 +43,9 @@ const ERROR_MESSAGES_FA: Record<string, string> = {
   // Supplier-invoice edit/delete rejections (inventory 409s, forwarded by the BFF).
   SUPPLIER_INVOICE_STOCK_CONFLICT: 'موجودی فعلی کالا از تعداد این فاکتور کمتر است (بخشی از آن فروخته شده)؛ تغییر ممکن نیست.',
   SUPPLIER_INVOICE_DELETED: 'این فاکتور حذف شده و قابل ویرایش نیست.',
+  // Product groups / invoice quick-add (TASK-351).
+  DUPLICATE_NAME: 'این نام قبلاً ثبت شده است.',
+  PRODUCT_PENDING_INVOICE: 'یکی از کالاها در انتظار تکمیل فاکتور است و تا ثبت نهایی فاکتور قابل فروش نیست؛ آن را از سبد حذف کنید.',
 };
 
 /** Translates an `ApiError` to a user-facing Persian string. */

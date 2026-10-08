@@ -1,4 +1,4 @@
-import type { ProductImage } from './catalog';
+import type { AdminProductFlags, ProductGroup, ProductImage } from './catalog';
 import type { OrderDiscount, OrderItemDetail } from './orders';
 
 /** Admin-visible customer record. */
@@ -186,6 +186,15 @@ export interface AdminProductListItem {
   currency: string;
   image_url?: string;
   is_active: boolean;
+  /** Admin-only group (TASK-351); null = ungrouped. */
+  group?: ProductGroup | null;
+  pending_invoice?: boolean;
+  pos_only?: boolean;
+  incomplete?: boolean;
+  /** Empty `image` / `description` fields. */
+  missing?: string[];
+  imported?: boolean;
+  created_from_invoice_id?: string | null;
 }
 
 /** User roles supported by the auth system. */
@@ -247,7 +256,7 @@ export type AdminProductDetailProduct = {
   category_id?: string;
   created_at: string;
   updated_at: string;
-};
+} & Partial<AdminProductFlags>;
 
 /** One line item on a supplier invoice, enriched with the product's title
  *  (Inventory only knows the product id; the BFF attaches the title). */
@@ -286,6 +295,11 @@ export type SupplierInvoice = {
 /** Supplier invoice detail, including its line items. */
 export type SupplierInvoiceDetail = SupplierInvoice & {
   items: SupplierInvoiceItem[];
+  /** Create (orphaned draft products) / delete (`items: []`) only: the quick-add
+   *  products that were deleted, and those kept (sold, on another invoice, or stocked). */
+  discarded_products?: DiscardedProducts;
+  /** Set when that discard step failed; retry with `discardSupplierInvoiceProducts`. */
+  discard_error?: unknown;
   /** false means at least one line's catalog price write failed after stock was already
    *  committed (TASK-332); retry with `applySupplierInvoicePrices`. Absent on plain reads. */
   pricing_applied?: boolean;
@@ -351,6 +365,18 @@ export type SupplierInvoiceCreate = {
   invoice_number?: string;
   invoice_date: string;
   items: SupplierInvoiceItemCreate[];
+  /** The draft uuid quick-add products were created with: those on a line are
+   *  relinked to the new invoice, the rest discarded (TASK-351). */
+  draft_id?: string;
+};
+
+/** Why a quick-add product survived a discard. */
+export type DiscardKeptReason = 'sold' | 'on_invoice' | 'has_stock';
+
+/** Outcome of discarding an invoice's (or draft's) quick-add products. */
+export type DiscardedProducts = {
+  deleted: { product_id: string; title: string }[];
+  kept: { product_id: string; title: string; reason: DiscardKeptReason }[];
 };
 
 /** Lifecycle of one purchase-list item («لیست سفارش خرید», TASK-309). */
