@@ -16,6 +16,7 @@ import type {
   SupplierInvoice,
   SupplierInvoiceCreate,
   SupplierInvoiceDetail,
+  SupplierInvoicePaymentInput,
   SupplierInvoiceUpdate,
   UpdateOrderItemInput,
   UserListResponse,
@@ -231,6 +232,61 @@ export async function applySupplierInvoicePrices(
  *  Idempotent — also the retry for a create/delete `discard_error` (TASK-351). */
 export async function discardSupplierInvoiceProducts(id: string): Promise<DiscardedProducts> {
   return apiFetch(`/admin/supplier-invoices/${id}/discard-products`, { method: 'POST' });
+}
+
+// ── supplier-invoice payments + settlement (TASK-352). Full admin only:
+// managers get 403. Each returns the updated invoice detail. ──
+
+/** Records a payment. 422 `SUPPLIER_INVOICE_PAYMENT_EXCEEDS_REMAINING` (details.remaining)
+ *  when it exceeds the remaining; 409 `SUPPLIER_INVOICE_SETTLED` / `_DELETED`. */
+export async function addSupplierInvoicePayment(
+  invoiceId: string,
+  data: SupplierInvoicePaymentInput,
+): Promise<SupplierInvoiceDetail> {
+  return apiFetch(`/admin/supplier-invoices/${invoiceId}/payments`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+/** Edits a payment (only the given fields). Same errors as `addSupplierInvoicePayment`. */
+export async function updateSupplierInvoicePayment(
+  invoiceId: string,
+  paymentId: string,
+  data: Partial<SupplierInvoicePaymentInput>,
+): Promise<SupplierInvoiceDetail> {
+  return apiFetch(`/admin/supplier-invoices/${invoiceId}/payments/${paymentId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+/** Deletes a payment (soft delete, audited); its amount returns to the remaining. */
+export async function deleteSupplierInvoicePayment(
+  invoiceId: string,
+  paymentId: string,
+): Promise<SupplierInvoiceDetail> {
+  return apiFetch(`/admin/supplier-invoices/${invoiceId}/payments/${paymentId}`, {
+    method: 'DELETE',
+  });
+}
+
+/** «تسویه شد». Without a reason the remaining must be 0 (else 409
+ *  `SUPPLIER_INVOICE_NOT_FULLY_PAID`); with `writeOffReason` (≥3 chars) the
+ *  remaining is written off («تسویه با مانده»). */
+export async function settleSupplierInvoice(
+  invoiceId: string,
+  writeOffReason?: string,
+): Promise<SupplierInvoiceDetail> {
+  return apiFetch(`/admin/supplier-invoices/${invoiceId}/settle`, {
+    method: 'POST',
+    body: JSON.stringify(writeOffReason ? { write_off_reason: writeOffReason } : {}),
+  });
+}
+
+/** Reopens a settled invoice: payments kept, any write-off returns to the remaining. */
+export async function reopenSupplierInvoice(invoiceId: string): Promise<SupplierInvoiceDetail> {
+  return apiFetch(`/admin/supplier-invoices/${invoiceId}/reopen`, { method: 'POST' });
 }
 
 /** Returns the current price-band settings (markup % and rounding step). Admin and manager. */
