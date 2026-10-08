@@ -6,6 +6,11 @@ import {
   updateAdminOrderItems,
   applySupplierInvoicePrices,
   updateSupplierInvoice,
+  addSupplierInvoicePayment,
+  updateSupplierInvoicePayment,
+  deleteSupplierInvoicePayment,
+  settleSupplierInvoice,
+  reopenSupplierInvoice,
 } from '../../api/admin';
 
 const mockFetch = vi.fn();
@@ -126,6 +131,38 @@ describe('updateSupplierInvoice', () => {
       status: 409,
       code: 'SUPPLIER_INVOICE_STOCK_CONFLICT',
       details: { lines: [{ line_id: 'l1', max_reducible: 5 }] },
+    });
+  });
+});
+
+describe('supplier-invoice payments (TASK-352)', () => {
+  const pay = { amount: 1000, paid_on: '2026-10-08', method: 'transfer' as const, reference: 'T-1' };
+
+  it.each([
+    ['addSupplierInvoicePayment', () => addSupplierInvoicePayment('inv-1', pay), 'POST', '/admin/supplier-invoices/inv-1/payments', pay],
+    ['updateSupplierInvoicePayment', () => updateSupplierInvoicePayment('inv-1', 'p-1', { amount: 5 }), 'PATCH', '/admin/supplier-invoices/inv-1/payments/p-1', { amount: 5 }],
+    ['deleteSupplierInvoicePayment', () => deleteSupplierInvoicePayment('inv-1', 'p-1'), 'DELETE', '/admin/supplier-invoices/inv-1/payments/p-1', undefined],
+    ['settleSupplierInvoice', () => settleSupplierInvoice('inv-1'), 'POST', '/admin/supplier-invoices/inv-1/settle', {}],
+    ['settleSupplierInvoice (write-off)', () => settleSupplierInvoice('inv-1', 'تخفیف'), 'POST', '/admin/supplier-invoices/inv-1/settle', { write_off_reason: 'تخفیف' }],
+    ['reopenSupplierInvoice', () => reopenSupplierInvoice('inv-1'), 'POST', '/admin/supplier-invoices/inv-1/reopen', undefined],
+  ])('%s calls %s', async (_name, call, method, path, body) => {
+    mockFetch.mockResolvedValue(mockResponse({ id: 'inv-1', items: [], payments: [] }));
+    const res = await call();
+    const [url, options] = mockFetch.mock.calls[0];
+    expect(url).toContain(path);
+    expect(url.endsWith(path)).toBe(true);
+    expect(options.method).toBe(method);
+    expect(options.body === undefined ? undefined : JSON.parse(options.body)).toEqual(body);
+    expect(res.id).toBe('inv-1');
+  });
+
+  it('rejects an overpayment with the 422 code and remaining', async () => {
+    mockFetch.mockResolvedValue(mockResponse(
+      { detail: { error_code: 'SUPPLIER_INVOICE_PAYMENT_EXCEEDS_REMAINING', message: 'm', details: { remaining: 10 } } }, 422));
+    await expect(addSupplierInvoicePayment('inv-1', pay)).rejects.toMatchObject({
+      status: 422,
+      code: 'SUPPLIER_INVOICE_PAYMENT_EXCEEDS_REMAINING',
+      details: { remaining: 10 },
     });
   });
 });

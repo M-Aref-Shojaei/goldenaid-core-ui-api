@@ -285,16 +285,63 @@ export type SupplierInvoice = {
   updated_at: string;
   /** Set when the invoice is soft-deleted (also by `updateSupplierInvoice` with `items: []`). */
   deleted_at?: string | null;
+  /** Legacy single "paid" flag (pre TASK-352). Never settles an invoice. Admin only. */
   payment_method?: 'cash' | 'transfer' | null;
   paid_at?: string | null;
   payment_reference?: string | null;
   item_count: number;
   total_amount: number;
+  // ── settlement (TASK-352). Present for full admins only: core-bff strips
+  // every one of these keys (and the legacy flag) for managers. ──
+  /** Sum of live payments (toman). */
+  paid_total?: number;
+  /** Amount closed by «تسویه با مانده» (not a payment). */
+  write_off_amount?: number;
+  write_off_reason?: string | null;
+  /** max(0, total − paid − write-off). */
+  remaining?: number;
+  settled_at?: string | null;
+  settled_by?: string | null;
+  settled_by_name?: string | null;
+  settlement_state?: SupplierInvoiceSettlementState;
+};
+
+/** Derived settlement state of a supplier invoice (TASK-352). */
+export type SupplierInvoiceSettlementState = 'unpaid' | 'partial' | 'paid' | 'settled';
+
+export type SupplierInvoicePaymentMethod = 'cash' | 'card' | 'transfer' | 'cheque' | 'other';
+
+/** One payment to the supplier (toman). Admin only. */
+export type SupplierInvoicePayment = {
+  id: string;
+  amount: number;
+  /** ISO date (Gregorian). */
+  paid_on: string;
+  method: SupplierInvoicePaymentMethod;
+  reference: string | null;
+  note: string | null;
+  created_by: string;
+  created_by_name?: string | null;
+  created_at: string;
+  updated_by: string | null;
+  updated_by_name?: string | null;
+  updated_at: string | null;
+};
+
+/** Payload for `addSupplierInvoicePayment`. `reference` is required for card/transfer/cheque. */
+export type SupplierInvoicePaymentInput = {
+  amount: number;
+  paid_on: string;
+  method: SupplierInvoicePaymentMethod;
+  reference?: string | null;
+  note?: string | null;
 };
 
 /** Supplier invoice detail, including its line items. */
 export type SupplierInvoiceDetail = SupplierInvoice & {
   items: SupplierInvoiceItem[];
+  /** Live payments, oldest first. Full admins only. */
+  payments?: SupplierInvoicePayment[];
   /** Create (orphaned draft products) / delete (`items: []`) only: the quick-add
    *  products that were deleted, and those kept (sold, on another invoice, or stocked). */
   discarded_products?: DiscardedProducts;
