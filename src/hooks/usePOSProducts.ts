@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { listProducts } from "../api/catalog";
 import type { ProductSummary } from "../types/catalog";
+import { filterProducts } from "../utils/search";
 
 const PAGE_SIZE = 200; // backend's max allowed `limit` per request
 
@@ -38,13 +39,10 @@ export function usePOSProducts() {
 
   useEffect(() => { reload(); }, [reload]);
 
-  const filteredProducts = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return products;
-    return products.filter((p) =>
-      [p.title, p.subtitle, p.sku].filter(Boolean).some((f) => String(f).toLowerCase().includes(q)),
-    );
-  }, [products, searchQuery]);
+  const filteredProducts = useMemo(
+    () => filterProducts(products, searchQuery),
+    [products, searchQuery],
+  );
 
   return { products, filteredProducts, total, searchQuery, setSearchQuery, loading, reload };
 }

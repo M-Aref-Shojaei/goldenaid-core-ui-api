@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { usePOSProducts } from '../../hooks/usePOSProducts';
 import { listProducts } from '../../api/catalog';
@@ -38,5 +38,18 @@ describe('usePOSProducts', () => {
 
     expect(listProducts).toHaveBeenCalledTimes(1);
     expect(result.current.total).toBe(1);
+  });
+});
+
+describe('usePOSProducts search', () => {
+  it('filteredProducts uses normalized multi-word AND search', async () => {
+    vi.mocked(listProducts).mockResolvedValueOnce({
+      items: [{ product_id: '1', title: 'کیف چرم' }, { product_id: '2', title: 'گردنبند' }] as never,
+      total: 2,
+    });
+    const { result } = renderHook(() => usePOSProducts());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    act(() => result.current.setSearchQuery('كيف چرم'));
+    expect(result.current.filteredProducts.map((x) => x.product_id)).toEqual(['1']);
   });
 });

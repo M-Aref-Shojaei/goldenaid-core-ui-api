@@ -30,6 +30,7 @@ export * from './utils/constants';
 export * from './utils/helpers';
 export * from './utils/variantAttributes';
 export * from './utils/pricing';
+export * from './utils/search';
 
 // ── Providers ─────────────────────────────────────────────────────────────────
 export { AuthProvider, useAuth } from './providers/AuthProvider';
