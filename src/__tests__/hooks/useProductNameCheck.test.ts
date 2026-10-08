@@ -69,4 +69,13 @@ describe('useProductNameCheck', () => {
     await act(async () => { got = await result.current.check('x'); });
     expect(got).toEqual([]);
   });
+
+  it("clearing the name while a check is in flight stops «checking»", async () => {
+    vi.mocked(adminCheckProductName).mockImplementation(() => new Promise(() => {}));
+    const { result, rerender } = renderHook(({ t }) => useProductNameCheck(t), { initialProps: { t: 'x' } });
+    await act(() => vi.advanceTimersByTimeAsync(400));
+    expect(result.current.checking).toBe(true);
+    rerender({ t: '' });
+    expect(result.current.checking).toBe(false);
+  });
 });

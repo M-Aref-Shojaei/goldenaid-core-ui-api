@@ -42,6 +42,7 @@ export function useProductNameCheck(title: string, { excludeId, delayMs = 400 }:
     if (!title.trim()) {
       latest.current++;
       setMatches([]);
+      setChecking(false);
       return;
     }
     const t = setTimeout(() => { void check(title); }, delayMs);
