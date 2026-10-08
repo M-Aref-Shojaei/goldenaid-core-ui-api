@@ -53,3 +53,20 @@ describe('usePOSProducts search', () => {
     expect(result.current.filteredProducts.map((x) => x.product_id)).toEqual(['1']);
   });
 });
+
+describe('usePOSProducts exactMatch', () => {
+  it('exposes the product whose barcode equals the search input', async () => {
+    vi.mocked(listProducts).mockResolvedValueOnce({
+      items: [
+        { product_id: '1', title: 'a', barcodes: ['111122223333'], variants: [] },
+        { product_id: '2', title: 'b', variants: [] },
+      ] as never,
+      total: 2,
+    });
+    const { result } = renderHook(() => usePOSProducts());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.exactMatch).toBeNull();
+    act(() => result.current.setSearchQuery('111122223333'));
+    expect(result.current.exactMatch?.product.product_id).toBe('1');
+  });
+});

@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { listProducts } from "../api/catalog";
 import type { ProductSummary } from "../types/catalog";
-import { filterProducts } from "../utils/search";
+import { filterProducts, findExactMatch } from "../utils/search";
 
 const PAGE_SIZE = 200; // backend's max allowed `limit` per request
 
@@ -44,5 +44,8 @@ export function usePOSProducts() {
     [products, searchQuery],
   );
 
-  return { products, filteredProducts, total, searchQuery, setSearchQuery, loading, reload };
+  /** Exact barcode / sku hit for the current input (a scanner's Enter adds it). */
+  const exactMatch = useMemo(() => findExactMatch(products, searchQuery), [products, searchQuery]);
+
+  return { products, filteredProducts, exactMatch, total, searchQuery, setSearchQuery, loading, reload };
 }

@@ -66,6 +66,8 @@ export interface ProductSummary {
   category_id: string | null;
   thumbnail_url: string | null;
   variants: ProductVariant[];
+  /** Scannable barcodes (GTIN or internal codes); absent on older responses. */
+  barcodes?: string[];
 }
 
 /** Full product record including image gallery. */
